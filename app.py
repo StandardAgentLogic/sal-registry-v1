@@ -38,9 +38,10 @@ def get_supabase_client() -> Client:
 
 
 def fetch_counts(client: Client) -> dict[str, int]:
-    registry_rows = client.table("registry_metadata").select("id", count="exact").limit(1).execute()
-    logic_rows = client.table("agent_logic").select("id", count="exact").limit(1).execute()
-    guardrail_rows = client.table("guardrails_and_compliance").select("id", count="exact").limit(1).execute()
+    # Use limit(0) + count="exact" — no column dependency, just the row count header.
+    registry_rows = client.table("registry_metadata").select("*", count="exact").limit(0).execute()
+    logic_rows = client.table("agent_logic").select("*", count="exact").limit(0).execute()
+    guardrail_rows = client.table("guardrails_and_compliance").select("*", count="exact").limit(0).execute()
     return {
         "registry_metadata": int(registry_rows.count or 0),
         "agent_logic": int(logic_rows.count or 0),
