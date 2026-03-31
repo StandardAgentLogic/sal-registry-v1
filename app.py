@@ -33,7 +33,7 @@ def get_supabase_client() -> Client:
     url = _resolve_supabase_url()
     key = _resolve_supabase_key()
     if not url or not key:
-        raise RuntimeError("Missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY).")
+        raise RuntimeError("SUPABASE_URL and/or key not configured.")
     return create_client(url, key)
 
 
@@ -70,11 +70,34 @@ def main() -> None:
         st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
         st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
 
+    url_set = bool(_resolve_supabase_url())
+    key_set = bool(_resolve_supabase_key())
+
+    if not url_set or not key_set:
+        st.error("⛔ SAL System Offline")
+        st.markdown(
+            """
+**Supabase credentials are not configured.**
+
+To bring the system online, add the following keys to your environment:
+
+| Key | Required |
+|---|---|
+| `SUPABASE_URL` | ✅ Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Yes (or `SUPABASE_ANON_KEY`) |
+
+**On Streamlit Cloud:** App → Settings → Secrets — paste the TOML block.
+**Locally:** Copy `.env.template` → `.env` and fill in your values.
+            """
+        )
+        st.stop()
+
     try:
         client = get_supabase_client()
         counts = fetch_counts(client)
     except Exception as exc:  # noqa: BLE001
-        st.error(f"Connection check failed: {exc}")
+        st.error("⛔ SAL System Offline — connection failed.")
+        st.caption(f"Reason: {exc}")
         st.stop()
 
     c1, c2, c3 = st.columns(3)
