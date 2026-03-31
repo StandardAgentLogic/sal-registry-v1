@@ -11,9 +11,14 @@ from supabase import Client, create_client
 load_dotenv()
 
 
-def get_supabase_client() -> Client:
-    url = (st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL") or "").strip()
-    key = (
+def _resolve_supabase_url() -> str:
+    """Streamlit Cloud: st.secrets first; local: .env / process env."""
+    return (st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL") or "").strip()
+
+
+def _resolve_supabase_key() -> str:
+    """Prefer service role, then anon, then generic SUPABASE_KEY."""
+    return (
         st.secrets.get("SUPABASE_SERVICE_ROLE_KEY")
         or st.secrets.get("SUPABASE_ANON_KEY")
         or st.secrets.get("SUPABASE_KEY")
@@ -22,6 +27,11 @@ def get_supabase_client() -> Client:
         or os.getenv("SUPABASE_KEY")
         or ""
     ).strip()
+
+
+def get_supabase_client() -> Client:
+    url = _resolve_supabase_url()
+    key = _resolve_supabase_key()
     if not url or not key:
         raise RuntimeError("Missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY).")
     return create_client(url, key)
@@ -57,11 +67,8 @@ def main() -> None:
 
     with st.sidebar:
         st.subheader("Environment")
-        st.write(f"SUPABASE_URL set: `{bool(st.secrets.get('SUPABASE_URL') or os.getenv('SUPABASE_URL'))}`")
-        st.write(
-            "SUPABASE key set: "
-            f"`{bool(st.secrets.get('SUPABASE_SERVICE_ROLE_KEY') or st.secrets.get('SUPABASE_ANON_KEY') or os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY'))}`"
-        )
+        st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
+        st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
 
     try:
         client = get_supabase_client()
