@@ -16,8 +16,10 @@ def get_supabase_client() -> Client:
     key = (
         st.secrets.get("SUPABASE_SERVICE_ROLE_KEY")
         or st.secrets.get("SUPABASE_ANON_KEY")
+        or st.secrets.get("SUPABASE_KEY")
         or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
         or os.getenv("SUPABASE_ANON_KEY")
+        or os.getenv("SUPABASE_KEY")
         or ""
     ).strip()
     if not url or not key:
