@@ -12,8 +12,14 @@ load_dotenv()
 
 
 def get_supabase_client() -> Client:
-    url = os.getenv("SUPABASE_URL", "").strip()
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip() or os.getenv("SUPABASE_ANON_KEY", "").strip()
+    url = (st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL") or "").strip()
+    key = (
+        st.secrets.get("SUPABASE_SERVICE_ROLE_KEY")
+        or st.secrets.get("SUPABASE_ANON_KEY")
+        or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        or os.getenv("SUPABASE_ANON_KEY")
+        or ""
+    ).strip()
     if not url or not key:
         raise RuntimeError("Missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY).")
     return create_client(url, key)
@@ -49,10 +55,10 @@ def main() -> None:
 
     with st.sidebar:
         st.subheader("Environment")
-        st.write(f"SUPABASE_URL set: `{bool(os.getenv('SUPABASE_URL'))}`")
+        st.write(f"SUPABASE_URL set: `{bool(st.secrets.get('SUPABASE_URL') or os.getenv('SUPABASE_URL'))}`")
         st.write(
             "SUPABASE key set: "
-            f"`{bool(os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY'))}`"
+            f"`{bool(st.secrets.get('SUPABASE_SERVICE_ROLE_KEY') or st.secrets.get('SUPABASE_ANON_KEY') or os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY'))}`"
         )
 
     try:
