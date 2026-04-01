@@ -143,10 +143,52 @@ def _inject_studio_styles() -> None:
     background: #fafafc;
   }
   .sal-metric-wrap .stMetric { padding-top: 0.25rem; }
+  /* High-density sidebar directory: ~15–20 titles visible on typical laptop viewports */
+  [data-testid="stSidebar"] .stButton > button {
+    font-size: 0.72rem !important;
+    line-height: 1.18 !important;
+    padding: 0.2rem 0.45rem !important;
+    min-height: 1.65rem !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
 </style>
 """,
         unsafe_allow_html=True,
     )
+
+
+def _sync_active_role(rows: list[dict[str, Any]]) -> None:
+    """Keep session active_soc valid when search/vault results change."""
+    codes = [str(r.get("soc_code") or "") for r in rows if str(r.get("soc_code") or "")]
+    if "active_soc" not in st.session_state:
+        st.session_state.active_soc = ""
+    if not codes:
+        st.session_state.active_soc = ""
+        return
+    current = str(st.session_state.active_soc or "")
+    if current not in codes:
+        st.session_state.active_soc = codes[0]
+
+
+def _render_sidebar_registry_directory(rows: list[dict[str, Any]]) -> None:
+    """Clickable, compact role list; sets st.session_state.active_soc."""
+    for r in rows:
+        soc = str(r.get("soc_code") or "")
+        title = str(r.get("title") or "(untitled)")
+        if not soc:
+            continue
+        custom = r.get("is_custom") is True
+        prefix = "🏆 " if custom else ""
+        label = f"{prefix}{title}"
+        is_active = str(st.session_state.get("active_soc") or "") == soc
+        if st.button(
+            label,
+            key=f"sal_dir_{soc}",
+            use_container_width=True,
+            type="primary" if is_active else "secondary",
+        ):
+            st.session_state.active_soc = soc
 
 
 def _render_toolbox_requirements(raw: Any) -> None:
@@ -164,31 +206,12 @@ def main() -> None:
         page_title="SAL Registry — Orchestrator",
         page_icon="◆",
         layout="wide",
-        initial_sidebar_state="collapsed",
+        initial_sidebar_state="expanded",
     )
     _inject_studio_styles()
 
     st.markdown("### Standard Agent Logic")
-    st.caption("ISO 20022–aligned registry · owner-first orchestrator console")
-
-    # Vault toggle at top (mobile-friendly horizontal radio)
-    scope = st.radio(
-        "Catalog scope",
-        ["Full Catalog", "Private Vault 🏆"],
-        horizontal=True,
-        label_visibility="visible",
-        help="Private Vault lists only `registry_metadata.is_custom = true` (proprietary IP).",
-    )
-    vault_only = scope != "Full Catalog"
-    if vault_only:
-        st.caption("Private Vault — proprietary roles only (`is_custom = true`).")
-    else:
-        st.caption("Full Catalog — all SOC-aligned roles.")
-
-    with st.sidebar:
-        st.subheader("Environment")
-        st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
-        st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
+    st.caption("ISO 20022–aligned registry · high-density directory + logic inspector")
 
     url_set = bool(_resolve_supabase_url())
     key_set = bool(_resolve_supabase_key())
@@ -227,41 +250,47 @@ def main() -> None:
 
     st.divider()
 
-    query = st.text_input(
-        "Search title",
-        key="sal_search",
-        placeholder="e.g. Judicial Law Clerk, ISO 20022 Message Router",
-    )
-    rows = fetch_registry_roles(client, query, private_vault_only=vault_only)
+    with st.sidebar:
+        st.markdown("##### Registry directory")
+        query = st.text_input(
+            "Filter titles",
+            key="sal_search",
+            placeholder="e.g. ISO 20022, Clerk…",
+            label_visibility="visible",
+        )
+        scope = st.radio(
+            "Catalog scope",
+            ["Full Catalog", "Private Vault 🏆"],
+            horizontal=True,
+            label_visibility="visible",
+            help="Private Vault lists only `registry_metadata.is_custom = true`.",
+            key="sal_scope",
+        )
+        vault_only = scope != "Full Catalog"
+        rows = fetch_registry_roles(client, query, private_vault_only=vault_only)
+        _sync_active_role(rows)
+        if rows:
+            st.caption(f"{len(rows)} roles · click to open in main view")
+            _render_sidebar_registry_directory(rows)
+        else:
+            st.caption("No matches — widen search or switch to Full Catalog.")
+
+        with st.expander("Environment"):
+            st.caption("Connection flags (no secrets shown).")
+            st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
+            st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
 
     if not rows:
-        st.info("No roles match this search. Try another title or switch to Full Catalog.")
+        st.info("No roles match this filter. Adjust **Filter titles** or **Catalog scope** in the sidebar.")
         st.stop()
 
-    st.subheader("Results")
-    option_labels: list[str] = []
-    label_to_soc: dict[str, str] = {}
-    for r in rows:
-        soc = str(r.get("soc_code") or "")
-        title = str(r.get("title") or "(untitled)")
-        custom = r.get("is_custom") is True
-        badge = "🏆 " if custom else ""
-        lab = f"{badge}{title} — {soc}"
-        option_labels.append(lab)
-        label_to_soc[lab] = soc
-
-    choice = st.selectbox(
-        "Select a role",
-        options=option_labels,
-        index=0,
-        key="role_pick",
-    )
-    selected_soc = label_to_soc.get(choice, "")
-
+    selected_soc = str(st.session_state.get("active_soc") or "")
     chosen_row = next((r for r in rows if str(r.get("soc_code") or "") == selected_soc), None)
+    display_title = str(chosen_row.get("title")) if chosen_row else "Select a role in the sidebar"
     is_custom_row = chosen_row is not None and chosen_row.get("is_custom") is True
     frame_cls = "sal-gold-frame" if is_custom_row else "sal-card"
 
+    st.subheader("Active role")
     meta_bits: list[str] = []
     if chosen_row:
         if chosen_row.get("market_value") is not None:
@@ -273,9 +302,7 @@ def main() -> None:
     st.markdown(f'<div class="{escape(frame_cls)}">', unsafe_allow_html=True)
     if is_custom_row:
         st.markdown("#### 🏆 Private Vault · proprietary role")
-    st.markdown(
-        f"**{escape(str(chosen_row.get('title') if chosen_row else choice))}** `{escape(selected_soc)}`"
-    )
+    st.markdown(f"**{escape(display_title)}** `{escape(selected_soc)}`")
     if meta_html:
         st.markdown(meta_html)
     st.markdown("</div>", unsafe_allow_html=True)
