@@ -145,12 +145,18 @@ def _inject_studio_styles() -> None:
   .sal-metric-wrap .stMetric { padding-top: 0.25rem; }
   /* High-density sidebar directory: ~15–20 titles visible on typical laptop viewports */
   [data-testid="stSidebar"] .stButton > button {
-    font-size: 0.72rem !important;
-    line-height: 1.18 !important;
-    padding: 0.2rem 0.45rem !important;
-    min-height: 1.65rem !important;
+    font-size: 0.7rem !important;
+    line-height: 1.12 !important;
+    padding: 0.14rem 0.4rem !important;
+    min-height: 1.45rem !important;
     white-space: normal !important;
     text-align: left !important;
+  }
+  [data-testid="stSidebar"] div[data-testid="column"] {
+    gap: 0.15rem !important;
+  }
+  [data-testid="stSidebar"] .stButton {
+    margin-bottom: 0.08rem !important;
   }
 </style>
 """,
@@ -159,20 +165,20 @@ def _inject_studio_styles() -> None:
 
 
 def _sync_active_role(rows: list[dict[str, Any]]) -> None:
-    """Keep session active_soc valid when search/vault results change."""
+    """Keep session ``active_soc`` valid when search/vault results change."""
     codes = [str(r.get("soc_code") or "") for r in rows if str(r.get("soc_code") or "")]
     if "active_soc" not in st.session_state:
-        st.session_state.active_soc = ""
+        st.session_state["active_soc"] = ""
     if not codes:
-        st.session_state.active_soc = ""
+        st.session_state["active_soc"] = ""
         return
-    current = str(st.session_state.active_soc or "")
+    current = str(st.session_state["active_soc"] or "")
     if current not in codes:
-        st.session_state.active_soc = codes[0]
+        st.session_state["active_soc"] = codes[0]
 
 
 def _render_sidebar_registry_directory(rows: list[dict[str, Any]]) -> None:
-    """Clickable, compact role list; sets st.session_state.active_soc."""
+    """Vertical directory of ``st.button`` rows; proprietary titles prefixed with 🏆."""
     for r in rows:
         soc = str(r.get("soc_code") or "")
         title = str(r.get("title") or "(untitled)")
@@ -181,14 +187,14 @@ def _render_sidebar_registry_directory(rows: list[dict[str, Any]]) -> None:
         custom = r.get("is_custom") is True
         prefix = "🏆 " if custom else ""
         label = f"{prefix}{title}"
-        is_active = str(st.session_state.get("active_soc") or "") == soc
+        is_active = str(st.session_state["active_soc"] or "") == soc
         if st.button(
             label,
             key=f"sal_dir_{soc}",
             use_container_width=True,
             type="primary" if is_active else "secondary",
         ):
-            st.session_state.active_soc = soc
+            st.session_state["active_soc"] = soc
 
 
 def _render_toolbox_requirements(raw: Any) -> None:
@@ -284,7 +290,7 @@ def main() -> None:
         st.info("No roles match this filter. Adjust **Filter titles** or **Catalog scope** in the sidebar.")
         st.stop()
 
-    selected_soc = str(st.session_state.get("active_soc") or "")
+    selected_soc = str(st.session_state["active_soc"] or "")
     chosen_row = next((r for r in rows if str(r.get("soc_code") or "") == selected_soc), None)
     display_title = str(chosen_row.get("title")) if chosen_row else "Select a role in the sidebar"
     is_custom_row = chosen_row is not None and chosen_row.get("is_custom") is True
