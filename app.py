@@ -895,11 +895,11 @@ def _sync_active_role(rows: list[dict[str, Any]]) -> None:
     """Keep session ``active_soc`` valid when search/vault results change."""
     codes = [str(r.get("soc_code") or "") for r in rows if str(r.get("soc_code") or "")]
     if "active_soc" not in st.session_state:
-        st.session_state["active_soc"] = ""
+        st.session_state["active_soc"] = None
     if not codes:
-        st.session_state["active_soc"] = ""
+        st.session_state["active_soc"] = None
         return
-    current = str(st.session_state["active_soc"] or "")
+    current = str(st.session_state.get("active_soc") or "")
     if current not in codes:
         st.session_state["active_soc"] = codes[0]
 
@@ -918,7 +918,7 @@ def _render_sidebar_registry_directory(
         custom = r.get("is_custom") is True
         prefix = "🏆 " if custom else ""
         label = f"{prefix}{title}"
-        is_active = str(st.session_state["active_soc"] or "") == soc
+        is_active = str(st.session_state.get("active_soc") or "") == soc
         if st.button(
             label,
             key=f"{button_key_prefix}sal_dir_{soc}",
@@ -1097,6 +1097,11 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    # Session defaults before any widget reads (file tree used to KeyError here on first paint).
+    if "active_soc" not in st.session_state:
+        st.session_state["active_soc"] = None
+    if "active_prefix" not in st.session_state:
+        st.session_state["active_prefix"] = "15"
     _inject_studio_styles()
 
     if st.session_state.get("sal_stack_v") != 3:
