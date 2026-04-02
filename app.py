@@ -33,12 +33,17 @@ def _audit_connection_failure(exc: BaseException, context: str) -> None:
 
 
 def _secret_get(name: str) -> str:
-    """Streamlit secrets first (`.streamlit/secrets.toml`), then process env — never raises."""
+    """Streamlit secrets first, then env. Never raises (KeyError / missing file / Cloud secrets gaps)."""
     try:
-        if hasattr(st, "secrets"):
-            v = st.secrets.get(name)  # type: ignore[attr-defined]
-            return str(v or "").strip()
-    except Exception:  # noqa: BLE001
+        sec = getattr(st, "secrets", None)
+        if sec is not None:
+            try:
+                # Some Streamlit builds surface KeyError for missing keys even with dict-like API.
+                raw = sec.get(name, "") if callable(getattr(sec, "get", None)) else ""  # type: ignore[union-attr]
+            except KeyError:
+                raw = ""
+            return str(raw or "").strip()
+    except Exception:  # noqa: BLE001 — StreamlitSecretNotFoundError, OSError, TypeError, etc.
         pass
     return (os.getenv(name) or "").strip()
 
