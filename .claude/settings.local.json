@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:www.onetonline.org)",
       "WebFetch(domain:www.bls.gov)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(find C:UsersthephDownloads -name *.png -newer 'C:\\\\Users\\\\theph\\\\SAL - STANDARD AGENT LOGIC\\\\.git\\\\COMMIT_EDITMSG')",
+      "WebFetch(domain:sal-registry-v1-9ozcn4anauizepp4nbbrk6.streamlit.app)"
     ]
   }
 }

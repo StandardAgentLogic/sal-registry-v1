@@ -1,0 +1,28 @@
+﻿SAL Batch 50 Ingestion — FAILED (workbooks not found)
+=======================================================
+
+Run command:
+  python scripts/onet_sal_ingest.py --limit 50
+
+Observed error:
+  Missing required O*NET workbooks in onet-dir.
+  Expected keywords: occupation/data, tasks, tools/technology.
+  Found Excel files: (none found)
+
+Evidence checked on this machine:
+  - onet_gold_mine/ directory listing (including hidden) shows only:
+      .gitkeep
+  - Get-ChildItem for *.xlsx and Excel extensions returns 0 files.
+
+Impact:
+  - No OpenAI calls were made.
+  - No Supabase upserts were attempted.
+
+Next required action before re-run:
+  - Place the three O*NET Excel exports into ./onet_gold_mine/ so the script can detect them.
+  - Filenames can vary, but must include keywords so auto-detection works:
+      * Occupation file: contains "occupation" and "data" (or just "occupation")
+      * Tasks file: contains "tasks" (or "task")
+      * Tools/Technology file: contains "tools"+"technology" OR "technology"+"skills" OR "technology"/"tools"
+  - Then re-run:
+      python scripts/onet_sal_ingest.py --limit 50

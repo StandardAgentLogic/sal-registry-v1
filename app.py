@@ -239,10 +239,12 @@ def _inject_studio_styles() -> None:
   .sal-doc h3, .sal-doc h4, .sal-doc h5 {
     color: #0b2a6f;
   }
+  /* Notary seal: anchored to top-right of .sal-doc (card has position: relative). */
   .sal-stamp {
     position: absolute;
     top: 12px;
     right: 12px;
+    left: auto;
     z-index: 2;
     border: 1.5px solid #1d4ed8;
     color: #1d4ed8;
@@ -645,7 +647,7 @@ def sal_intent_hub_reply(
             api_key = _get_openai_api_key()
             oa = OpenAI(api_key=api_key) if api_key else OpenAI()
             sys_prompt = (
-                "You are the global concierge for Standard Agent Logic (SAL): Authenticated AI Agent Registry. "
+                "You are the global concierge for SAL: Standard Agent Logic Registry. "
                 "You match projects, programs, and outcomes to the best-fit SOC-coded logic standard in the registry. "
                 "Be precise, institutional, and authoritative. Output JSON only."
             )
@@ -907,7 +909,7 @@ def _render_logic_spec_html_card(
 
     browse_note = (
         "<p style='font-size:0.78rem;color:#64748b;margin:0.6rem 0 0'><em>"
-        "Browse mode — sample data for layout review. Use live Supabase keys for production.</em></p>"
+        "Browse mode — mock registry for layout and demos. Use live Supabase keys for production.</em></p>"
         if browse_mode
         else ""
     )
@@ -936,9 +938,9 @@ def _render_hub_design3(*, client: Client | None, browse_mode: bool) -> None:
     with cc:
         st.markdown(
             '<div class="sal-hub-wrap">'
-            "<h2>SAL: Authenticated AI Agent Registry</h2>"
-            "<p class='sal-hub-sub'>Global concierge — map projects, programs, and outcomes to authenticated "
-            "SOC logic standards.</p></div>",
+            "<h2>SAL: Standard Agent Logic Registry</h2>"
+            "<p class='sal-hub-sub'>Global concierge — map projects, programs, and outcomes to "
+            "authenticated SOC logic standards in the 1,095-role catalog.</p></div>",
             unsafe_allow_html=True,
         )
         with st.form("sal_hub_project_map", clear_on_submit=False):
@@ -969,27 +971,29 @@ def _render_hub_design3(*, client: Client | None, browse_mode: bool) -> None:
 
 def main() -> None:
     st.set_page_config(
-        page_title="SAL: Authenticated AI Agent Registry",
+        page_title="SAL: Standard Agent Logic Registry",
         page_icon="SAL",
         layout="wide",
         initial_sidebar_state="collapsed",
     )
     _inject_studio_styles()
 
-    if st.session_state.get("sal_stack_v") != 1:
-        st.session_state["sal_stack_v"] = 1
+    if st.session_state.get("sal_stack_v") != 2:
+        st.session_state["sal_stack_v"] = 2
         st.session_state.pop("hub_messages", None)
         st.session_state.pop("sal_hub_last_reply", None)
 
-    st.markdown("### Institutional Authority Portal")
-    st.caption("Standard Agent Logic (SAL) — single source of truth for authenticated agent logic · high-contrast registry")
+    st.markdown("### SAL: Standard Agent Logic Registry")
+    st.caption(
+        "Institutional authority portal · single source of truth · high-contrast UI · 1,095 SOC logic records"
+    )
 
     browse_mode = use_demo_mode()
     client: Client | None = None
     if browse_mode:
         st.info(
-            "**Browse mode:** Placeholder or missing credentials — sample data keeps the triple stack fully "
-            "interactable. Add live keys for the full 1,095-role catalog."
+            "**Browse mode:** Live keys not detected — the **mock registry** keeps the full stacked UI beautiful "
+            "and fully interactable. Add Supabase + optional OpenAI keys when ready for production data."
         )
         counts = _demo_fetch_counts()
     else:
