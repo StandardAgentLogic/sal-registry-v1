@@ -1,5 +1,5 @@
 [theme]
-primaryColor="#9ae6b4"
-backgroundColor="#0b0f17"
-secondaryBackgroundColor="#161b22"
-textColor="#e6edf3"
+primaryColor="#1d4ed8"                 # Institutional blue
+backgroundColor="#ffffff"              # High-contrast white
+secondaryBackgroundColor="#f3f6ff"     # Slate-blue tint panels
+textColor="#0b1220"                    # Near-black
