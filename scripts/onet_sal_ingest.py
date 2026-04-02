@@ -329,7 +329,12 @@ def upsert_agent_logic(
 def main() -> int:
     ap = argparse.ArgumentParser(description="O*NET → SAL agent_logic ingest (test batch).")
     ap.add_argument("--onet-dir", type=Path, default=Path("onet_gold_mine"))
-    ap.add_argument("--limit", type=int, default=5, help="How many occupations to process (default 5).")
+    ap.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="How many missing SOC codes to process. Omit to process ALL remaining.",
+    )
     ap.add_argument(
         "--prompt-only",
         action="store_true",
@@ -401,10 +406,14 @@ def main() -> int:
         )
         existing_set = {str(r.get("soc_code") or "") for r in (existing.data or [])}
         missing_socs = [s for s in unique_socs_all if str(s) not in existing_set]
-        unique_socs = missing_socs[: args.limit]
-        print(f"Missing SOC codes: {len(missing_socs)}; processing next {len(unique_socs)}")
+        if args.limit is None:
+            unique_socs = missing_socs
+        else:
+            unique_socs = missing_socs[: args.limit]
+        limit_label = "ALL" if args.limit is None else f"limit={args.limit}"
+        print(f"Missing SOC codes: {len(missing_socs)}; processing {len(unique_socs)} ({limit_label})")
     else:
-        unique_socs = unique_socs_all[: args.limit]
+        unique_socs = unique_socs_all if args.limit is None else unique_socs_all[: args.limit]
         print(f"Processing {len(unique_socs)} SOC code(s): {unique_socs}")
 
     for soc in unique_socs:

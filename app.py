@@ -249,8 +249,8 @@ def main() -> None:
 
     st.markdown('<div class="sal-metric-wrap">', unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
-    c1.metric("Roles", counts["registry_metadata"])
-    c2.metric("Logic records", counts["agent_logic"])
+    c1.metric("Active roles", counts["agent_logic"])
+    c2.metric("Catalog roles", counts["registry_metadata"])
     c3.metric("Guardrails", counts["guardrails_and_compliance"])
     st.markdown("</div>", unsafe_allow_html=True)
 
