@@ -23,6 +23,7 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -175,7 +176,7 @@ Occupation title: {title}
 1. **primary_directive**: One clear mission sentence an agent must follow (no markdown, no quotes wrapping the whole thing).
 2. **step_by_step_json**: Exactly **5** objects in a JSON array. Each object MUST have:
    - "step": integer 1–5
-   - "title": short verb phrase (≤ 12 words)
+   - "title": short verb phrase (<= 12 words)
    - "detail": one sentence describing what the agent does in that step, grounded in the tasks above.
 
 Return **only** valid JSON with this exact top-level shape (no markdown fences):
@@ -216,20 +217,38 @@ def generate_with_openai(prompt: str, model: str) -> tuple[str, list[dict[str, A
         from openai import OpenAI
     except ImportError as e:
         raise RuntimeError("Install openai: pip install openai") from e
+    def is_rate_limited(exc: Exception) -> bool:
+        msg = str(exc).lower()
+        return "429" in msg or "rate limit" in msg or "rate-limited" in msg
+
     client = OpenAI()
-    resp = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "system",
-                "content": "You output only strict JSON for SAL agent logic. No markdown.",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.2,
-    )
-    content = resp.choices[0].message.content or ""
-    return _parse_llm_json(content)
+    attempts = 5
+    delay_s = 2.0
+    last_exc: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You output only strict JSON for SAL agent logic. No markdown.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.2,
+            )
+            content = resp.choices[0].message.content or ""
+            return _parse_llm_json(content)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if attempt >= attempts or not is_rate_limited(exc):
+                raise
+            print(f"OpenAI rate limit detected (attempt {attempt}/{attempts}). Sleeping {delay_s:.1f}s...")
+            time.sleep(delay_s)
+            delay_s = min(delay_s * 2.0, 30.0)
+
+    raise last_exc  # type: ignore[misc]
 
 
 def mock_sal_payload(title: str, tasks: list[str], hot_technologies: list[str]) -> tuple[str, list[dict[str, Any]]]:
@@ -284,7 +303,27 @@ def upsert_agent_logic(
         "step_by_step_json": step_by_step_json,
         "toolbox_requirements": toolbox_requirements,
     }
-    client.table("agent_logic").upsert(payload, on_conflict="soc_code").execute()
+    attempts = 5
+    delay_s = 2.0
+    last_exc: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            client.table("agent_logic").upsert(payload, on_conflict="soc_code").execute()
+            return
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if attempt >= attempts:
+                raise
+            msg = str(exc).lower()
+            is_timeout = "timeout" in msg or "timed out" in msg or "temporarily" in msg
+            if is_timeout:
+                print(f"Supabase upsert timeout (attempt {attempt}/{attempts}). Sleeping {delay_s:.1f}s...")
+            else:
+                print(f"Supabase upsert error (attempt {attempt}/{attempts}): {exc}. Retrying...")
+            time.sleep(delay_s)
+            delay_s = min(delay_s * 2.0, 30.0)
+
+    raise last_exc  # type: ignore[misc]
 
 
 def main() -> int:
@@ -305,13 +344,42 @@ def main() -> int:
     args = ap.parse_args()
 
     base = args.onet_dir
-    occ_p = base / "Occupation Data.xlsx"
-    task_p = base / "Tasks.xlsx"
-    tech_p = base / "Tools and Technology.xlsx"
-    for p in (occ_p, task_p, tech_p):
-        if not p.is_file():
-            print(f"Missing required file: {p.resolve()}", file=sys.stderr)
-            return 1
+    # Be forgiving about filename casing / spacing variations.
+    # We expect three Excel exports in --onet-dir (default: onet_gold_mine/).
+    allowed_exts = {".xlsx", ".xlsm", ".xls", ".xlsb"}
+    excel_files = [p for p in base.iterdir() if p.is_file() and p.suffix.lower() in allowed_exts]
+    excel_files_lower = {p: p.name.lower() for p in excel_files}
+
+    def pick(*needles: str) -> Path | None:
+        """Pick first file whose name contains all needles (case-insensitive)."""
+        needles_l = [n.lower() for n in needles if n]
+        for p in excel_files:
+            name_l = excel_files_lower[p]
+            if all(n in name_l for n in needles_l):
+                return p
+        return None
+
+    occ_p = pick("occupation", "data") or pick("occupation")
+    # Prefer the workbook with explicit task statements.
+    task_p = pick("task", "statement") or pick("tasks", "statement") or pick("task") or pick("tasks")
+    tech_p = (
+        pick("tools", "technology")
+        or pick("tools", "tech")
+        or pick("technology", "skills")
+        or pick("technology")
+        or pick("tools")
+    )
+
+    if not occ_p or not task_p or not tech_p:
+        shown = ", ".join(p.name for p in sorted(excel_files, key=lambda x: x.name.lower())) or "(none found)"
+        print(
+            "Missing required O*NET workbooks in onet-dir.\n"
+            f"Expected keywords: occupation/data, tasks, tools/technology.\n"
+            f"Found Excel files: {shown}\n"
+            "Action: place the three O*NET Excel exports into the onet directory and re-run.",
+            file=sys.stderr,
+        )
+        return 1
 
     occ_df = _read_occupation(occ_p)
     tasks_df = _read_tasks(task_p)
@@ -320,11 +388,24 @@ def main() -> int:
     c_soc_occ = soc_col(occ_df)
     occ_df = occ_df.dropna(subset=[c_soc_occ])
     occ_df[c_soc_occ] = occ_df[c_soc_occ].astype(str).str.strip()
-    unique_socs = occ_df[c_soc_occ].drop_duplicates().sort_values().head(args.limit).tolist()
-
-    print(f"Processing {len(unique_socs)} SOC code(s): {unique_socs}")
+    unique_socs_all = occ_df[c_soc_occ].drop_duplicates().sort_values().tolist()
 
     sb = get_supabase() if not args.prompt_only else None
+    if sb is not None:
+        # Ensure we only upsert SOC codes that don't already exist in agent_logic.
+        existing = (
+            sb.table("agent_logic")
+            .select("soc_code")
+            .limit(10000)
+            .execute()
+        )
+        existing_set = {str(r.get("soc_code") or "") for r in (existing.data or [])}
+        missing_socs = [s for s in unique_socs_all if str(s) not in existing_set]
+        unique_socs = missing_socs[: args.limit]
+        print(f"Missing SOC codes: {len(missing_socs)}; processing next {len(unique_socs)}")
+    else:
+        unique_socs = unique_socs_all[: args.limit]
+        print(f"Processing {len(unique_socs)} SOC code(s): {unique_socs}")
 
     for soc in unique_socs:
         title = extract_occupation_title(occ_df, soc) or "(unknown title)"
@@ -358,7 +439,7 @@ def main() -> int:
                 step_by_step_json=steps,
                 toolbox_requirements=hot,
             )
-            print("Upsert OK: agent_logic")
+            print("Upsert Successful: agent_logic")
         except Exception as exc:  # noqa: BLE001
             print(f"Upsert failed: {exc}", file=sys.stderr)
             if "foreign key" in str(exc).lower():
