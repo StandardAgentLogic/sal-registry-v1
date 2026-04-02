@@ -19,6 +19,9 @@ env/
 # Streamlit/cache
 .streamlit/secrets.toml
 
+# Local connection diagnostics
+logs/
+
 # OS/editor
 .DS_Store
 Thumbs.db

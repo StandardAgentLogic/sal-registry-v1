@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import traceback
 from html import escape
+from pathlib import Path
 from typing import Any
 from datetime import datetime
 
@@ -13,20 +15,32 @@ from supabase import Client, create_client
 
 load_dotenv()
 
-# Emergency bypass: True = always use **SAL Mock Vault** (sample logic). Set False for live Supabase.
-DEMO_MODE: bool = True
+_REPO_ROOT = Path(__file__).resolve().parent
+_CONNECTION_LOG = _REPO_ROOT / "logs" / "connection_audit.log"
+
+
+def _audit_connection_failure(exc: BaseException, context: str) -> None:
+    """Append connection errors for overnight triage (no secrets logged)."""
+    try:
+        _CONNECTION_LOG.parent.mkdir(parents=True, exist_ok=True)
+        ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        detail = traceback.format_exc()
+        line = f"[{ts}] {context}\n{type(exc).__name__}: {exc}\n{detail}\n---\n"
+        with _CONNECTION_LOG.open("a", encoding="utf-8") as fh:
+            fh.write(line)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _secret_get(name: str) -> str:
-    """Read Streamlit secrets without crashing if secrets.toml is missing, empty, or unreadable."""
+    """Streamlit secrets first (`.streamlit/secrets.toml`), then process env — never raises."""
     try:
-        if not hasattr(st, "secrets"):
-            return (os.getenv(name) or "").strip()
-        # Streamlit exposes secrets as dict-like; .get may still raise if no secrets file on some hosts.
-        v = st.secrets.get(name)  # type: ignore[attr-defined]
-        return str(v or "").strip()
-    except Exception:  # noqa: BLE001 — StreamlitSecretNotFoundError, OSError, etc.
-        return (os.getenv(name) or "").strip()
+        if hasattr(st, "secrets"):
+            v = st.secrets.get(name)  # type: ignore[attr-defined]
+            return str(v or "").strip()
+    except Exception:  # noqa: BLE001
+        pass
+    return (os.getenv(name) or "").strip()
 
 
 def _looks_like_placeholder(value: str) -> bool:
@@ -63,9 +77,7 @@ def _resolve_supabase_key() -> str:
 
 
 def use_demo_mode() -> bool:
-    """Use SAL Mock Vault when DEMO_MODE is on or credentials are missing / placeholders."""
-    if DEMO_MODE:
-        return True
+    """Browse / mock vault when credentials are missing or still placeholders."""
     return _looks_like_placeholder(_resolve_supabase_url()) or _looks_like_placeholder(
         _resolve_supabase_key()
     )
@@ -79,7 +91,8 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 
-def fetch_counts(client: Client) -> dict[str, int]:
+def fetch_live_table_counts(client: Client) -> dict[str, int]:
+    """Exact row counts from Supabase (authoritative sidebar metrics)."""
     registry_rows = client.table("registry_metadata").select("*", count="exact").limit(0).execute()
     logic_rows = client.table("agent_logic").select("*", count="exact").limit(0).execute()
     guardrail_rows = client.table("guardrails_and_compliance").select("*", count="exact").limit(0).execute()
@@ -1009,7 +1022,7 @@ def _render_logic_spec_html_card(
 
     browse_note = (
         "<p style='font-size:0.78rem;color:#64748b;margin:0.6rem 0 0'><em>"
-        "SAL Mock Vault — sample logic. Replace <code>DEMO_MODE</code> / add live keys for production.</em></p>"
+        "SAL Mock Vault — sample logic. Add live Supabase keys in secrets or environment for production.</em></p>"
         if browse_mode
         else ""
     )
@@ -1093,39 +1106,49 @@ def main() -> None:
 
     browse_mode = use_demo_mode()
     client: Client | None = None
+    live_connected = False
     if browse_mode:
-        if DEMO_MODE:
-            st.caption(
-                "**DEMO_MODE** · **SAL Mock Vault** active — UI runs with sample logic; no credentials required."
-            )
-        else:
-            st.caption(
-                "**Browse mode** — mock registry until live Supabase keys are configured. "
-                "Optional: set `DEMO_MODE = True` to bypass permanently during build-out."
-            )
+        st.info(
+            "**Browse mode:** Supabase URL/key missing or still placeholders — mock registry only. "
+            "Set `.streamlit/secrets.toml` or environment variables for **live production mode**."
+        )
         counts = _demo_fetch_counts()
     else:
         try:
             client = get_supabase_client()
-            counts = fetch_counts(client)
+            # Force a lightweight read so connection failures surface before counting.
+            client.table("agent_logic").select("soc_code").limit(1).execute()
+            counts = fetch_live_table_counts(client)
+            live_connected = True
         except Exception as exc:  # noqa: BLE001
-            st.warning("Live Supabase unreachable — **browse mode** enabled.")
+            _audit_connection_failure(exc, "Supabase connect or live count fetch")
+            st.error("**Supabase connection failed.** Browse mode active — see `logs/connection_audit.log`.")
             st.caption(escape(str(exc)))
             browse_mode = True
             client = None
             counts = _demo_fetch_counts()
 
     with st.sidebar:
-        st.markdown("##### Registry status")
+        if live_connected and not browse_mode:
+            st.success("**Live production mode** · Supabase")
+        else:
+            st.caption("Browse mode · mock metrics below")
+        st.markdown("##### Registry metrics")
+        st.caption("`agent_logic` = verified logic rows · `registry_metadata` = catalog titles")
         st.markdown('<div class="sal-metric-wrap">', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        c1.metric("Active logic", counts["agent_logic"])
-        c2.metric("Catalog", counts["registry_metadata"])
-        st.metric("Guardrails", counts["guardrails_and_compliance"])
+        c1.metric("Active Logic", counts["agent_logic"], help="Total rows in `agent_logic` (O*NET-verified logic)")
+        c2.metric("Catalog", counts["registry_metadata"], help="Total rows in `registry_metadata` (catalog)")
+        st.metric(
+            "Guardrails",
+            counts["guardrails_and_compliance"],
+            help="Rows in `guardrails_and_compliance`",
+        )
         st.markdown("</div>", unsafe_allow_html=True)
         with st.expander("Environment"):
             st.caption("Flags only — no secrets.")
             st.write(f"Browse mode: `{browse_mode}`")
+            st.write(f"Live connected: `{live_connected}`")
             st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
             st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
 
