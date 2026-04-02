@@ -1,0 +1,29 @@
+SAL Ingestion Engine — Batch 50 production run (handoff)
+========================================================
+Date (workspace): 2026-04-01
+
+Command executed:
+  python scripts/onet_sal_ingest.py --limit 50
+
+Environment verification:
+  - scripts/onet_sal_ingest.py: load_dotenv now resolves repo-root .env explicitly.
+  - .env exists at repository root (secrets not logged).
+
+Outcome: BLOCKED (exit code 1) — O*NET workbooks not found in workspace.
+  Required paths:
+    onet_gold_mine/Occupation Data.xlsx
+    onet_gold_mine/Tasks.xlsx
+    onet_gold_mine/Tools and Technology.xlsx
+  Current onet_gold_mine/: only placeholder .gitkeep observed.
+
+OpenAI / Supabase:
+  - Not reached (failure occurred before any API calls).
+  - No rate limits or Supabase timeouts observed.
+
+Next actions for Orchestrator:
+  1. Copy the three O*NET Excel files into onet_gold_mine/ with the exact names above.
+  2. Re-run: python scripts/onet_sal_ingest.py --limit 50
+  3. Optionally tee to a fresh log: ... 2>&1 | Tee-Object -FilePath data/ingest_batch50_run.log
+
+Git:
+  - Commit reflects tooling/handoff only; no agent_logic rows were written in this run.
