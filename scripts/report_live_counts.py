@@ -39,7 +39,7 @@ def main() -> int:
         )
 
     if not url or not key or "INSERT_" in key.upper() or "INSERT_" in url.upper():
-        print("Supabase URL/key missing or placeholder — Browse mode expected.")
+        print("Supabase URL/key missing or placeholder - Browse mode expected.")
         return 2
     from supabase import create_client
 
