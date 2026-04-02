@@ -179,26 +179,30 @@ def _inject_studio_styles() -> None:
     border: 1px solid #d7dbe8;
     border-radius: 14px;
     background: #ffffff;
-    padding: 1.05rem 1.1rem;
+    padding: 1.2rem 1.15rem 1.05rem 1.15rem;
     position: relative;
     box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+    box-sizing: border-box;
   }
   .sal-doc h3, .sal-doc h4, .sal-doc h5 {
     color: #0b2a6f;
   }
   .sal-stamp {
     position: absolute;
-    top: 14px;
-    right: 14px;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
     border: 1.5px solid #1d4ed8;
     color: #1d4ed8;
     border-radius: 999px;
-    padding: 0.2rem 0.6rem;
+    padding: 0.22rem 0.65rem;
     font-weight: 700;
     font-size: 0.72rem;
     letter-spacing: 0.08em;
-    background: rgba(29,78,216,0.05);
+    background: rgba(29,78,216,0.06);
     transform: rotate(2deg);
+    white-space: nowrap;
+    pointer-events: none;
   }
   .sal-outlook {
     display: inline-block;
@@ -302,9 +306,9 @@ _MOCK_REGISTRY: list[dict[str, Any]] = [
         "soc_code": "15-1299.08",
         "title": "SAL Systems Integrator (Vault IP) 🏆",
         "market_value": "Proprietary",
-        "outlook": "Institutional — vault-tier placement logic",
+        "outlook": "Institutional — vault-tier registry logic",
         "is_custom": True,
-        "description": "Proprietary SAL staffing blueprint for agent orchestration and client-ready exports.",
+        "description": "Proprietary SAL agent-logic blueprint for orchestration and registry-grade exports.",
     },
     {
         "soc_code": "17-2051.00",
@@ -342,7 +346,7 @@ _MOCK_REGISTRY: list[dict[str, Any]] = [
         "soc_code": "29-1141.00",
         "title": "Registered Nurses",
         "market_value": "High",
-        "outlook": "Much faster than average — clinical staffing",
+        "outlook": "Much faster than average — clinical workforce demand",
         "is_custom": False,
         "description": "Assess patient health problems and needs, develop and implement nursing care plans.",
     },
@@ -495,7 +499,7 @@ def _get_openai_api_key() -> str:
     return (_secret_get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY") or "").strip()
 
 
-def staffing_agent_reply(
+def sal_intent_hub_reply(
     *,
     client: Client | None,
     user_request: str,
@@ -504,6 +508,7 @@ def staffing_agent_reply(
     top_k: int = 8,
 ) -> dict[str, Any]:
     """
+    Intent → SOC mapping for the SAL Intelligence Hub (global registry).
     Returns: {"message": str, "selected_soc": str|None, "candidates": list[dict]}
     """
     # Candidate search: pull likely matches from metadata.
@@ -535,9 +540,9 @@ def staffing_agent_reply(
             api_key = _get_openai_api_key()
             oa = OpenAI(api_key=api_key) if api_key else OpenAI()
             sys_prompt = (
-                "You are a Senior Recruiter at a top-tier Chicago staffing firm. "
-                "You match client requests to the best-fit SOC-coded SAL logic record. "
-                "Be decisive, concise, and institutional. Output JSON only."
+                "You are the SAL Intelligence Hub for Standard Agent Logic (SAL). "
+                "You map natural-language intent to the best-fit SOC-coded logic record in the global registry. "
+                "Speak with institutional authority — not as a recruiter. Output JSON only."
             )
             cand_lines = []
             for c in candidates:
@@ -573,8 +578,8 @@ def staffing_agent_reply(
             rationale = str(data.get("rationale") or "").strip()
             shortlist = data.get("shortlist") or []
             msg = (
-                f"**Recommendation:** `{escape(selected_soc)}` — {escape(rationale)}\n\n"
-                f"**Shortlist:** {', '.join(f'`{escape(str(x))}`' for x in shortlist[:3])}"
+                f"**Registry match:** `{escape(selected_soc)}` — {escape(rationale)}\n\n"
+                f"**Alternates:** {', '.join(f'`{escape(str(x))}`' for x in shortlist[:3])}"
             ).strip()
             return {"message": msg, "selected_soc": selected_soc, "candidates": candidates}
         except Exception:  # noqa: BLE001
@@ -582,7 +587,7 @@ def staffing_agent_reply(
             pass
 
     return {
-        "message": f"**Recommendation:** `{escape(selected_soc)}` — {escape(str(selected.get('title') or 'Best-fit SOC role'))}",
+        "message": f"**Registry match:** `{escape(selected_soc)}` — {escape(str(selected.get('title') or 'Best-fit SOC logic record'))}",
         "selected_soc": selected_soc,
         "candidates": candidates,
     }
@@ -596,8 +601,8 @@ def _render_file_tree_sidebar(
     vault_only: bool,
     demo_mode: bool,
 ) -> None:
-    st.markdown("##### Bureau directory")
-    st.caption("SOC industry folders · click to open a logic specification")
+    st.markdown("##### The Bureau")
+    st.caption("File tree by SOC major group · open a folder to browse logic specifications")
 
     # Track selected folder/prefix for quick navigation.
     if "active_prefix" not in st.session_state:
@@ -637,7 +642,8 @@ def _render_file_tree_sidebar(
 
 
 def _render_industry_cards() -> None:
-    st.markdown("#### Placement doors")
+    st.markdown("#### Industry Quick-Doors")
+    st.caption("Two rows of three · jump to a major sector in the Bureau")
     majors = [("11", "Management"), ("13", "Finance"), ("15", "Tech"), ("17", "Engineering"), ("29", "Healthcare"), ("23", "Legal")]
     half = len(majors) // 2
     for group in (majors[:half], majors[half:]):
@@ -765,7 +771,7 @@ def _render_logic_spec_html_card(
     html = f"""
 <div class="{doc_class}">
   <div class="sal-stamp">SAL VERIFIED</div>
-  <h4 style="margin-top:0;padding-right:7.5rem;color:#0b2a6f">Logic Specification</h4>
+  <h4 style="margin-top:0;padding-right:9.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
   <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
   <code style="font-size:0.9rem">{escape(selected_soc or "—")}</code></p>
   {outlook_html}
@@ -783,22 +789,22 @@ def _render_logic_spec_html_card(
 
 def main() -> None:
     st.set_page_config(
-        page_title="SAL Staffing Agent — Registry Bureau",
+        page_title="SAL Intelligence Hub — Standard Agent Logic",
         page_icon="SAL",
         layout="wide",
         initial_sidebar_state="expanded",
     )
     _inject_studio_styles()
 
-    st.markdown("### SAL Staffing Agent")
-    st.caption("Institutional staffing bureau · SOC-indexed logic specifications · SAL VERIFIED")
+    st.markdown("### SAL Intelligence Hub")
+    st.caption("Standard Agent Logic (SAL) · global SOC registry · logic specifications · SAL VERIFIED")
 
     browse_mode = use_demo_mode()
     client: Client | None = None
     if browse_mode:
         st.info(
-            "**Browse mode:** Credentials are placeholders or missing — showing a sample registry so the Stacked "
-            "Workforce UI is fully navigable. Replace secrets with live keys when you return."
+            "**Browse mode:** Placeholder or missing credentials — sample registry data keeps the Intelligence Hub, "
+            "Bureau, and Quick-Doors fully interactable. Add live keys to connect the global catalog."
         )
         counts = _demo_fetch_counts()
     else:
@@ -822,32 +828,37 @@ def main() -> None:
     st.divider()
 
     # ----------------------------
-    # THE HUB (Top Layer): Chat
+    # Top: SAL Intelligence Hub (intent mapping)
     # ----------------------------
-    if "hub_messages" not in st.session_state:
+    if "hub_messages" not in st.session_state or st.session_state.get("sal_hub_brand_v") != 3:
+        st.session_state["sal_hub_brand_v"] = 3
         st.session_state["hub_messages"] = [
             {
                 "role": "assistant",
-                "content": "I’m your **SAL Staffing Agent**. Describe the role you need (domain + outcome) and I’ll map it to a SOC logic record.",
+                "content": (
+                    "Welcome to the **SAL Intelligence Hub**. State your intent (domain, outcomes, constraints) "
+                    "and I’ll map it to the closest **SOC logic record** in the registry."
+                ),
             }
         ]
 
     hub = st.container()
     with hub:
-        st.markdown("#### The Hub — SAL Staffing Agent")
+        st.markdown("#### SAL Intelligence Hub — intent mapping")
         for m in st.session_state["hub_messages"]:
             with st.chat_message(m["role"]):
                 st.markdown(m["content"])
 
-        hub_prompt = st.chat_input("Example: I need someone to manage hospital logistics.")
+        hub_prompt = st.chat_input(
+            "Example: Model hospital logistics coordination and compliance reporting.",
+        )
         if hub_prompt:
             st.session_state["hub_messages"].append({"role": "user", "content": escape(hub_prompt)})
             with st.chat_message("user"):
                 st.markdown(escape(hub_prompt))
 
-            # Vault scope influences what is eligible for recommendation.
             vault_only = bool(st.session_state.get("vault_only", False))
-            reply = staffing_agent_reply(
+            reply = sal_intent_hub_reply(
                 client=client,
                 user_request=hub_prompt,
                 vault_only=vault_only,
@@ -862,7 +873,7 @@ def main() -> None:
     st.divider()
 
     # ----------------------------
-    # THE BUREAU (Middle Layer): File Tree + Doc view
+    # Middle: The Bureau (file tree + logic spec stage)
     # ----------------------------
     with st.sidebar:
         st.markdown("##### Filters")
@@ -928,7 +939,7 @@ def main() -> None:
     )
 
     # ----------------------------
-    # THE PLACEMENT (Bottom Layer): Industry Cards
+    # Bottom: Industry Quick-Doors
     # ----------------------------
     st.divider()
     _render_industry_cards()

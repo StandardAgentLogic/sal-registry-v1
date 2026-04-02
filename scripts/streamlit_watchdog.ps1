@@ -1,4 +1,4 @@
-# SAL Streamlit watchdog: restarts `streamlit run app.py` if the process exits.
+# SAL Intelligence Hub — Streamlit watchdog: restarts `streamlit run app.py` if the process exits.
 # Usage (from repo root):  powershell -ExecutionPolicy Bypass -File scripts/streamlit_watchdog.ps1
 # Optional: $env:STREAMLIT_PORT = "8501"
 
