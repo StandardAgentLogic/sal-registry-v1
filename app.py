@@ -13,13 +13,19 @@ from supabase import Client, create_client
 
 load_dotenv()
 
+# Emergency bypass: True = always use **SAL Mock Vault** (sample logic). Set False for live Supabase.
+DEMO_MODE: bool = True
+
 
 def _secret_get(name: str) -> str:
-    """Read Streamlit secrets without crashing if secrets.toml is missing or partial."""
+    """Read Streamlit secrets without crashing if secrets.toml is missing, empty, or unreadable."""
     try:
-        v = st.secrets.get(name)
+        if not hasattr(st, "secrets"):
+            return (os.getenv(name) or "").strip()
+        # Streamlit exposes secrets as dict-like; .get may still raise if no secrets file on some hosts.
+        v = st.secrets.get(name)  # type: ignore[attr-defined]
         return str(v or "").strip()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001 — StreamlitSecretNotFoundError, OSError, etc.
         return (os.getenv(name) or "").strip()
 
 
@@ -57,7 +63,9 @@ def _resolve_supabase_key() -> str:
 
 
 def use_demo_mode() -> bool:
-    """Browse UI with mock registry/logic when credentials are missing or still placeholders."""
+    """Use SAL Mock Vault when DEMO_MODE is on or credentials are missing / placeholders."""
+    if DEMO_MODE:
+        return True
     return _looks_like_placeholder(_resolve_supabase_url()) or _looks_like_placeholder(
         _resolve_supabase_key()
     )
@@ -197,7 +205,7 @@ def _inject_studio_styles() -> None:
   .sal-gold-frame {
     border: 2px solid #c9a227 !important;
     border-radius: 12px !important;
-    padding: 0.85rem 1rem !important;
+    padding: 0 !important;
     margin-bottom: 0.65rem !important;
     background: linear-gradient(145deg, #fffef8 0%, #ffffff 55%, #fffdf5 100%) !important;
     box-shadow: 0 2px 14px rgba(201, 162, 39, 0.14) !important;
@@ -226,37 +234,79 @@ def _inject_studio_styles() -> None:
     margin-bottom: 0.08rem !important;
   }
 
-  /* Institutional doc view */
+  /* Institutional doc view + diagonal watermark */
   .sal-doc {
     border: 1px solid #d7dbe8;
     border-radius: 14px;
     background: #ffffff;
-    padding: 1.2rem 1.15rem 1.05rem 1.15rem;
+    padding: 0;
     position: relative;
     box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
     box-sizing: border-box;
+    overflow: hidden;
+    min-height: 220px;
+  }
+  .sal-watermark-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 14px;
+  }
+  .sal-watermark-layer span {
+    font-size: clamp(1.35rem, 4.2vw, 2.35rem);
+    font-weight: 900;
+    color: rgba(11, 42, 111, 0.065);
+    transform: rotate(-26deg);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+  .sal-doc-content {
+    position: relative;
+    z-index: 1;
+    padding: 1.2rem 1.15rem 1.05rem 1.15rem;
   }
   .sal-doc h3, .sal-doc h4, .sal-doc h5 {
     color: #0b2a6f;
   }
-  /* Notary seal: anchored to top-right of .sal-doc (card has position: relative). */
-  .sal-stamp {
+  /* Circular notary seal — top-right of logic document (Design 2/3). */
+  .sal-notary-seal {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
     left: auto;
-    z-index: 2;
-    border: 1.5px solid #1d4ed8;
-    color: #1d4ed8;
-    border-radius: 999px;
-    padding: 0.22rem 0.65rem;
-    font-weight: 700;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    background: rgba(29,78,216,0.06);
-    transform: rotate(2deg);
-    white-space: nowrap;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    border: 3px double #1d4ed8;
+    background: radial-gradient(circle at 32% 28%, #ffffff 0%, #edf2ff 48%, #dbe4ff 100%);
+    box-shadow: 0 6px 18px rgba(29, 78, 216, 0.22), inset 0 0 0 1px rgba(255,255,255,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 3;
     pointer-events: none;
+    transform: rotate(-6deg);
+    color: #1d4ed8;
+    font-weight: 800;
+    font-size: 0.58rem;
+    line-height: 1.15;
+    letter-spacing: 0.07em;
+    padding: 0.4rem;
+    box-sizing: border-box;
+  }
+  .sal-notary-seal em {
+    font-style: normal;
+    font-size: 0.5rem;
+    opacity: 0.88;
+    letter-spacing: 0.12em;
+    margin-top: 0.12rem;
   }
   .sal-outlook {
     display: inline-block;
@@ -753,10 +803,60 @@ def _render_file_tree_panel(
                 _render_sidebar_registry_directory(rows, button_key_prefix=button_key_prefix)
 
 
+def _render_placement_sector_badges() -> None:
+    """Design 1 — federal-style high-contrast sector badges (Healthcare, Finance, Tech)."""
+    st.markdown("##### Sector authority")
+    st.caption("Institutional badging — open the matching O*NET major folder in the Bureau")
+    s1, s2, s3 = st.columns(3)
+    sectors: list[tuple[str, str, str, str, str]] = [
+        (
+            "29",
+            "Healthcare",
+            "SOC 29 · Health diagnosing, treating & technologist occupations",
+            "#0f3d38",
+            "sal_badge_health",
+        ),
+        (
+            "13",
+            "Finance",
+            "SOC 13 · Business & financial operations",
+            "#0b1f3a",
+            "sal_badge_finance",
+        ),
+        (
+            "15",
+            "Technology",
+            "SOC 15 · Computer & mathematical occupations",
+            "#0b2a6f",
+            "sal_badge_tech",
+        ),
+    ]
+    for col, (code, title, blurb, color, uid) in zip((s1, s2, s3), sectors, strict=False):
+        with col:
+            st.markdown(
+                f"""
+<div style="border:2px solid #0b1220;border-radius:12px;background:{color};color:#ffffff;
+  padding:1.15rem 1rem 0.9rem;min-height:132px;box-shadow:0 10px 24px rgba(11,18,32,0.18);">
+  <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.12em;opacity:0.92">FEDERAL SECTOR</div>
+  <div style="font-size:1.35rem;font-weight:900;margin:0.35rem 0 0.2rem">{escape(title)}</div>
+  <div style="font-size:0.82rem;line-height:1.35;opacity:0.94">{escape(blurb)}</div>
+  <div style="font-size:0.75rem;font-weight:700;margin-top:0.5rem;opacity:0.9">[{escape(code)}] O*NET MAJOR</div>
+</div>
+""",
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                f"Open [{code}] in Bureau",
+                key=uid,
+                use_container_width=True,
+                type="primary",
+            ):
+                st.session_state["active_prefix"] = code
+
+
 def _render_latest_verified_strip(items: list[dict[str, Any]], *, button_key_prefix: str = "lv_") -> None:
-    st.markdown('<p class="sal-stack-label">Bottom · Placement</p>', unsafe_allow_html=True)
-    st.markdown("#### Latest verified logic")
-    st.caption("Quick access to authenticated logic records · opens in the Bureau specification view")
+    st.markdown("##### Latest verified logic")
+    st.caption("Quick-access strip · authenticated logic records · opens in the specification view")
     if not items:
         st.info("No verified logic rows to display.")
         return
@@ -909,38 +1009,41 @@ def _render_logic_spec_html_card(
 
     browse_note = (
         "<p style='font-size:0.78rem;color:#64748b;margin:0.6rem 0 0'><em>"
-        "Browse mode — mock registry for layout and demos. Use live Supabase keys for production.</em></p>"
+        "SAL Mock Vault — sample logic. Replace <code>DEMO_MODE</code> / add live keys for production.</em></p>"
         if browse_mode
         else ""
     )
 
     html = f"""
 <div class="{doc_class}">
-  <div class="sal-stamp">SAL VERIFIED</div>
-  <h4 style="margin-top:0;padding-right:9.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
-  <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
-  <code style="font-size:0.9rem">{escape(selected_soc or "—")}</code></p>
-  {onet_block}
-  {pd_html}
-  {steps_html}
-  {tb_html}
-  <p style='font-size:0.78rem;color:#64748b;margin:0.8rem 0 0'>Rendered: {escape(datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC'))}</p>
-  {browse_note}
+  <div class="sal-watermark-layer" aria-hidden="true"><span>SAL: OFFICIAL SOURCE OF TRUTH</span></div>
+  <div class="sal-doc-content">
+    <div class="sal-notary-seal" role="img" aria-label="SAL Verified official seal">SAL<br>VERIFIED<em>REGISTRY</em></div>
+    <h4 style="margin-top:0;padding-right:7.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
+    <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
+    <code style="font-size:0.9rem">{escape(selected_soc or "—")}</code></p>
+    {onet_block}
+    {pd_html}
+    {steps_html}
+    {tb_html}
+    <p style='font-size:0.78rem;color:#64748b;margin:0.8rem 0 0'>Rendered: {escape(datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC'))}</p>
+    {browse_note}
+  </div>
 </div>
 """
     st.markdown(html, unsafe_allow_html=True)
 
 
 def _render_hub_design3(*, client: Client | None, browse_mode: bool) -> None:
-    """Design 3 — centered hero and prominent project→standard mapping input."""
-    st.markdown('<p class="sal-stack-label">Top · The Hub</p>', unsafe_allow_html=True)
+    """Design 3 — Intelligence Hub: centered hero and prominent project→standard mapping input."""
+    st.markdown('<p class="sal-stack-label">Top · SAL Intelligence Hub</p>', unsafe_allow_html=True)
     lc, cc, rc = st.columns([1, 2.35, 1])
     with cc:
         st.markdown(
             '<div class="sal-hub-wrap">'
             "<h2>SAL: Standard Agent Logic Registry</h2>"
-            "<p class='sal-hub-sub'>Global concierge — map projects, programs, and outcomes to "
-            "authenticated SOC logic standards in the 1,095-role catalog.</p></div>",
+            "<p class='sal-hub-sub'>Intelligence Hub · global concierge — map projects and programs to "
+            "authenticated SOC logic standards (1,095-role catalog).</p></div>",
             unsafe_allow_html=True,
         )
         with st.form("sal_hub_project_map", clear_on_submit=False):
@@ -978,23 +1081,28 @@ def main() -> None:
     )
     _inject_studio_styles()
 
-    if st.session_state.get("sal_stack_v") != 2:
-        st.session_state["sal_stack_v"] = 2
+    if st.session_state.get("sal_stack_v") != 3:
+        st.session_state["sal_stack_v"] = 3
         st.session_state.pop("hub_messages", None)
         st.session_state.pop("sal_hub_last_reply", None)
 
     st.markdown("### SAL: Standard Agent Logic Registry")
     st.caption(
-        "Institutional authority portal · single source of truth · high-contrast UI · 1,095 SOC logic records"
+        "SAL Intelligence Hub · institutional authority portal · single source of truth · 1,095 SOC logic records"
     )
 
     browse_mode = use_demo_mode()
     client: Client | None = None
     if browse_mode:
-        st.info(
-            "**Browse mode:** Live keys not detected — the **mock registry** keeps the full stacked UI beautiful "
-            "and fully interactable. Add Supabase + optional OpenAI keys when ready for production data."
-        )
+        if DEMO_MODE:
+            st.caption(
+                "**DEMO_MODE** · **SAL Mock Vault** active — UI runs with sample logic; no credentials required."
+            )
+        else:
+            st.caption(
+                "**Browse mode** — mock registry until live Supabase keys are configured. "
+                "Optional: set `DEMO_MODE = True` to bypass permanently during build-out."
+            )
         counts = _demo_fetch_counts()
     else:
         try:
@@ -1094,6 +1202,9 @@ def main() -> None:
         )
 
     st.divider()
+    st.markdown('<p class="sal-stack-label">Bottom · Placement</p>', unsafe_allow_html=True)
+    st.markdown("#### Placement — sector & verified access")
+    _render_placement_sector_badges()
     latest = fetch_latest_verified_logic(client, demo_mode=browse_mode, limit=12)
     _render_latest_verified_strip(latest, button_key_prefix="lv_")
 
