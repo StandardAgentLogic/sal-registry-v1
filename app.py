@@ -103,6 +103,58 @@ def fetch_registry_roles(
     return result.data or []
 
 
+def fetch_latest_verified_logic(
+    client: Client | None,
+    *,
+    demo_mode: bool,
+    limit: int = 12,
+) -> list[dict[str, Any]]:
+    """Spotlight SOC rows with agent_logic, enriched with titles when possible."""
+    if demo_mode:
+        return [
+            {"soc_code": r["soc_code"], "title": str(r.get("title") or "")}
+            for r in _MOCK_REGISTRY[:limit]
+        ]
+    if client is None:
+        return []
+    data: list[dict[str, Any]] = []
+    try:
+        res = (
+            client.table("agent_logic")
+            .select("soc_code")
+            .order("updated_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        data = list(res.data or [])
+    except Exception:  # noqa: BLE001
+        try:
+            res = (
+                client.table("agent_logic")
+                .select("soc_code")
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            data = list(res.data or [])
+        except Exception:  # noqa: BLE001
+            res = client.table("agent_logic").select("soc_code").limit(limit).execute()
+            data = list(res.data or [])
+    rows = [{"soc_code": str(r.get("soc_code") or ""), "title": ""} for r in data if r.get("soc_code")]
+    if not rows:
+        return []
+    codes = [r["soc_code"] for r in rows]
+    try:
+        mr = client.table("registry_metadata").select("soc_code,title").in_("soc_code", codes).execute()
+        title_map = {str(x["soc_code"]): str(x.get("title") or "") for x in (mr.data or [])}
+        for r in rows:
+            r["title"] = title_map.get(r["soc_code"], "") or r["soc_code"]
+    except Exception:  # noqa: BLE001
+        for r in rows:
+            r["title"] = r["soc_code"]
+    return rows
+
+
 def fetch_agent_logic_detail(client: Client, soc_code: str) -> dict[str, Any] | None:
     """Load hardened agent_logic columns for the Inspector."""
     result = (
@@ -220,6 +272,59 @@ def _inject_studio_styles() -> None:
     color: #0b1220;
   }
   .sal-doc .sal-steps li { margin: 0.35rem 0; line-height: 1.35; }
+  .sal-doc .sal-section {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e8ecf4;
+  }
+  .sal-doc .sal-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+  /* Design 3 — The Hub: centered hero + prominent input */
+  .sal-hub-wrap {
+    max-width: 720px;
+    margin: 0 auto 0.5rem auto;
+    text-align: center;
+  }
+  .sal-hub-wrap h2 {
+    color: #0b2a6f;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+  .sal-hub-wrap .sal-hub-sub {
+    color: #475569;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.45;
+  }
+  .sal-hub-form input, .sal-hub-form [data-baseweb="input"] input {
+    font-size: 1.05rem !important;
+    padding: 0.65rem 0.85rem !important;
+  }
+  .sal-stack-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #1d4ed8;
+    margin: 0 0 0.35rem 0;
+    text-transform: uppercase;
+  }
+  .sal-latest-strip {
+    border: 1px solid #d7dbe8;
+    border-radius: 12px;
+    background: #f8faff;
+    padding: 0.85rem 1rem;
+  }
+  div[data-testid="column"]:has(div.sal-bureau-anchor) .stButton > button {
+    font-size: 0.7rem !important;
+    line-height: 1.12 !important;
+    padding: 0.14rem 0.4rem !important;
+    min-height: 1.45rem !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
+  div[data-testid="column"]:has(div.sal-bureau-anchor) .stButton {
+    margin-bottom: 0.08rem !important;
+  }
 </style>
 """,
         unsafe_allow_html=True,
@@ -540,9 +645,9 @@ def sal_intent_hub_reply(
             api_key = _get_openai_api_key()
             oa = OpenAI(api_key=api_key) if api_key else OpenAI()
             sys_prompt = (
-                "You are the SAL Intelligence Hub for Standard Agent Logic (SAL). "
-                "You map natural-language intent to the best-fit SOC-coded logic record in the global registry. "
-                "Speak with institutional authority — not as a recruiter. Output JSON only."
+                "You are the global concierge for Standard Agent Logic (SAL): Authenticated AI Agent Registry. "
+                "You match projects, programs, and outcomes to the best-fit SOC-coded logic standard in the registry. "
+                "Be precise, institutional, and authoritative. Output JSON only."
             )
             cand_lines = []
             for c in candidates:
@@ -593,16 +698,17 @@ def sal_intent_hub_reply(
     }
 
 
-def _render_file_tree_sidebar(
+def _render_file_tree_panel(
     *,
     supabase_url: str,
     supabase_key: str,
     query: str,
     vault_only: bool,
     demo_mode: bool,
+    button_key_prefix: str = "",
 ) -> None:
-    st.markdown("##### The Bureau")
-    st.caption("File tree by SOC major group · open a folder to browse logic specifications")
+    st.markdown("##### O*NET major groups")
+    st.caption("Collapsible tree · SOC prefix folders · select a role to load the logic specification")
 
     # Track selected folder/prefix for quick navigation.
     if "active_prefix" not in st.session_state:
@@ -613,7 +719,11 @@ def _render_file_tree_sidebar(
         folder_title = f"[{prefix2}] {label}"
         expanded = st.session_state.get("active_prefix") == prefix2
         with st.expander(folder_title, expanded=expanded):
-            if st.button("Open folder", key=f"open_{prefix2}", use_container_width=True):
+            if st.button(
+                "Open folder",
+                key=f"{button_key_prefix}open_{prefix2}",
+                use_container_width=True,
+            ):
                 st.session_state["active_prefix"] = prefix2
 
             rows = (
@@ -638,20 +748,27 @@ def _render_file_tree_sidebar(
             else:
                 if prefix2 == st.session_state.get("active_prefix"):
                     _sync_active_role(rows)
-                _render_sidebar_registry_directory(rows)
+                _render_sidebar_registry_directory(rows, button_key_prefix=button_key_prefix)
 
 
-def _render_industry_cards() -> None:
-    st.markdown("#### Industry Quick-Doors")
-    st.caption("Two rows of three · jump to a major sector in the Bureau")
-    majors = [("11", "Management"), ("13", "Finance"), ("15", "Tech"), ("17", "Engineering"), ("29", "Healthcare"), ("23", "Legal")]
-    half = len(majors) // 2
-    for group in (majors[:half], majors[half:]):
-        cols = st.columns(len(group))
-        for col, (p, name) in zip(cols, group, strict=False):
+def _render_latest_verified_strip(items: list[dict[str, Any]], *, button_key_prefix: str = "lv_") -> None:
+    st.markdown('<p class="sal-stack-label">Bottom · Placement</p>', unsafe_allow_html=True)
+    st.markdown("#### Latest verified logic")
+    st.caption("Quick access to authenticated logic records · opens in the Bureau specification view")
+    if not items:
+        st.info("No verified logic rows to display.")
+        return
+    chunk = 6
+    for start in range(0, min(len(items), 12), chunk):
+        batch = items[start : start + chunk]
+        cols = st.columns(len(batch))
+        for col, item in zip(cols, batch, strict=False):
             with col:
-                if st.button(f"[{p}] {name}", use_container_width=True, key=f"door_{p}"):
-                    st.session_state["active_prefix"] = p
+                soc = str(item.get("soc_code") or "")
+                tit = str(item.get("title") or soc)
+                label = tit if len(tit) <= 40 else tit[:37] + "…"
+                if st.button(label, key=f"{button_key_prefix}{start}_{soc}", use_container_width=True, help=soc):
+                    st.session_state["active_soc"] = soc
 
 
 def _sync_active_role(rows: list[dict[str, Any]]) -> None:
@@ -667,7 +784,11 @@ def _sync_active_role(rows: list[dict[str, Any]]) -> None:
         st.session_state["active_soc"] = codes[0]
 
 
-def _render_sidebar_registry_directory(rows: list[dict[str, Any]]) -> None:
+def _render_sidebar_registry_directory(
+    rows: list[dict[str, Any]],
+    *,
+    button_key_prefix: str = "",
+) -> None:
     """Vertical directory of ``st.button`` rows; proprietary titles prefixed with 🏆."""
     for r in rows:
         soc = str(r.get("soc_code") or "")
@@ -680,7 +801,7 @@ def _render_sidebar_registry_directory(rows: list[dict[str, Any]]) -> None:
         is_active = str(st.session_state["active_soc"] or "") == soc
         if st.button(
             label,
-            key=f"sal_dir_{soc}",
+            key=f"{button_key_prefix}sal_dir_{soc}",
             use_container_width=True,
             type="primary" if is_active else "secondary",
         ):
@@ -724,42 +845,65 @@ def _render_logic_spec_html_card(
     is_custom = chosen_row is not None and chosen_row.get("is_custom") is True
     doc_class = "sal-doc sal-gold-frame" if is_custom else "sal-doc"
 
-    outlook = str((chosen_row or {}).get("outlook") or "").strip()
+    outlook = str((chosen_row or {}).get("outlook") or "").strip() if chosen_row else ""
     outlook_html = f"<div class='sal-outlook'>{escape(outlook)}</div>" if outlook else ""
-    desc = str((chosen_row or {}).get("description") or "").strip()
-    desc_html = (
-        f"<p style='color:#475569;font-size:0.88rem;line-height:1.45'>{escape(desc)}</p>" if desc else ""
+    desc = str((chosen_row or {}).get("description") or "").strip() if chosen_row else ""
+    mv = chosen_row.get("market_value") if chosen_row else None
+    mv_html = (
+        f"<p style='margin:0.35rem 0 0'><strong>Market signal:</strong> {escape(str(mv))}</p>"
+        if mv is not None
+        else ""
     )
-
-    meta_bits: list[str] = []
-    if chosen_row and chosen_row.get("market_value") is not None:
-        meta_bits.append(f"<strong>Market value:</strong> {escape(str(chosen_row['market_value']))}")
-    meta_html = ("<p style='margin:0.4rem 0 0.2rem'>" + " · ".join(meta_bits) + "</p>") if meta_bits else ""
+    if not chosen_row:
+        onet_inner = "<p style='color:#64748b;margin:0'><em>Select a SOC record from the Bureau tree to load O*NET-aligned context.</em></p>"
+    elif not outlook and not desc and mv is None:
+        onet_inner = "<p style='color:#64748b;margin:0'><em>No O*NET outlook or description on file for this SOC.</em></p>"
+    else:
+        onet_inner = f"""
+    {outlook_html}
+    {f"<p style='color:#475569;font-size:0.88rem;line-height:1.5;margin:0.5rem 0 0'>{escape(desc)}</p>" if desc else ""}
+    {mv_html}
+  """.strip()
+    onet_block = f"""
+  <div class="sal-section sal-onet">
+    <h5>O*NET outlook & occupation context</h5>
+    {onet_inner}
+  </div>
+""".strip()
 
     pd = (logic or {}).get("primary_directive") if logic else None
     if pd:
-        pd_html = f"<h5>Primary directive</h5><p style='line-height:1.5'>{escape(str(pd))}</p>"
+        pd_html = f"""
+  <div class="sal-section">
+    <h5>Directive</h5>
+    <p style='line-height:1.55;margin:0'>{escape(str(pd))}</p>
+  </div>"""
     else:
-        pd_html = "<h5>Primary directive</h5><p><em>No directive loaded yet for this SOC code.</em></p>"
+        pd_html = """<div class="sal-section"><h5>Directive</h5><p><em>No directive loaded for this SOC.</em></p></div>"""
 
     steps = _normalize_steps((logic or {}).get("step_by_step_json")) if logic else []
-    steps_html = f"<h5>Step-by-step execution (SAL)</h5>{_steps_to_html(steps)}"
+    steps_html = f"""
+  <div class="sal-section">
+    <h5>Execution steps (SAL)</h5>
+    {_steps_to_html(steps)}
+  </div>"""
 
     tb = (logic or {}).get("toolbox_requirements") if logic else None
     tb_html = ""
     if tb is not None and tb != "":
         if isinstance(tb, (dict, list)):
             tb_body = escape(json.dumps(tb, indent=2, ensure_ascii=False))
-            tb_html = (
-                "<h5>Toolbox requirements</h5>"
-                "<pre style='white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;"
-                "padding:0.65rem;border-radius:8px;font-size:0.82rem'>"
-                f"{tb_body}</pre>"
-            )
+            tb_html = f"""
+  <div class="sal-section">
+    <h5>Capabilities</h5>
+    <pre style='white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;padding:0.65rem;border-radius:8px;font-size:0.82rem;margin:0'>{tb_body}</pre>
+  </div>"""
         else:
-            tb_html = (
-                f"<h5>Toolbox requirements</h5><pre style='white-space:pre-wrap'>{escape(str(tb))}</pre>"
-            )
+            tb_html = f"""
+  <div class="sal-section">
+    <h5>Capabilities</h5>
+    <pre style='white-space:pre-wrap;margin:0'>{escape(str(tb))}</pre>
+  </div>"""
 
     browse_note = (
         "<p style='font-size:0.78rem;color:#64748b;margin:0.6rem 0 0'><em>"
@@ -774,9 +918,7 @@ def _render_logic_spec_html_card(
   <h4 style="margin-top:0;padding-right:9.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
   <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
   <code style="font-size:0.9rem">{escape(selected_soc or "—")}</code></p>
-  {outlook_html}
-  {desc_html}
-  {meta_html}
+  {onet_block}
   {pd_html}
   {steps_html}
   {tb_html}
@@ -787,24 +929,67 @@ def _render_logic_spec_html_card(
     st.markdown(html, unsafe_allow_html=True)
 
 
+def _render_hub_design3(*, client: Client | None, browse_mode: bool) -> None:
+    """Design 3 — centered hero and prominent project→standard mapping input."""
+    st.markdown('<p class="sal-stack-label">Top · The Hub</p>', unsafe_allow_html=True)
+    lc, cc, rc = st.columns([1, 2.35, 1])
+    with cc:
+        st.markdown(
+            '<div class="sal-hub-wrap">'
+            "<h2>SAL: Authenticated AI Agent Registry</h2>"
+            "<p class='sal-hub-sub'>Global concierge — map projects, programs, and outcomes to authenticated "
+            "SOC logic standards.</p></div>",
+            unsafe_allow_html=True,
+        )
+        with st.form("sal_hub_project_map", clear_on_submit=False):
+            st.markdown('<div class="sal-hub-form">', unsafe_allow_html=True)
+            intent = st.text_input(
+                "Project or standard",
+                label_visibility="collapsed",
+                placeholder="Describe the project, domain, or logic standard you need to operationalize…",
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+            submitted = st.form_submit_button("Map to logic standard", type="primary", use_container_width=True)
+        if submitted and intent.strip():
+            vault_only = bool(st.session_state.get("vault_only", False))
+            reply = sal_intent_hub_reply(
+                client=client,
+                user_request=intent.strip(),
+                vault_only=vault_only,
+                demo_mode=browse_mode,
+            )
+            st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
+            if reply.get("selected_soc"):
+                st.session_state["active_soc"] = str(reply["selected_soc"])
+        last = st.session_state.get("sal_hub_last_reply")
+        if last:
+            st.markdown("##### Registry mapping")
+            st.markdown(str(last))
+
+
 def main() -> None:
     st.set_page_config(
-        page_title="SAL Intelligence Hub — Standard Agent Logic",
+        page_title="SAL: Authenticated AI Agent Registry",
         page_icon="SAL",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     _inject_studio_styles()
 
-    st.markdown("### SAL Intelligence Hub")
-    st.caption("Standard Agent Logic (SAL) · global SOC registry · logic specifications · SAL VERIFIED")
+    if st.session_state.get("sal_stack_v") != 1:
+        st.session_state["sal_stack_v"] = 1
+        st.session_state.pop("hub_messages", None)
+        st.session_state.pop("sal_hub_last_reply", None)
+
+    st.markdown("### Institutional Authority Portal")
+    st.caption("Standard Agent Logic (SAL) — single source of truth for authenticated agent logic · high-contrast registry")
 
     browse_mode = use_demo_mode()
     client: Client | None = None
     if browse_mode:
         st.info(
-            "**Browse mode:** Placeholder or missing credentials — sample registry data keeps the Intelligence Hub, "
-            "Bureau, and Quick-Doors fully interactable. Add live keys to connect the global catalog."
+            "**Browse mode:** Placeholder or missing credentials — sample data keeps the triple stack fully "
+            "interactable. Add live keys for the full 1,095-role catalog."
         )
         counts = _demo_fetch_counts()
     else:
@@ -812,72 +997,42 @@ def main() -> None:
             client = get_supabase_client()
             counts = fetch_counts(client)
         except Exception as exc:  # noqa: BLE001
-            st.warning("Live Supabase unreachable — **browse mode** enabled for layout review.")
+            st.warning("Live Supabase unreachable — **browse mode** enabled.")
             st.caption(escape(str(exc)))
             browse_mode = True
             client = None
             counts = _demo_fetch_counts()
 
-    st.markdown('<div class="sal-metric-wrap">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Active roles", counts["agent_logic"])
-    c2.metric("Catalog roles", counts["registry_metadata"])
-    c3.metric("Guardrails", counts["guardrails_and_compliance"])
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.divider()
-
-    # ----------------------------
-    # Top: SAL Intelligence Hub (intent mapping)
-    # ----------------------------
-    if "hub_messages" not in st.session_state or st.session_state.get("sal_hub_brand_v") != 3:
-        st.session_state["sal_hub_brand_v"] = 3
-        st.session_state["hub_messages"] = [
-            {
-                "role": "assistant",
-                "content": (
-                    "Welcome to the **SAL Intelligence Hub**. State your intent (domain, outcomes, constraints) "
-                    "and I’ll map it to the closest **SOC logic record** in the registry."
-                ),
-            }
-        ]
-
-    hub = st.container()
-    with hub:
-        st.markdown("#### SAL Intelligence Hub — intent mapping")
-        for m in st.session_state["hub_messages"]:
-            with st.chat_message(m["role"]):
-                st.markdown(m["content"])
-
-        hub_prompt = st.chat_input(
-            "Example: Model hospital logistics coordination and compliance reporting.",
-        )
-        if hub_prompt:
-            st.session_state["hub_messages"].append({"role": "user", "content": escape(hub_prompt)})
-            with st.chat_message("user"):
-                st.markdown(escape(hub_prompt))
-
-            vault_only = bool(st.session_state.get("vault_only", False))
-            reply = sal_intent_hub_reply(
-                client=client,
-                user_request=hub_prompt,
-                vault_only=vault_only,
-                demo_mode=browse_mode,
-            )
-            if reply.get("selected_soc"):
-                st.session_state["active_soc"] = str(reply["selected_soc"])
-            with st.chat_message("assistant"):
-                st.markdown(reply["message"])
-            st.session_state["hub_messages"].append({"role": "assistant", "content": reply["message"]})
-
-    st.divider()
-
-    # ----------------------------
-    # Middle: The Bureau (file tree + logic spec stage)
-    # ----------------------------
     with st.sidebar:
-        st.markdown("##### Filters")
-        query = st.text_input("Filter titles", key="sal_search", placeholder="Search titles / outlook…")
+        st.markdown("##### Registry status")
+        st.markdown('<div class="sal-metric-wrap">', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        c1.metric("Active logic", counts["agent_logic"])
+        c2.metric("Catalog", counts["registry_metadata"])
+        st.metric("Guardrails", counts["guardrails_and_compliance"])
+        st.markdown("</div>", unsafe_allow_html=True)
+        with st.expander("Environment"):
+            st.caption("Flags only — no secrets.")
+            st.write(f"Browse mode: `{browse_mode}`")
+            st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
+            st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
+
+    _render_hub_design3(client=client, browse_mode=browse_mode)
+
+    st.divider()
+    st.markdown('<p class="sal-stack-label">Middle · The Bureau</p>', unsafe_allow_html=True)
+    st.markdown("#### The Bureau — registry navigator")
+    st.caption("Design 2: O*NET major-group tree (left) · Logic specification document (center)")
+
+    col_left, col_right = st.columns([0.38, 0.62], gap="large")
+
+    with col_left:
+        st.markdown('<div class="sal-bureau-anchor"></div>', unsafe_allow_html=True)
+        query = st.text_input(
+            "Filter tree",
+            key="sal_search",
+            placeholder="Search titles / outlook…",
+        )
         scope = st.radio(
             "Catalog scope",
             ["Full Catalog", "Private Vault 🏆"],
@@ -888,61 +1043,55 @@ def main() -> None:
         vault_only = scope != "Full Catalog"
         st.session_state["vault_only"] = vault_only
 
-        _render_file_tree_sidebar(
+        _render_file_tree_panel(
             supabase_url=_resolve_supabase_url(),
             supabase_key=_resolve_supabase_key(),
             query=query,
             vault_only=vault_only,
             demo_mode=browse_mode,
+            button_key_prefix="bureau_",
         )
 
-        with st.expander("Environment"):
-            st.caption("Connection flags (no secrets shown).")
-            st.write(f"Browse mode: `{browse_mode}`")
-            st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
-            st.write(f"SUPABASE key set: `{bool(_resolve_supabase_key())}`")
+    with col_right:
+        selected_soc = str(st.session_state.get("active_soc") or "")
+        chosen_row = None
+        if selected_soc:
+            if browse_mode:
+                chosen_row = next((dict(r) for r in _MOCK_REGISTRY if r.get("soc_code") == selected_soc), None)
+            elif client is not None:
+                try:
+                    rr = (
+                        client.table("registry_metadata")
+                        .select("soc_code,title,market_value,outlook,is_custom,description")
+                        .eq("soc_code", selected_soc)
+                        .limit(1)
+                        .execute()
+                    )
+                    if rr.data:
+                        chosen_row = rr.data[0]
+                except Exception:
+                    chosen_row = None
 
-    selected_soc = str(st.session_state.get("active_soc") or "")
-    chosen_row = None
-    if selected_soc:
-        if browse_mode:
-            chosen_row = next((dict(r) for r in _MOCK_REGISTRY if r.get("soc_code") == selected_soc), None)
-        elif client is not None:
-            try:
-                rr = (
-                    client.table("registry_metadata")
-                    .select("soc_code,title,market_value,outlook,is_custom,description")
-                    .eq("soc_code", selected_soc)
-                    .limit(1)
-                    .execute()
-                )
-                if rr.data:
-                    chosen_row = rr.data[0]
-            except Exception:
-                chosen_row = None
+        logic = None
+        if selected_soc:
+            if browse_mode:
+                logic = _demo_fetch_agent_logic_detail(selected_soc)
+            elif client is not None:
+                try:
+                    logic = fetch_agent_logic_detail(client, selected_soc)
+                except Exception as exc:  # noqa: BLE001
+                    st.warning(escape(str(exc)))
 
-    logic = None
-    if selected_soc:
-        if browse_mode:
-            logic = _demo_fetch_agent_logic_detail(selected_soc)
-        elif client is not None:
-            try:
-                logic = fetch_agent_logic_detail(client, selected_soc)
-            except Exception as exc:  # noqa: BLE001
-                st.warning(escape(str(exc)))
+        _render_logic_spec_html_card(
+            selected_soc=selected_soc,
+            chosen_row=chosen_row,
+            logic=logic,
+            browse_mode=browse_mode,
+        )
 
-    _render_logic_spec_html_card(
-        selected_soc=selected_soc,
-        chosen_row=chosen_row,
-        logic=logic,
-        browse_mode=browse_mode,
-    )
-
-    # ----------------------------
-    # Bottom: Industry Quick-Doors
-    # ----------------------------
     st.divider()
-    _render_industry_cards()
+    latest = fetch_latest_verified_logic(client, demo_mode=browse_mode, limit=12)
+    _render_latest_verified_strip(latest, button_key_prefix="lv_")
 
 
 if __name__ == "__main__":
