@@ -3297,13 +3297,15 @@ def _sovereign_header_html() -> str:
 def main() -> None:
     # ── Session state initialisation (MUST run before any widget) ──
     if "active_soc" not in st.session_state:
-        st.session_state["active_soc"] = "15-1299.08"  # Featured vault entry on first load
+        st.session_state["active_soc"] = "15-1299.08"
     if "active_prefix" not in st.session_state:
         st.session_state["active_prefix"] = "15"
     if "vault_only" not in st.session_state:
         st.session_state["vault_only"] = False
     if "agent_bundle" not in st.session_state:
-        st.session_state["agent_bundle"] = []  # list of dicts: {soc_code, title}
+        st.session_state["agent_bundle"] = []
+    if "vault_unlocked" not in st.session_state:
+        st.session_state["vault_unlocked"] = False
 
     _inject_studio_styles()
 
@@ -3343,14 +3345,52 @@ def main() -> None:
         c2.metric("Standardized Logic Library", counts["registry_metadata"])
         st.metric("Safety Guardrails", counts["guardrails_and_compliance"])
         st.markdown("</div>", unsafe_allow_html=True)
-        scope = st.radio(
-            "Library scope", ["Global Registry", "Private Vault \U0001f3c6"],
-            horizontal=True, key="sal_sidebar_scope",
-        )
-        st.session_state["vault_only"] = scope != "Global Registry"
+        # ── Vault access gate ────────────────────────────────────────────
+        _vault_pw = (_secret_get("VAULT_PASSWORD") or "").strip()
+        _has_vault_pw = bool(_vault_pw)
+
+        if not _has_vault_pw:
+            # No password configured — vault locked in production
+            st.session_state["vault_unlocked"] = False
+            st.session_state["vault_only"] = False
+            st.radio("Library scope", ["Global Registry"], horizontal=True, key="sal_sidebar_scope")
+            st.caption("\U0001f512 Private Vault — access restricted")
+        elif st.session_state.get("vault_unlocked"):
+            # Authenticated — show full scope toggle + lock button
+            scope = st.radio(
+                "Library scope", ["Global Registry", "Private Vault \U0001f3c6"],
+                horizontal=True, key="sal_sidebar_scope",
+            )
+            st.session_state["vault_only"] = scope != "Global Registry"
+            if st.button("\U0001f512 Lock Vault", use_container_width=True, key="sal_vault_lock"):
+                st.session_state["vault_unlocked"] = False
+                st.session_state["vault_only"] = False
+                st.rerun()
+        else:
+            # Not yet authenticated — show password prompt
+            st.session_state["vault_only"] = False
+            st.radio("Library scope", ["Global Registry"], horizontal=True, key="sal_sidebar_scope")
+            st.markdown(
+                '<p style="font-size:0.65rem;color:#64748b;margin:0.3rem 0 0.15rem;'
+                'font-family:\'Courier New\',monospace;letter-spacing:0.06em">'
+                '\U0001f512 PRIVATE VAULT ACCESS</p>',
+                unsafe_allow_html=True,
+            )
+            pw_input = st.text_input(
+                "Vault key", type="password", label_visibility="collapsed",
+                placeholder="Enter vault key\u2026", key="sal_vault_pw_input",
+            )
+            if st.button("Unlock", use_container_width=True, key="sal_vault_unlock_btn", type="primary"):
+                if pw_input and pw_input == _vault_pw:
+                    st.session_state["vault_unlocked"] = True
+                    st.rerun()
+                else:
+                    st.error("Access denied.")
+
         with st.expander("Environment"):
             st.write(f"Browse mode: `{browse_mode}`")
             st.write(f"Live connected: `{live_connected}`")
+            st.write(f"Vault unlocked: `{st.session_state.get('vault_unlocked', False)}`")
             st.write(f"SUPABASE_URL set: `{bool(_resolve_supabase_url())}`")
             st.write(f"SUPABASE_KEY set: `{bool(_resolve_supabase_key())}`")
 
