@@ -1986,76 +1986,30 @@ def _inject_studio_styles() -> None:
     truth_overlay = _truth_diagonal_stamp_url()
     st.markdown(f"""
 <style>
-  /* ── Column backgrounds: layered stamp + tiling watermark ── */
-  div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) > div {{
-    background-color: #f3f6ff;
-    background-image: url("{stamp_l}"), url("{wm_light}");
-    background-size: 88% auto, auto;
-    background-repeat: no-repeat, repeat;
-    background-position: center 22%, 0 0;
-    border: 1.5px solid #b8caf8;
-    border-radius: 4px !important;
-    padding: 0.6rem 0.6rem !important;
-    min-height: 680px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 10px rgba(11,42,111,0.06), inset 0 1px 0 rgba(255,255,255,0.75);
-  }}
-  div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) > div {{
+  /* ── Full-width panel backgrounds (no columns — stacked layout) ── */
+  /* Authority panel: seals + search + tree */
+  div[data-testid="stVerticalBlock"]:has(div.sal-col-authority-anchor) {{
     position: relative;
     background-color: #fafbff;
     background-image: url("{stamp_m}"), url("{wm_medium}");
-    background-size: 88% auto, auto;
+    background-size: 44% auto, auto;
     background-repeat: no-repeat, repeat;
-    background-position: center 25%, 0 0;
+    background-position: center 18%, 0 0;
     border: 1.5px solid #ccd4ef;
-    border-radius: 4px !important;
-    padding: 0.6rem 0.6rem !important;
-    min-height: 680px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1), 0 6px 18px rgba(29,78,216,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 6px 18px rgba(29,78,216,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
   }}
-  /* Diagonal notary stamp: behind Sector + Notary rows only */
-  div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) .sal-authority-stamp-layer {{
+  /* Diagonal truth stamp behind the seals area */
+  div[data-testid="stVerticalBlock"]:has(div.sal-col-authority-anchor) .sal-authority-stamp-layer {{
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 3.1rem;
-    bottom: 46%;
-    z-index: 0;
-    pointer-events: none;
+    left: 0; right: 0; top: 2rem; bottom: 60%;
+    z-index: 0; pointer-events: none;
     background-image: url("{truth_overlay}");
-    background-size: 92% auto;
+    background-size: 55% auto;
     background-repeat: no-repeat;
     background-position: center 40%;
-  }}
-  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) > div {{
-    background-color: #eef2ff;
-    background-image: url("{stamp_r}"), url("{wm_dense}");
-    background-size: 88% auto, auto;
-    background-repeat: no-repeat, repeat;
-    background-position: center 20%, 0 0;
-    border: 1.5px solid #b8caf8;
-    border-radius: 4px !important;
-    padding: 0.6rem 0.6rem !important;
-    min-height: 680px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 10px rgba(11,42,111,0.06), inset 0 1px 0 rgba(255,255,255,0.75);
-  }}
-
-  /* ── Right column — Logic Spec reserved panel ─────────────────────────── */
-  div[data-testid="stColumn"]:has(div.sal-col-engine-right-anchor) > div {{
-    background-color: #f8faff;
-    background-image: url("{stamp_r}"), url("{wm_light}");
-    background-size: 82% auto, auto;
-    background-repeat: no-repeat, repeat;
-    background-position: center 15%, 0 0;
-    border: 1.5px solid #b8caf8;
-    border-radius: 4px !important;
-    padding: 0.6rem 0.65rem !important;
-    min-height: 680px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(11,42,111,0.07), inset 0 1px 0 rgba(255,255,255,0.8);
-  }}
-  div[data-testid="stColumn"]:has(div.sal-col-engine-right-anchor) > div {{
-    padding-top: 0.6rem !important;
-    padding-left: 0.65rem !important;
-    padding-right: 0.65rem !important;
   }}
 </style>
 """, unsafe_allow_html=True)
@@ -4204,9 +4158,10 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
     """Right column (1.2): Logic Specification card — reserved for active role details.
     Green Glow clearance badge + SAL Verified seal + dark terminal JSON block.
     """
-    st.markdown('<div class="sal-col-engine-right-anchor"></div>', unsafe_allow_html=True)
+    # ── Spec panel anchor — scroll target when a role is clicked ─────────────
+    st.markdown('<div id="sal-spec-panel" class="sal-col-engine-right-anchor"></div>', unsafe_allow_html=True)
 
-    # ── Auto-scroll to top when a new role is selected ───────────────────────
+    # ── Auto-scroll DOWN to spec when a new role is selected ─────────────────
     _cur_soc  = str(st.session_state.get("active_soc") or "")
     _prev_soc = str(st.session_state.get("_prev_active_soc") or "")
     if _cur_soc and _cur_soc != _prev_soc:
@@ -4214,11 +4169,24 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         _stc.html(
             """<script>
             (function() {
-                var el =
-                    window.parent.document.querySelector('[data-testid="stMain"]') ||
-                    window.parent.document.querySelector('section.main') ||
-                    window.parent.document.querySelector('.main');
-                if (el) el.scrollTo({top: 0, behavior: 'smooth'});
+                function scrollToSpec() {
+                    var anchor = window.parent.document.getElementById('sal-spec-panel');
+                    var main   = window.parent.document.querySelector('[data-testid="stMain"]');
+                    if (anchor && main) {
+                        var mainRect   = main.getBoundingClientRect();
+                        var anchorRect = anchor.getBoundingClientRect();
+                        var target     = main.scrollTop + (anchorRect.top - mainRect.top) - 16;
+                        main.scrollTo({top: target, behavior: 'smooth'});
+                        return true;
+                    }
+                    return false;
+                }
+                // Try immediately, then retry after Streamlit finishes painting
+                if (!scrollToSpec()) {
+                    setTimeout(scrollToSpec, 400);
+                } else {
+                    setTimeout(scrollToSpec, 400);  // run again to correct for late layout
+                }
             })();
             </script>""",
             height=1,
@@ -4519,14 +4487,9 @@ def main() -> None:
     # ── Sovereign document header ──
     st.markdown(_sovereign_header_html(), unsafe_allow_html=True)
 
-    # ── Two-column Hub: Navigation left, Logic Spec right ──
-    nav_col, spec_col = st.columns([1.6, 1.4], gap="medium")
-
-    with nav_col:
-        _render_col_authority(client=client, browse_mode=browse_mode)
-
-    with spec_col:
-        _render_col_engine(client=client, browse_mode=browse_mode)
+    # ── Full-width stacked layout: Authority (seals + search + tree) → Spec ──
+    _render_col_authority(client=client, browse_mode=browse_mode)
+    _render_col_engine(client=client, browse_mode=browse_mode)
 
     # ── Sector Performance Readout — full-width below both columns ────────────
     st.markdown(
