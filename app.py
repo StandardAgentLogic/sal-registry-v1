@@ -5153,7 +5153,7 @@ def main() -> None:
     if "vault_unlocked" not in st.session_state:
         st.session_state["vault_unlocked"] = False
     if "dark_mode" not in st.session_state:
-        st.session_state["dark_mode"] = True
+        st.session_state["dark_mode"] = False
     if "active_intent" not in st.session_state:
         st.session_state["active_intent"] = None
 
