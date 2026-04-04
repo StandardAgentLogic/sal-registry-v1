@@ -2529,11 +2529,11 @@ def _inject_studio_styles() -> None:
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 112% !important;
-    height: 112% !important;
+    width: 113% !important;
+    height: 113% !important;
     max-width: none !important;
     object-fit: cover;
-    object-position: 56% 50%;
+    object-position: 50% 50%;
     mix-blend-mode: multiply;
     image-rendering: -webkit-optimize-contrast;
   }
@@ -5501,8 +5501,8 @@ def main() -> None:
                     f'<div style="width:200px;height:200px;border-radius:50%;'
                     f'overflow:hidden;margin:0 auto 1.25rem;position:relative;">'
                     f'<img src="{_seal_uri}" style="position:absolute;top:50%;left:50%;'
-                    f'transform:translate(-50%,-50%);width:112%;height:112%;max-width:none;'
-                    f'object-fit:cover;object-position:56% 50%;mix-blend-mode:multiply;" /></div>'
+                    f'transform:translate(-50%,-50%);width:113%;height:113%;max-width:none;'
+                    f'object-fit:cover;object-position:50% 50%;mix-blend-mode:multiply;" /></div>'
                 )
             except Exception:
                 _seal_html = ""
