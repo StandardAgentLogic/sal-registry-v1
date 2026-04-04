@@ -3293,6 +3293,8 @@ def _inject_studio_styles() -> None:
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
     box-sizing: border-box;
     padding: 0.5rem 1rem 0;
     gap: 0;
@@ -3303,13 +3305,14 @@ def _inject_studio_styles() -> None:
     text-align: center;
   }
   .sal-header-flank {
-    flex: 1 1 0%;
+    flex: 0 1 180px;
     min-width: 0;
+    max-width: 200px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1rem;
     overflow: hidden;
   }
   /* Ghosted vertical watermark word behind each flank */
@@ -3356,13 +3359,15 @@ def _inject_studio_styles() -> None:
   .sal-header-flank-right .sal-flank-text { align-items: flex-start; text-align: left; }
   .sal-flank-text span {
     font-family: 'Courier New', 'Lucida Console', monospace;
-    font-size: clamp(0.44rem, 0.95vw, 0.62rem);
+    font-size: clamp(0.42rem, 0.8vw, 0.56rem);
     font-weight: 700;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.1em;
     color: #64748b;
     text-transform: uppercase;
-    white-space: nowrap;
-    line-height: 1;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.3;
+    max-width: 100%;
   }
 
   /* ── Seal image — clip to circle, eliminating baked-in PNG shadow corners ── */
