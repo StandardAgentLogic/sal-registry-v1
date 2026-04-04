@@ -3199,11 +3199,25 @@ def _inject_studio_styles() -> None:
     color: #92400e;
     opacity: 0.65;
   }
+
+  /* ── Header ribbon: remove border box, let title float clean ── */
+  .sal-ribbon-outer {
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 0 0.4rem !important;
+    padding: 0 !important;
+  }
+  .sal-ribbon-inner {
+    border: none !important;
+    background: transparent !important;
+    padding: 0.2rem 1rem 0.3rem !important;
+  }
 </style>
 """, unsafe_allow_html=True)
 
     # ── QUANTUM DARK MODE ─────────────────────────────────────────────────────
-    st.markdown("""
+    if st.session_state.get("dark_mode", True):
+      st.markdown("""
 <style>
   /* ══════════════════════════════════════════════════════════════════════════
      QUANTUM INSTITUTIONAL DARK MODE
@@ -4931,6 +4945,8 @@ def main() -> None:
         st.session_state["agent_bundle"] = []
     if "vault_unlocked" not in st.session_state:
         st.session_state["vault_unlocked"] = False
+    if "dark_mode" not in st.session_state:
+        st.session_state["dark_mode"] = True
 
     _inject_studio_styles()
 
@@ -5011,6 +5027,13 @@ def main() -> None:
                     st.rerun()
                 else:
                     st.error("Access denied.")
+
+        st.markdown("---")
+        _dm = st.session_state.get("dark_mode", True)
+        _dm_label = "☀ Light Mode" if _dm else "◼ Dark Mode"
+        if st.button(_dm_label, use_container_width=True, key="sal_theme_toggle"):
+            st.session_state["dark_mode"] = not _dm
+            st.rerun()
 
         with st.expander("Environment"):
             st.write(f"Browse mode: `{browse_mode}`")
