@@ -1580,6 +1580,25 @@ def _inject_studio_styles() -> None:
     min-height: 680px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 10px rgba(11,42,111,0.06), inset 0 1px 0 rgba(255,255,255,0.75);
   }}
+
+  /* ── Right column — Logic Spec reserved panel ─────────────────────────── */
+  div[data-testid="stColumn"]:has(div.sal-col-engine-right-anchor) > div {{
+    background-color: #f8faff;
+    background-image: url("{stamp_r}"), url("{wm_light}");
+    background-size: 82% auto, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center 15%, 0 0;
+    border: 1.5px solid #b8caf8;
+    border-radius: 4px !important;
+    padding: 0.6rem 0.65rem !important;
+    min-height: 680px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(11,42,111,0.07), inset 0 1px 0 rgba(255,255,255,0.8);
+  }}
+  div[data-testid="stColumn"]:has(div.sal-col-engine-right-anchor) > div {{
+    padding-top: 0.6rem !important;
+    padding-left: 0.65rem !important;
+    padding-right: 0.65rem !important;
+  }}
 </style>
 """, unsafe_allow_html=True)
     st.markdown("""
@@ -2841,159 +2860,8 @@ def _bright_outlook_svg() -> str:
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
-    """Left column (1.1): O*NET SOC Folder Tree — 22 major groups, collapsible by division.
-    Uses sal-col-engine-anchor so tree expander/folder CSS applies to this column.
-    """
-    # engine-anchor → tree CSS (expander rows, folder styling, filter input) targets this column
-    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
-
-    # Filing-cabinet manifest header
-    st.markdown(
-        '<div class="sal-filing-hdr">'
-        '<span class="sal-filing-hdr-code">DOL/O\u2217NET \u00b7 SAL</span>'
-        '<span>FEDERAL LABOR REGISTRY \u2014 SOC FILING CABINET</span>'
-        '<span class="sal-filing-hdr-count">22 DIVISIONS \u00b7 1,095 RECORDS</span>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    # Filter input — monospaced ledger field (styled via engine-anchor CSS)
-    query = st.text_input(
-        "Filter records", key="sal_engine_filter",
-        placeholder="\u25b6 FILTER RECORDS\u2026",
-        label_visibility="collapsed",
-    )
-    vault_only = bool(st.session_state.get("vault_only", False))
-    with st.expander(
-        "\U0001f5c2\ufe0f  O\u2217NET SOC FOLDER TREE \u2014 DIVISIONS",
-        expanded=True,
-    ):
-        _render_file_tree_panel(
-            supabase_url=_resolve_supabase_url(),
-            supabase_key=_resolve_supabase_key(),
-            query=query,
-            vault_only=vault_only,
-            demo_mode=browse_mode,
-            button_key_prefix="engine_",
-        )
-
-
-_SECTOR_TILES_AUTH = [
-    ("13", "Finance", "📊", "#1d4ed8"),
-    ("15", "Technology", "💻", "#7c3aed"),
-    ("29", "Healthcare", "🏥", "#0d9488"),
-    ("17", "Engineering", "⚙️", "#b45309"),
-]
-
-_SEAL_SECTORS_AUTH = [
-    ("11", "Management", "#0b1120", "#7c3aed", "#c4b5fd"),
-    ("17", "Architecture", "#120b08", "#b45309", "#fbbf24"),
-    ("15", "Computer", "#060f36", "#3b5bdb", "#bfdbfe"),
-    ("29", "Healthcare", "#07211e", "#0d9488", "#5ee8c8"),
-]
-
-
-def render_sector_tiles() -> None:
-    """ROW 2 — Four sector tiles; st.columns(4) spans full width of center column."""
-    sc1, sc2, sc3, sc4 = st.columns(4, gap="small")
-    for col, (code, label, icon, accent) in zip([sc1, sc2, sc3, sc4], _SECTOR_TILES_AUTH):
-        is_active = st.session_state.get("active_prefix") == code
-        border = f"2.5px solid {accent}" if is_active else "1px solid #dde4f4"
-        bg_col = "rgba(11,42,111,0.07)" if is_active else "rgba(255,255,255,0.5)"
-        with col:
-            st.markdown(
-                f'<div style="text-align:center;padding:0.28rem 0.08rem;border:{border};'
-                f'border-radius:3px;background:{bg_col};margin-bottom:0.18rem">'
-                f'<div style="font-size:1.05rem;line-height:1">{icon}</div>'
-                f'<div style="font-size:0.52rem;font-weight:900;color:#0b2a6f;'
-                f'letter-spacing:0.05em;margin-top:0.08rem">{label.upper()}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            if st.button(f"[{code}]", key=f"auth_sector_{code}", use_container_width=True):
-                st.session_state["active_prefix"] = code
-                first = next(
-                    (r["soc_code"] for r in _MOCK_REGISTRY
-                     if str(r.get("soc_code", "")).startswith(f"{code}-")),
-                    None,
-                )
-                if first:
-                    st.session_state["active_soc"] = first
-
-
-def render_notary_seals() -> None:
-    """ROW 3 — Four notary seals; st.columns(4) spans full width of center column."""
-    seal_cols = st.columns(4, gap="small")
-    for col, (code, title, bg, ring, accent) in zip(seal_cols, _SEAL_SECTORS_AUTH):
-        with col:
-            icon = _SEAL_ICONS.get(code, "")
-            svg = _notary_seal_svg(code, title, bg, ring, accent, icon)
-            svg_sm = svg.replace('width="190" height="190"', 'width="76" height="76"')
-            st.markdown(
-                f'<div style="text-align:center">{svg_sm}'
-                f'<div style="font-size:0.54rem;color:#475569;margin-top:0.1rem;'
-                f'font-weight:700;letter-spacing:0.06em">{title.upper()}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            if st.button(title[:6], key=f"auth_seal_{code}", use_container_width=True):
-                st.session_state["active_prefix"] = code
-
-
-def _render_col_authority(*, client, browse_mode: bool) -> None:
-    """Middle column — ROW 2: sectors (top), ROW 3: seals, ROW 4: search."""
-    st.markdown(
-        '<div class="sal-col-authority-anchor"></div>'
-        '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── ROW 2 — Sectors (top) ───────────────────────────────────────────────
-    st.markdown(
-        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_sector_tiles()
-
-    # ── ROW 3 — Seals (below sectors) ────────────────────────────────────────
-    st.markdown(
-        '<p class="sal-center-section-label">High-Resolution Digital Notary Seals</p>',
-        unsafe_allow_html=True,
-    )
-    render_notary_seals()
-
-    # ── ROW 4 — Search bar ───────────────────────────────────────────────────
-    st.markdown(
-        '<div class="sal-search-anchor"><p>ENTER JOB TITLE<br>OR<br>DESCRIBE JOB</p></div>',
-        unsafe_allow_html=True,
-    )
-    with st.form("sal_center_search", clear_on_submit=False):
-        intent    = st.text_input("Search", label_visibility="collapsed",
-                                  placeholder="Enter job title or describe the job\u2026",
-                                  key="sal_center_intent")
-        submitted = st.form_submit_button("Search Global Registry", type="primary",
-                                          use_container_width=True)
-    if submitted and intent.strip():
-        vault_only = bool(st.session_state.get("vault_only", False))
-        reply = sal_intent_hub_reply(client=client, user_request=intent.strip(),
-                                     vault_only=vault_only, demo_mode=browse_mode)
-        st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
-        if reply.get("selected_soc"):
-            st.session_state["active_soc"] = str(reply["selected_soc"])
-    last = st.session_state.get("sal_hub_last_reply")
-    if last:
-        from html import escape as _esc
-        st.markdown(
-            f'<p style="font-size:0.72rem;color:#0b2a6f;margin:0.35rem 0">'
-            f'{_esc(str(last)[:300])}</p>',
-            unsafe_allow_html=True,
-        )
-
-def _render_col_engine(*, client, browse_mode: bool, counts: dict) -> None:
-    """Right column (1.2): Federal Ledger (clickable rows → active_soc) + Logic Spec card.
-    Uses sal-col-bureau-anchor so ledger row CSS and green-glow ACTIVE button apply here.
-    """
-    # bureau-anchor → ledger row styles + green glow ACTIVE button target this column
+    """Left column (1.1): Federal Ledger — clickable role rows → drives active_soc + active_prefix."""
+    # bureau-anchor → ledger row styles + green-glow ACTIVE button target this column
     st.markdown('<div class="sal-col-bureau-anchor"></div>', unsafe_allow_html=True)
     st.markdown(
         '<p class="sal-stack-label">Federal Ledger &nbsp;&mdash;&nbsp; Verified Roles</p>',
@@ -3064,8 +2932,158 @@ def _render_col_engine(*, client, browse_mode: bool, counts: dict) -> None:
         unsafe_allow_html=True,
     )
 
+
+_SECTOR_TILES_AUTH = [
+    ("13", "Finance", "📊", "#1d4ed8"),
+    ("15", "Technology", "💻", "#7c3aed"),
+    ("29", "Healthcare", "🏥", "#0d9488"),
+    ("17", "Engineering", "⚙️", "#b45309"),
+]
+
+_SEAL_SECTORS_AUTH = [
+    ("11", "Management", "#0b1120", "#7c3aed", "#c4b5fd"),
+    ("17", "Architecture", "#120b08", "#b45309", "#fbbf24"),
+    ("15", "Computer", "#060f36", "#3b5bdb", "#bfdbfe"),
+    ("29", "Healthcare", "#07211e", "#0d9488", "#5ee8c8"),
+]
+
+
+def render_sector_tiles() -> None:
+    """ROW 2 — Four sector tiles; st.columns(4) spans full width of center column."""
+    sc1, sc2, sc3, sc4 = st.columns(4, gap="small")
+    for col, (code, label, icon, accent) in zip([sc1, sc2, sc3, sc4], _SECTOR_TILES_AUTH):
+        is_active = st.session_state.get("active_prefix") == code
+        border = f"2.5px solid {accent}" if is_active else "1px solid #dde4f4"
+        bg_col = "rgba(11,42,111,0.07)" if is_active else "rgba(255,255,255,0.5)"
+        with col:
+            st.markdown(
+                f'<div style="text-align:center;padding:0.28rem 0.08rem;border:{border};'
+                f'border-radius:3px;background:{bg_col};margin-bottom:0.18rem">'
+                f'<div style="font-size:1.05rem;line-height:1">{icon}</div>'
+                f'<div style="font-size:0.52rem;font-weight:900;color:#0b2a6f;'
+                f'letter-spacing:0.05em;margin-top:0.08rem">{label.upper()}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(f"[{code}]", key=f"auth_sector_{code}", use_container_width=True):
+                st.session_state["active_prefix"] = code
+                first = next(
+                    (r["soc_code"] for r in _MOCK_REGISTRY
+                     if str(r.get("soc_code", "")).startswith(f"{code}-")),
+                    None,
+                )
+                if first:
+                    st.session_state["active_soc"] = first
+
+
+def render_notary_seals() -> None:
+    """ROW 3 — Four notary seals; st.columns(4) spans full width of center column."""
+    seal_cols = st.columns(4, gap="small")
+    for col, (code, title, bg, ring, accent) in zip(seal_cols, _SEAL_SECTORS_AUTH):
+        with col:
+            icon = _SEAL_ICONS.get(code, "")
+            svg = _notary_seal_svg(code, title, bg, ring, accent, icon)
+            svg_sm = svg.replace('width="190" height="190"', 'width="76" height="76"')
+            st.markdown(
+                f'<div style="text-align:center">{svg_sm}'
+                f'<div style="font-size:0.54rem;color:#475569;margin-top:0.1rem;'
+                f'font-weight:700;letter-spacing:0.06em">{title.upper()}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(title[:6], key=f"auth_seal_{code}", use_container_width=True):
+                st.session_state["active_prefix"] = code
+
+
+def _render_col_authority(*, client, browse_mode: bool) -> None:
+    """Middle column (1.0): Sector Quick Access + Notary Seals + Search + SOC Folder Tree."""
+    st.markdown(
+        '<div class="sal-col-authority-anchor"></div>'
+        '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── ROW 1 — Sector Quick Access tiles ───────────────────────────────────
+    st.markdown(
+        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
+        unsafe_allow_html=True,
+    )
+    render_sector_tiles()
+
+    # ── ROW 2 — High-Resolution Notary Seals ─────────────────────────────────
+    st.markdown(
+        '<p class="sal-center-section-label">High-Resolution Digital Notary Seals</p>',
+        unsafe_allow_html=True,
+    )
+    render_notary_seals()
+
+    # ── ROW 3 — Search bar ───────────────────────────────────────────────────
+    st.markdown(
+        '<div class="sal-search-anchor"><p>ENTER JOB TITLE<br>OR<br>DESCRIBE JOB</p></div>',
+        unsafe_allow_html=True,
+    )
+    with st.form("sal_center_search", clear_on_submit=False):
+        intent    = st.text_input("Search", label_visibility="collapsed",
+                                  placeholder="Enter job title or describe the job\u2026",
+                                  key="sal_center_intent")
+        submitted = st.form_submit_button("Search Global Registry", type="primary",
+                                          use_container_width=True)
+    if submitted and intent.strip():
+        vault_only = bool(st.session_state.get("vault_only", False))
+        reply = sal_intent_hub_reply(client=client, user_request=intent.strip(),
+                                     vault_only=vault_only, demo_mode=browse_mode)
+        st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
+        if reply.get("selected_soc"):
+            st.session_state["active_soc"] = str(reply["selected_soc"])
+    last = st.session_state.get("sal_hub_last_reply")
+    if last:
+        from html import escape as _esc
+        st.markdown(
+            f'<p style="font-size:0.72rem;color:#0b2a6f;margin:0.35rem 0">'
+            f'{_esc(str(last)[:300])}</p>',
+            unsafe_allow_html=True,
+        )
+
+    # ── ROW 4 — O*NET SOC Folder Tree ───────────────────────────────────────
+    # engine-anchor placed here so tree expander + folder CSS targets middle column
+    st.markdown(
+        '<div class="sal-col-engine-anchor"></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="sal-filing-hdr">'
+        '<span class="sal-filing-hdr-code">DOL/O\u2217NET \u00b7 SAL</span>'
+        '<span>FEDERAL LABOR REGISTRY \u2014 SOC FILING CABINET</span>'
+        '<span class="sal-filing-hdr-count">22 DIVISIONS \u00b7 1,095 RECORDS</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    query = st.text_input(
+        "Filter records", key="sal_engine_filter",
+        placeholder="\u25b6 FILTER RECORDS\u2026",
+        label_visibility="collapsed",
+    )
+    vault_only = bool(st.session_state.get("vault_only", False))
+    with st.expander(
+        "\U0001f5c2\ufe0f  O\u2217NET SOC FOLDER TREE \u2014 DIVISIONS",
+        expanded=True,
+    ):
+        _render_file_tree_panel(
+            supabase_url=_resolve_supabase_url(),
+            supabase_key=_resolve_supabase_key(),
+            query=query,
+            vault_only=vault_only,
+            demo_mode=browse_mode,
+            button_key_prefix="engine_",
+        )
+
+def _render_col_engine(*, client, browse_mode: bool) -> None:
+    """Right column (1.2): Logic Specification card — reserved for active role details.
+    Green Glow clearance badge + SAL Verified seal + dark terminal JSON block.
+    """
+    st.markdown('<div class="sal-col-engine-right-anchor"></div>', unsafe_allow_html=True)
+
     # ── Logic Specification card ─────────────────────────────────────────────
-    # Loads the full spec for the selected SOC — green glow badge + dark terminal JSON
     selected_soc = str(st.session_state.get("active_soc") or "")
     chosen_row: dict[str, Any] | None = None
     if selected_soc:
@@ -3222,7 +3240,7 @@ def main() -> None:
         _render_col_authority(client=client, browse_mode=browse_mode)
 
     with right_col:
-        _render_col_engine(client=client, browse_mode=browse_mode, counts=counts)
+        _render_col_engine(client=client, browse_mode=browse_mode)
 
     # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
