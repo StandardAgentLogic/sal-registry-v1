@@ -2415,9 +2415,10 @@ def _inject_studio_styles() -> None:
     background: rgba(240,246,255,0.65);
   }
   .sal-ribbon-title {
-    font-size: clamp(0.82rem, 1.65vw, 1.08rem);
-    font-weight: 900; letter-spacing: 0.2em;
-    color: #0b2a6f; text-transform: uppercase; line-height: 1.15;
+    font-size: clamp(0.62rem, 1.15vw, 0.82rem);
+    font-weight: 900; letter-spacing: 0.18em;
+    color: #0b2a6f; text-transform: uppercase; line-height: 1.25;
+    white-space: nowrap;
   }
   .sal-ribbon-serial {
     font-family: 'Courier New', 'Lucida Console', monospace;
@@ -2598,9 +2599,10 @@ def _inject_studio_styles() -> None:
     border-bottom: 3px double #1d4ed8;
     margin-bottom: 0.6rem;
     overflow: visible;
+    /* Pure white base so mix-blend-mode:multiply fully erases the seal PNG's white bg */
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0L0 0 0 60' fill='none' stroke='%231d4ed8' stroke-width='0.4' opacity='0.07'/%3E%3Ccircle cx='0' cy='0' r='1.5' fill='%231d4ed8' opacity='0.1'/%3E%3C/svg%3E") repeat,
-      linear-gradient(180deg,rgba(219,234,254,0.55) 0%,rgba(239,246,255,0.3) 60%,rgba(255,255,255,0) 100%);
+      #ffffff;
   }
   .sal-sovereign-header::before {
     content: 'STANDARD AGENT LOGIC  ·  GLOBAL DNS FOR DIGITAL LABOR  ·  FEDERAL AUTHORIZED REGISTRY  ·  O\2217NET SOC COMPLIANT';
@@ -2660,15 +2662,17 @@ def _inject_studio_styles() -> None:
   }
   .sal-ribbon-title {
     font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: clamp(0.78rem, 1.6vw, 1.05rem);
-    font-weight: 900; letter-spacing: 0.22em;
-    color: #0b2a6f; text-transform: uppercase; line-height: 1.2;
+    font-size: clamp(0.62rem, 1.15vw, 0.82rem);
+    font-weight: 900; letter-spacing: 0.18em;
+    color: #0b2a6f; text-transform: uppercase; line-height: 1.25;
+    white-space: nowrap;
   }
   .sal-ribbon-sub {
     font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: 0.7rem; font-weight: 700;
-    color: #1d4ed8; letter-spacing: 0.15em;
+    font-size: clamp(0.48rem, 0.85vw, 0.62rem); font-weight: 700;
+    color: #1d4ed8; letter-spacing: 0.12em;
     text-transform: uppercase; margin-top: 0.07rem;
+    white-space: nowrap;
   }
 
   /* ── LOGIC SPEC: high-security readout typography ── */
@@ -3280,7 +3284,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-header-center {
     flex: 0 0 auto;
-    width: clamp(240px, 32%, 380px);
+    width: clamp(180px, 24%, 260px);
     text-align: center;
   }
   .sal-header-flank {
@@ -3337,10 +3341,10 @@ def _inject_studio_styles() -> None:
   .sal-header-flank-right .sal-flank-text { align-items: flex-start; text-align: left; }
   .sal-flank-text span {
     font-family: 'Courier New', 'Lucida Console', monospace;
-    font-size: clamp(0.42rem, 0.9vw, 0.58rem);
+    font-size: clamp(0.44rem, 0.95vw, 0.62rem);
     font-weight: 700;
-    letter-spacing: 0.14em;
-    color: #94a3b8;
+    letter-spacing: 0.13em;
+    color: #64748b;
     text-transform: uppercase;
     white-space: nowrap;
     line-height: 1;
