@@ -1128,6 +1128,8 @@ _MOCK_STEP_TEMPLATE: list[dict[str, str]] = [
 ]
 
 _MOCK_LOGIC: dict[str, dict[str, Any]] = {
+
+    # ── 11 MANAGEMENT ──────────────────────────────────────────────────────────
     "11-1011.00": {
         "soc_code": "11-1011.00",
         "primary_directive": "Establish enterprise direction, allocate capital, and align operating units to regulatory and stakeholder outcomes.",
@@ -1138,8 +1140,436 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
             {"step": "Govern execution",    "detail": "Run executive operating rhythm with audit-ready artifacts."},
             {"step": "Assure compliance",   "detail": "Verify statutory, contractual, and ISO control posture."},
         ],
-        "toolbox_requirements": {"erp": ["SAP or Oracle GL"], "governance": ["Board portal", "Risk register"]},
+        "toolbox_requirements": {"erp": ["SAP", "Oracle Fusion"], "governance": ["Board portal", "Risk register", "OKR platform"]},
     },
+    "11-3021.00": {
+        "soc_code": "11-3021.00",
+        "primary_directive": "Direct technology strategy and infrastructure to maintain competitive capability, security posture, and 99.9%+ platform reliability.",
+        "step_by_step_json": [
+            {"step": "Assess tech landscape",  "detail": "Inventory systems, vendors, technical debt, and capability gaps vs. roadmap."},
+            {"step": "Define architecture",     "detail": "Publish target-state diagrams, ADRs, and platform engineering standards."},
+            {"step": "Secure the perimeter",    "detail": "Commission pen-test, remediate CVSS ≥7 findings, enforce MFA and RBAC."},
+            {"step": "Govern delivery",         "detail": "Run sprint reviews, incident reviews, and change-advisory meetings on cadence."},
+            {"step": "Report to executive",     "detail": "Produce monthly IT scorecard: uptime, cost/unit, backlog health, risk register delta."},
+        ],
+        "toolbox_requirements": {"itsm": ["ServiceNow", "Jira Service Mgmt"], "monitoring": ["Datadog", "PagerDuty"], "security": ["SIEM", "Vulnerability scanner"]},
+    },
+
+    # ── 13 FINANCE ─────────────────────────────────────────────────────────────
+    "13-2051.00": {
+        "soc_code": "13-2051.00",
+        "primary_directive": "Translate financial data into investment intelligence: model valuation, stress-test assumptions, and deliver decision-grade research with defensible methodology.",
+        "step_by_step_json": [
+            {"step": "Source & validate data",  "detail": "Pull filings (10-K/Q, 8-K), normalize for GAAP/IFRS adjustments, and flag restatements."},
+            {"step": "Build financial model",   "detail": "Construct 3-statement model with DCF, comps, and sensitivity tables."},
+            {"step": "Stress-test scenarios",   "detail": "Run bear/base/bull cases across macro, credit, and operational levers."},
+            {"step": "Draft investment thesis", "detail": "Synthesize key drivers, catalysts, and risks into a 1-page investment memo."},
+            {"step": "Deliver & defend",        "detail": "Present to portfolio committee, log model version, and track to price target."},
+        ],
+        "toolbox_requirements": {"data": ["Bloomberg Terminal", "FactSet", "Refinitiv"], "modeling": ["Excel / Python pandas", "Capital IQ"], "compliance": ["FINRA rulebook", "CFA standards checklist"]},
+    },
+    "13-1111.00": {
+        "soc_code": "13-1111.00",
+        "primary_directive": "Diagnose organizational performance gaps and prescribe evidence-based operating model improvements with measurable ROI.",
+        "step_by_step_json": [
+            {"step": "Scope engagement",       "detail": "Agree on problem statement, stakeholders, data access, and deliverable format."},
+            {"step": "Collect evidence",        "detail": "Interview SMEs, mine operational data, and benchmark against industry peers."},
+            {"step": "Diagnose root causes",    "detail": "Apply structured problem-solving (MECE, fishbone, value-stream) to isolate drivers."},
+            {"step": "Design recommendations", "detail": "Prioritize initiatives by impact/effort; build implementation roadmap with owners."},
+            {"step": "Transfer & close",        "detail": "Hand off playbook, train internal team, and schedule 90-day check-in."},
+        ],
+        "toolbox_requirements": {"analytics": ["Power BI", "Tableau", "SQL"], "frameworks": ["McKinsey 7S", "MECE canvas"], "collab": ["Miro", "Confluence"]},
+    },
+
+    # ── 15 TECHNOLOGY ──────────────────────────────────────────────────────────
+    "15-1245.00": {
+        "soc_code": "15-1245.00",
+        "primary_directive": "Extract predictive signal from complex, high-dimensional data sets; deploy production-grade ML systems that drive measurable business outcomes.",
+        "step_by_step_json": [
+            {"step": "Frame the problem",      "detail": "Translate business question to ML task type (classification, regression, forecasting, NLP)."},
+            {"step": "Engineer features",      "detail": "Ingest raw data pipelines, handle missingness, encode categoricals, and version feature store."},
+            {"step": "Train & tune models",    "detail": "Baseline → hyperparameter search → ensemble; track experiments in MLflow or W&B."},
+            {"step": "Validate rigorously",    "detail": "Evaluate on holdout, slice by subgroups, run bias/fairness audit and SHAP explainability."},
+            {"step": "Deploy & monitor",       "detail": "Ship via CI/CD to serving layer; instrument data drift, model decay, and alert thresholds."},
+        ],
+        "toolbox_requirements": {"compute": ["GPU cluster", "AWS SageMaker", "GCP Vertex AI"], "stack": ["Python", "PyTorch / scikit-learn", "Apache Spark"], "ops": ["MLflow", "Weights & Biases", "Evidently AI"]},
+    },
+    "15-1252.00": {
+        "soc_code": "15-1252.00",
+        "primary_directive": "Architect, build, and ship reliable software systems at scale — writing clean code, preventing regressions, and continuously improving system quality.",
+        "step_by_step_json": [
+            {"step": "Clarify requirements",   "detail": "Break down epic into user stories; define acceptance criteria and edge cases."},
+            {"step": "Design system",          "detail": "Produce ADR covering data model, API contracts, dependencies, and scale assumptions."},
+            {"step": "Implement & test",       "detail": "Write production code + unit/integration tests; enforce ≥80% coverage gate in CI."},
+            {"step": "Code review & security", "detail": "Peer review for correctness, OWASP top-10 scan, and dependency CVE check."},
+            {"step": "Deploy & observe",       "detail": "Canary deploy with feature flag; monitor latency P99, error rate, and rollback trigger."},
+        ],
+        "toolbox_requirements": {"languages": ["Python", "TypeScript", "Go", "Rust"], "infra": ["Docker", "Kubernetes", "Terraform"], "ci_cd": ["GitHub Actions", "ArgoCD"], "observability": ["OpenTelemetry", "Grafana"]},
+    },
+    "15-1211.00": {
+        "soc_code": "15-1211.00",
+        "primary_directive": "Bridge business needs and IT capabilities — designing systems that are cost-efficient, secure, interoperable, and aligned to enterprise architecture standards.",
+        "step_by_step_json": [
+            {"step": "Elicit requirements",    "detail": "Run structured workshops to capture functional, non-functional, and integration needs."},
+            {"step": "Map current state",       "detail": "Document AS-IS data flows, integrations, and pain points using BPMN or ArchiMate."},
+            {"step": "Design future state",     "detail": "Produce TO-BE architecture with gap analysis, vendor recommendations, and risk log."},
+            {"step": "Validate with IT & biz",  "detail": "Walk through with tech leads and business owners; resolve conflicting priorities."},
+            {"step": "Govern implementation",   "detail": "Oversee dev team adherence to spec; conduct UAT sign-off and architecture gate review."},
+        ],
+        "toolbox_requirements": {"modeling": ["Lucidchart", "Sparx EA", "ArchiMate"], "analysis": ["JIRA", "Confluence", "Draw.io"], "testing": ["Postman", "SoapUI", "JMeter"]},
+    },
+
+    # ── 17 ENGINEERING ─────────────────────────────────────────────────────────
+    "17-2141.00": {
+        "soc_code": "17-2141.00",
+        "primary_directive": "Design, analyze, and validate mechanical systems that meet performance specs, manufacturing tolerances, and safety codes across the full product lifecycle.",
+        "step_by_step_json": [
+            {"step": "Define specifications",  "detail": "Capture load cases, thermal constraints, material limits, and regulatory standards (ASME, ISO)."},
+            {"step": "Conceptual design",      "detail": "Generate design alternatives via sketches and CAD concepts; select via Pugh matrix."},
+            {"step": "Detailed modeling",      "detail": "Build 3D parametric model; run FEA (stress, fatigue, thermal) and tolerance stack-up."},
+            {"step": "Prototype & test",       "detail": "Fabricate prototype; run validation tests against spec; iterate on failures."},
+            {"step": "Release for production", "detail": "Issue controlled drawings, BOM, and DFMEA; obtain DFM sign-off from manufacturing."},
+        ],
+        "toolbox_requirements": {"cad_cae": ["SolidWorks / CATIA", "ANSYS / Abaqus", "MATLAB"], "pdm": ["PTC Windchill", "Teamcenter"], "standards": ["ASME Y14.5 GD&T", "ISO 9001 QMS"]},
+    },
+    "17-2051.00": {
+        "soc_code": "17-2051.00",
+        "primary_directive": "Plan, design, and oversee construction of civil infrastructure — ensuring structural integrity, code compliance, environmental sustainability, and on-budget delivery.",
+        "step_by_step_json": [
+            {"step": "Site & needs assessment", "detail": "Survey site conditions, geotechnical data, hydrology, and regulatory constraints."},
+            {"step": "Preliminary design",      "detail": "Develop schematic design, feasibility cost estimate, and permitting strategy."},
+            {"step": "Detailed engineering",    "detail": "Produce construction drawings, structural calcs, and technical specifications."},
+            {"step": "Bid & procurement",       "detail": "Issue IFB, evaluate contractor proposals, and award with bonding and insurance requirements."},
+            {"step": "Construction oversight",  "detail": "Inspect RFIs, submittals, and field conditions; certify pay applications and punch list."},
+        ],
+        "toolbox_requirements": {"design": ["AutoCAD Civil 3D", "Revit", "Bentley OpenRoads"], "analysis": ["STAAD.Pro", "SAP2000"], "project": ["Primavera P6", "Procore"]},
+    },
+
+    # ── 19 SCIENCE ─────────────────────────────────────────────────────────────
+    "19-1042.00": {
+        "soc_code": "19-1042.00",
+        "primary_directive": "Design and execute rigorous biomedical research protocols that advance disease understanding, validate therapeutic targets, and generate publication-grade evidence.",
+        "step_by_step_json": [
+            {"step": "Formulate hypothesis",    "detail": "Review literature; define PICO question, primary endpoint, and success criteria."},
+            {"step": "Design study protocol",   "detail": "Select model system, sample sizes (power calc), controls, and blinding strategy."},
+            {"step": "Conduct experiments",     "detail": "Execute protocol with GLP documentation; manage reagents, cell lines, and data chain-of-custody."},
+            {"step": "Analyze & interpret",     "detail": "Apply appropriate biostatistics; generate figures; assess significance and effect size."},
+            {"step": "Disseminate findings",    "detail": "Submit to peer-reviewed journal; file IP disclosures; brief regulatory affairs on translational implications."},
+        ],
+        "toolbox_requirements": {"lab": ["Flow cytometry", "CRISPR screening platform", "Mass spectrometry"], "informatics": ["R / Python", "GraphPad Prism", "Galaxy bioinformatics"], "compliance": ["IACUC protocol", "GLP audit trail"]},
+    },
+    "19-2031.00": {
+        "soc_code": "19-2031.00",
+        "primary_directive": "Develop and characterize chemical compounds, materials, and processes — from molecular design through safety validation and scale-up documentation.",
+        "step_by_step_json": [
+            {"step": "Literature & IP scan",    "detail": "Review prior art, patent landscape, and safety data sheets for target chemistry."},
+            {"step": "Synthesize & characterize","detail": "Execute synthesis route; confirm structure via NMR, MS, IR; measure physical properties."},
+            {"step": "Optimize & scale",        "detail": "Iterate reaction conditions for yield and selectivity; develop scalable process with EHS review."},
+            {"step": "Safety & regulatory",     "detail": "Complete SDS, GHS classification, waste disposal plan, and REACH/TSCA compliance check."},
+            {"step": "Document & publish",      "detail": "Archive lab notebooks, ELN entries, and submit findings for peer review or patent filing."},
+        ],
+        "toolbox_requirements": {"instrumentation": ["NMR spectrometer", "HPLC-MS", "FTIR"], "informatics": ["ChemDraw", "SciFinder / Reaxys", "ELN platform"], "safety": ["SDS management system", "COSHH assessment"]},
+    },
+
+    # ── 21 COMMUNITY ───────────────────────────────────────────────────────────
+    "21-1023.00": {
+        "soc_code": "21-1023.00",
+        "primary_directive": "Deliver trauma-informed, evidence-based behavioral health interventions that support recovery, community reintegration, and sustained wellness outcomes.",
+        "step_by_step_json": [
+            {"step": "Intake & risk screen",    "detail": "Administer validated tools (PHQ-9, AUDIT, DAST); complete safety assessment and crisis plan."},
+            {"step": "Treatment planning",      "detail": "Co-create individualized plan with goals, evidence-based modalities (CBT, MI, MAT), and milestones."},
+            {"step": "Coordinate care",         "detail": "Link to psychiatry, PCP, housing, and peer support; manage releases of information."},
+            {"step": "Deliver interventions",   "detail": "Conduct individual and group sessions; document per SOAP and payer requirements."},
+            {"step": "Discharge & follow-up",   "detail": "Build relapse prevention plan, warm-handoff to community resources, 30/60/90-day check-in."},
+        ],
+        "toolbox_requirements": {"ehr": ["Epic", "Cerner", "Credible"], "clinical": ["PHQ-9", "AUDIT-C", "Columbia Suicide Scale"], "resources": ["SAMHSA locator", "211 referral network"]},
+    },
+
+    # ── 23 LEGAL ───────────────────────────────────────────────────────────────
+    "23-1011.00": {
+        "soc_code": "23-1011.00",
+        "primary_directive": "Represent client interests with precision legal analysis, strategic advocacy, and risk-calibrated counsel — from intake through resolution or trial.",
+        "step_by_step_json": [
+            {"step": "Conflict check & intake",  "detail": "Run conflict-of-interest screen; execute engagement letter and retainer."},
+            {"step": "Research & discovery",     "detail": "Survey case law, statutes, and regulations; issue discovery, manage document review via TAR."},
+            {"step": "Develop legal theory",     "detail": "Frame causes of action or defenses; draft pleadings, motions, and briefs with controlling authority."},
+            {"step": "Negotiate or litigate",    "detail": "Conduct mediation, depositions, or trial prep; evaluate settlement risk against litigation cost."},
+            {"step": "Close & preserve",         "detail": "Execute judgment or settlement; file closing docs; retain matter files per jurisdiction rules."},
+        ],
+        "toolbox_requirements": {"research": ["Westlaw", "LexisNexis", "Fastcase"], "ediscovery": ["Relativity", "Everlaw"], "practice_mgmt": ["Clio", "iManage", "NetDocuments"]},
+    },
+
+    # ── 25 EDUCATION ───────────────────────────────────────────────────────────
+    "25-2021.00": {
+        "soc_code": "25-2021.00",
+        "primary_directive": "Foster foundational literacy, numeracy, and social-emotional learning in every student — using differentiated instruction and data-driven intervention cycles.",
+        "step_by_step_json": [
+            {"step": "Assess baseline",         "detail": "Administer diagnostic assessments (reading levels, math fluency); map IEPs and 504 plans."},
+            {"step": "Plan curriculum unit",    "detail": "Align lessons to state standards; design gradual-release sequence with formative checkpoints."},
+            {"step": "Differentiate delivery",  "detail": "Use small-group rotations, scaffolded materials, and tech tools for diverse learners."},
+            {"step": "Monitor & adjust",        "detail": "Analyze weekly progress data; adjust pacing, groupings, and intervention intensity."},
+            {"step": "Communicate outcomes",    "detail": "Share report cards and conference notes with families; escalate concerns to counselors or specialists."},
+        ],
+        "toolbox_requirements": {"learning": ["Google Classroom", "Seesaw", "IXL"], "assessment": ["NWEA MAP", "DIBELS", "Renaissance Star"], "ell_support": ["Amplify CKLA", "Rosetta Stone"]},
+    },
+
+    # ── 27 ARTS & MEDIA ────────────────────────────────────────────────────────
+    "27-3042.00": {
+        "soc_code": "27-3042.00",
+        "primary_directive": "Transform complex technical concepts into precise, accessible documentation — reducing support burden, accelerating onboarding, and satisfying compliance requirements.",
+        "step_by_step_json": [
+            {"step": "Needs analysis",          "detail": "Interview SMEs and end-users; identify gaps in existing docs; define audience and output formats."},
+            {"step": "Information architecture","detail": "Design topic hierarchy using DITA or docs-as-code structure; establish style guide and templates."},
+            {"step": "Draft content",           "detail": "Write procedure, reference, and conceptual topics with screenshots, code samples, and callouts."},
+            {"step": "Technical review",        "detail": "Route drafts to engineering and QA for accuracy review; resolve comments in tracker."},
+            {"step": "Publish & maintain",      "detail": "Build and deploy to docs portal; set review cadence; track doc issues from support tickets."},
+        ],
+        "toolbox_requirements": {"authoring": ["MadCap Flare", "Sphinx", "Docusaurus"], "graphics": ["Snagit", "Figma", "Adobe Illustrator"], "version_control": ["Git / GitHub", "Paligo"]},
+    },
+    "27-1024.00": {
+        "soc_code": "27-1024.00",
+        "primary_directive": "Create visual communications that solve business problems — balancing brand integrity, user psychology, and aesthetic excellence across digital and print channels.",
+        "step_by_step_json": [
+            {"step": "Brief & research",        "detail": "Absorb creative brief, audience personas, competitive landscape, and brand standards."},
+            {"step": "Concept development",     "detail": "Sketch multiple directions; present mood boards and rationale to stakeholders."},
+            {"step": "Design execution",        "detail": "Build production files in vector and raster formats; apply typography, color, and grid systems."},
+            {"step": "Feedback & iteration",    "detail": "Present designs in context; incorporate structured feedback; version and track revisions."},
+            {"step": "Handoff & archive",       "detail": "Package assets for print or dev handoff (export specs, style tokens); archive source files in DAM."},
+        ],
+        "toolbox_requirements": {"design": ["Figma", "Adobe CC (Illustrator, Photoshop, InDesign)"], "prototyping": ["Figma Interactive", "InVision"], "assets": ["DAM platform", "Stock library"]},
+    },
+
+    # ── 29 HEALTHCARE ──────────────────────────────────────────────────────────
+    "29-1215.00": {
+        "soc_code": "29-1215.00",
+        "primary_directive": "Deliver comprehensive, evidence-based primary care — managing acute illness, chronic disease, preventive services, and care coordination across the patient lifespan.",
+        "step_by_step_json": [
+            {"step": "Patient encounter",       "detail": "Take history, perform physical exam; review HPI, medications, allergies, and SDOH factors."},
+            {"step": "Clinical reasoning",      "detail": "Form differential, order targeted diagnostics, and apply clinical decision support tools."},
+            {"step": "Treatment & prescribing", "detail": "Apply evidence-based guidelines (ADA, JNC, USPSTF); e-prescribe with drug-interaction check."},
+            {"step": "Coordinate care",         "detail": "Refer to specialists, manage transitions, and reconcile medications across settings."},
+            {"step": "Document & quality",      "detail": "Complete SOAP note, close care gaps for HEDIS measures, and respond to patient portal messages."},
+        ],
+        "toolbox_requirements": {"ehr": ["Epic", "Athenahealth", "eClinicalWorks"], "decision_support": ["UpToDate", "CDC immunization schedule"], "quality": ["HEDIS dashboard", "Chronic disease registry"]},
+    },
+    "29-1141.00": {
+        "soc_code": "29-1141.00",
+        "primary_directive": "Deliver safe, patient-centered nursing care — assessing clinical status, executing physician orders, advocating for patients, and preventing adverse events.",
+        "step_by_step_json": [
+            {"step": "Shift assessment",        "detail": "Complete head-to-toe assessment; review chart, vitals trend, and handoff from prior nurse."},
+            {"step": "Plan & prioritize",       "detail": "Apply nursing diagnosis framework (NANDA); prioritize by acuity using SBAR and ISBAR."},
+            {"step": "Administer & document",   "detail": "Execute medication administration with 5-rights; chart interventions in real time."},
+            {"step": "Patient education",       "detail": "Teach condition management, discharge instructions, and medication adherence in plain language."},
+            {"step": "Handoff & escalation",    "detail": "Use structured SBAR handoff; escalate deteriorating patients via rapid response or STAT call."},
+        ],
+        "toolbox_requirements": {"ehr": ["Epic", "Cerner", "Meditech"], "monitoring": ["Cardiac telemetry", "SpO2 / EtCO2 monitoring"], "safety": ["Pyxis / Omnicell dispensing", "Bar-code MAR"]},
+    },
+
+    # ── 31 HEALTH SUPPORT ──────────────────────────────────────────────────────
+    "31-1131.00": {
+        "soc_code": "31-1131.00",
+        "primary_directive": "Provide compassionate, dignity-preserving personal care that supports resident or patient activities of daily living while maintaining infection control and safety standards.",
+        "step_by_step_json": [
+            {"step": "Report & review",         "detail": "Review care plan updates from prior shift; note changes in resident condition or behavior."},
+            {"step": "Personal care delivery",  "detail": "Assist with bathing, grooming, dressing, positioning, and mobility per individualized care plan."},
+            {"step": "Nutrition & hydration",   "detail": "Serve meals, document intake, assist with feeding, and monitor for dysphagia signs."},
+            {"step": "Observe & report",        "detail": "Document vitals, skin integrity, and behavioral changes; report deviations to charge nurse immediately."},
+            {"step": "Environment & safety",    "detail": "Maintain clean, clutter-free resident space; apply fall-prevention and standard precautions."},
+        ],
+        "toolbox_requirements": {"ehr": ["PointClickCare", "MatrixCare"], "safety": ["Gait belt", "Hoyer lift protocol"], "infection_control": ["PPE bundle", "Hand hygiene audit tool"]},
+    },
+
+    # ── 33 PROTECTIVE SERVICES ─────────────────────────────────────────────────
+    "33-3051.00": {
+        "soc_code": "33-3051.00",
+        "primary_directive": "Maintain public safety through visible patrol, rapid incident response, evidence-based policing strategies, and constitutional, community-centered law enforcement.",
+        "step_by_step_json": [
+            {"step": "Patrol & presence",       "detail": "Conduct assigned patrol; engage community contacts; log observations in CAD system."},
+            {"step": "Incident response",       "detail": "Respond to calls for service; assess threat level; apply de-escalation before force continuum."},
+            {"step": "Investigation & evidence","detail": "Secure scene, collect and chain-of-custody physical/digital evidence, canvass witnesses."},
+            {"step": "Report & documentation",  "detail": "Complete incident report, arrest affidavit, or use-of-force report within shift per policy."},
+            {"step": "Court & prosecution",     "detail": "Testify with organized notes; coordinate with DA; maintain evidence integrity through trial."},
+        ],
+        "toolbox_requirements": {"dispatch": ["CAD system", "RMS (records management)"], "field": ["Body-worn camera", "TASER", "Mobile data terminal"], "analytics": ["PredPol / ShotSpotter", "NIBRS reporting"]},
+    },
+    "33-1011.00": {
+        "soc_code": "33-1011.00",
+        "primary_directive": "Lead correctional officer teams to maintain secure, humane, and rehabilitative facility operations — enforcing policy, managing incidents, and developing staff.",
+        "step_by_step_json": [
+            {"step": "Shift briefing",          "detail": "Review inmate population changes, incident log, and post assignments before shift."},
+            {"step": "Security audits",         "detail": "Conduct head counts, contraband searches, and perimeter checks per post orders."},
+            {"step": "Incident management",     "detail": "Command emergency response; apply use-of-force matrix; preserve evidence and document."},
+            {"step": "Staff development",       "detail": "Coach officers on de-escalation, policy compliance, and professional conduct; document counseling."},
+            {"step": "Reporting & compliance",  "detail": "Complete supervisory log; review incident reports for accuracy; submit ACA compliance data."},
+        ],
+        "toolbox_requirements": {"systems": ["Offender management system", "Incident command radio"], "compliance": ["ACA standards checklist", "PREA audit tool"], "training": ["CJTC curriculum", "De-escalation simulator"]},
+    },
+
+    # ── 35 FOOD SERVICE ────────────────────────────────────────────────────────
+    "35-1011.00": {
+        "soc_code": "35-1011.00",
+        "primary_directive": "Conceive, execute, and quality-control restaurant cuisine — from menu engineering and cost control through brigade leadership and plate-perfect service delivery.",
+        "step_by_step_json": [
+            {"step": "Menu engineering",        "detail": "Design seasonal menu balancing food cost %, margin, dietary trends, and kitchen throughput."},
+            {"step": "Procurement & prep",      "detail": "Source vendors, set par levels, write production sheets, and oversee mise en place."},
+            {"step": "Service execution",       "detail": "Run expediting station during service; enforce ticket times, plate presentation, and temperature standards."},
+            {"step": "Food safety & sanitation","detail": "Monitor HACCP controls, temp logs, and cleaning schedules; conduct daily line checks."},
+            {"step": "Team development",        "detail": "Train line cooks, conduct skills demos, manage schedules, and drive labor cost within budget."},
+        ],
+        "toolbox_requirements": {"operations": ["POS system", "Recipe costing software (e.g., MarketMan)"], "safety": ["HACCP log", "ServSafe certification"], "sourcing": ["Sysco / US Foods portal", "Local farm CSA"]},
+    },
+
+    # ── 37 GROUNDS ─────────────────────────────────────────────────────────────
+    "37-1011.00": {
+        "soc_code": "37-1011.00",
+        "primary_directive": "Maintain pristine indoor and outdoor environments by directing janitorial and grounds crews, enforcing cleaning standards, and managing supply and equipment budgets.",
+        "step_by_step_json": [
+            {"step": "Inspect & prioritize",    "detail": "Walk facility; identify high-traffic soiling, safety hazards, and scheduled maintenance items."},
+            {"step": "Assign & brief crew",     "detail": "Assign tasks by zone and skill; brief on chemical handling, PPE, and quality standards."},
+            {"step": "Quality control",         "detail": "Spot-inspect completed areas against checklist; re-assign deficiencies before sign-off."},
+            {"step": "Inventory & ordering",    "detail": "Track supply usage; place orders before par triggers; manage equipment maintenance schedule."},
+            {"step": "Incident & safety log",   "detail": "Document spills, slips, or equipment failures; complete OSHA-compliant incident reports."},
+        ],
+        "toolbox_requirements": {"operations": ["CMMS (e.g., Hippo, Dude Solutions)", "Cleaning schedule app"], "safety": ["SDS binder", "OSHA 300 log"], "equipment": ["Auto-scrubber", "Backpack vacuum"]},
+    },
+
+    # ── 39 PERSONAL CARE ───────────────────────────────────────────────────────
+    "39-9021.00": {
+        "soc_code": "39-9021.00",
+        "primary_directive": "Design and deliver results-driven fitness programming that safely progresses clients toward evidence-based health outcomes with exceptional motivation and accountability.",
+        "step_by_step_json": [
+            {"step": "Health history & screen",  "detail": "Complete PAR-Q+, review medical history, and obtain physician clearance if flagged."},
+            {"step": "Fitness assessment",       "detail": "Measure cardiorespiratory fitness, muscular strength, flexibility, and body composition baselines."},
+            {"step": "Program design",           "detail": "Build periodized plan using FITT-VP principles; align to SMART goals and exercise preferences."},
+            {"step": "Session delivery",         "detail": "Demonstrate, coach form, and apply progressive overload; monitor RPE and adjust intensity."},
+            {"step": "Track & progress",         "detail": "Log sessions and metrics; reassess every 4-6 weeks; celebrate milestones and adjust plan."},
+        ],
+        "toolbox_requirements": {"platforms": ["Trainerize", "TrueCoach", "Mindbody"], "assessment": ["InBody or DEXA scan", "VO2 max protocol"], "certifications": ["NASM CPT", "ACE", "ACSM"]},
+    },
+
+    # ── 41 SALES ───────────────────────────────────────────────────────────────
+    "41-4011.00": {
+        "soc_code": "41-4011.00",
+        "primary_directive": "Drive B2B revenue through consultative technical sales — educating buyers, navigating complex buying committees, and closing deals that deliver measurable ROI for customers.",
+        "step_by_step_json": [
+            {"step": "Prospect & qualify",      "detail": "Build ICP-matched target list; qualify via BANT/MEDDIC; score against quota pipeline model."},
+            {"step": "Discovery call",          "detail": "Uncover technical requirements, current-state pain, decision process, and economic buyer."},
+            {"step": "Solution demo & proposal","detail": "Tailor demo to discovered pain; build ROI model and written proposal with technical specs."},
+            {"step": "Negotiate & close",       "detail": "Handle objections with proof points; navigate legal redlines; secure PO and contract signature."},
+            {"step": "Onboard & expand",        "detail": "Coordinate SE and CSM handoff; identify upsell opportunities at 90-day business review."},
+        ],
+        "toolbox_requirements": {"crm": ["Salesforce", "HubSpot CRM"], "enablement": ["Gong.io", "Outreach", "ZoomInfo"], "pricing": ["CPQ tool", "Deal desk portal"]},
+    },
+    "41-3021.00": {
+        "soc_code": "41-3021.00",
+        "primary_directive": "Match clients to optimal insurance solutions through needs analysis, risk assessment, and compliant advisory practice — building a referral-driven book of business.",
+        "step_by_step_json": [
+            {"step": "Needs analysis",          "detail": "Conduct life-stage interview; quantify income replacement, liability exposure, and coverage gaps."},
+            {"step": "Market & quote",          "detail": "Run comparative quotes across carriers; evaluate premium, coverage limits, and exclusions."},
+            {"step": "Present & recommend",     "detail": "Illustrate coverage options in plain language; disclose commissions per suitability standards."},
+            {"step": "Issue & bind",            "detail": "Complete application, underwriting submissions, and policy delivery with client signature."},
+            {"step": "Service & retain",        "detail": "Conduct annual reviews; process claims advocacy; ask for referrals at renewal."},
+        ],
+        "toolbox_requirements": {"quoting": ["Applied EPIC", "EZLynx", "Vertafore AMS360"], "compliance": ["FINRA suitability checklist", "State DOI CE tracker"], "crm": ["Salesforce FSC", "Redtail CRM"]},
+    },
+
+    # ── 43 ADMIN / OFFICE SUPPORT ──────────────────────────────────────────────
+    "43-6014.00": {
+        "soc_code": "43-6014.00",
+        "primary_directive": "Serve as the operational backbone of the office — managing information flow, scheduling, correspondence, and administrative systems with accuracy and discretion.",
+        "step_by_step_json": [
+            {"step": "Calendar & comms",        "detail": "Manage executive calendar; prioritize inbound comms; draft responses and route to appropriate owner."},
+            {"step": "Document management",     "detail": "Create, format, and version-control reports, presentations, and correspondence per org templates."},
+            {"step": "Meeting coordination",    "detail": "Book rooms and AV; distribute agendas; capture minutes and distribute action items within 24 hours."},
+            {"step": "Process & data entry",    "detail": "Maintain databases, filing systems, and records with 99%+ accuracy; reconcile invoices and expense reports."},
+            {"step": "Vendor & supply mgmt",    "detail": "Manage office supply inventory, vendor invoices, and facility service requests."},
+        ],
+        "toolbox_requirements": {"productivity": ["Microsoft 365 / Google Workspace", "Zoom / Teams"], "admin": ["DocuSign", "Concur Expense", "SharePoint"], "scheduling": ["Calendly", "Outlook scheduling assistant"]},
+    },
+
+    # ── 45 FARMING ─────────────────────────────────────────────────────────────
+    "45-2041.00": {
+        "soc_code": "45-2041.00",
+        "primary_directive": "Maintain agricultural product quality through precise grading, sorting, and inspection — minimizing waste, ensuring food safety compliance, and maximizing marketable yield.",
+        "step_by_step_json": [
+            {"step": "Receive & inspect",       "detail": "Check incoming lots against USDA grade standards; reject non-conforming product; log lot numbers."},
+            {"step": "Set up equipment",        "detail": "Calibrate optical sorters, grading tables, and weight sensors to spec before each run."},
+            {"step": "Sort & grade",            "detail": "Operate grading line; monitor defect rates; manually inspect edge cases for borderline grades."},
+            {"step": "Pack & label",            "detail": "Pack to trade unit spec; apply lot code, weight, and compliance labels per COOL and traceability regs."},
+            {"step": "Document & report",       "detail": "Record yield percentages, culls, and equipment downtime; flag food safety concerns immediately."},
+        ],
+        "toolbox_requirements": {"equipment": ["Optical belt sorter", "Weight-check conveyor", "Grading table"], "compliance": ["USDA grade standards", "FSMA traceability rule"], "erp": ["AgriWebb", "Granular", "FarmLogs"]},
+    },
+
+    # ── 47 CONSTRUCTION ────────────────────────────────────────────────────────
+    "47-1011.00": {
+        "soc_code": "47-1011.00",
+        "primary_directive": "Lead construction trade crews to deliver scope on schedule and budget — enforcing safety, quality, and contract compliance from mobilization through close-out.",
+        "step_by_step_json": [
+            {"step": "Mobilize & plan",         "detail": "Review drawings, specs, and schedule; conduct pre-task planning and site hazard identification."},
+            {"step": "Crew management",         "detail": "Assign tasks by trade and skill; coordinate subcontractors; enforce safety PPE and site rules."},
+            {"step": "Quality control",         "detail": "Inspect work against drawings and specifications; document NCRs and direct rework immediately."},
+            {"step": "Progress reporting",      "detail": "Submit daily field report with installed quantities, labor hours, equipment, and weather impacts."},
+            {"step": "Punch & close-out",       "detail": "Walk punch list with owner/GC; obtain inspections and approvals; compile as-built documentation."},
+        ],
+        "toolbox_requirements": {"project": ["Procore", "Autodesk Construction Cloud", "Bluebeam Revu"], "scheduling": ["Primavera P6", "MS Project"], "safety": ["OSHA 30-hr card", "JHA templates", "Site safety plan"]},
+    },
+    "47-2061.00": {
+        "soc_code": "47-2061.00",
+        "primary_directive": "Execute physical construction tasks safely and efficiently — supporting all trades with ground-level labor, material handling, and site preparation to keep the project moving.",
+        "step_by_step_json": [
+            {"step": "Pre-task safety",         "detail": "Attend toolbox talk; complete JHA; inspect personal PPE and tool/equipment condition."},
+            {"step": "Site preparation",        "detail": "Excavate, grade, and compact per stakeout; install erosion controls and form work."},
+            {"step": "Material handling",       "detail": "Unload deliveries; stage materials by zone; operate telehandler or forklift per certification."},
+            {"step": "Trade support",           "detail": "Mix concrete, cut rebar, set forms, pull wire, or assist any trade per daily foreman direction."},
+            {"step": "Clean & secure",          "detail": "Clean debris to dumpster; secure tools and materials; report any site damage or near-misses."},
+        ],
+        "toolbox_requirements": {"safety": ["OSHA 10-hr card", "Fall protection harness", "Hard hat/Hi-vis vest"], "equipment": ["Excavator", "Plate compactor", "Concrete mixer"], "certs": ["Forklift / telehandler cert", "Confined space awareness"]},
+    },
+
+    # ── 49 MAINTENANCE & REPAIR ────────────────────────────────────────────────
+    "49-9071.00": {
+        "soc_code": "49-9071.00",
+        "primary_directive": "Maintain facility systems and equipment at peak reliability — executing preventive maintenance, rapid corrective repair, and continuous improvement to reduce downtime costs.",
+        "step_by_step_json": [
+            {"step": "Work order intake",       "detail": "Triage work orders in CMMS by criticality; review equipment history and parts availability."},
+            {"step": "Preventive maintenance",  "detail": "Execute PM tasks per OEM schedules: lubricate, inspect, clean, calibrate, and replace wear items."},
+            {"step": "Corrective repair",       "detail": "Diagnose fault using multimeter, vibration analysis, or visual inspection; repair or replace component."},
+            {"step": "Parts & documentation",   "detail": "Record labor, parts used, and findings in CMMS; update equipment records for warranty tracking."},
+            {"step": "Root cause & improve",    "detail": "Analyze repeat failures; recommend design changes or PM interval updates to reduce recurrence."},
+        ],
+        "toolbox_requirements": {"cmms": ["Fiix", "UpKeep", "Maximo"], "diagnostic": ["Fluke multimeter", "Thermal camera", "Vibration analyzer"], "safety": ["LOTO kit", "Arc flash PPE", "Permit-to-work system"]},
+    },
+
+    # ── 51 PRODUCTION ──────────────────────────────────────────────────────────
+    "51-1011.00": {
+        "soc_code": "51-1011.00",
+        "primary_directive": "Direct production floor operations to achieve throughput, quality, and safety targets — leading operators, managing material flow, and driving continuous improvement.",
+        "step_by_step_json": [
+            {"step": "Shift startup",           "detail": "Review prior shift log; verify machine readiness, material availability, and staffing; brief team."},
+            {"step": "Production control",      "detail": "Monitor output vs. schedule; adjust run rates, address bottlenecks, and reallocate labor in real time."},
+            {"step": "Quality management",      "detail": "Review SPC charts; hold non-conforming material; issue NCR and initiate containment within 1 hour."},
+            {"step": "Safety leadership",       "detail": "Conduct safety observation rounds; correct unsafe acts immediately; enforce LOTO and PPE compliance."},
+            {"step": "Reporting & improvement", "detail": "Complete shift production report; lead 5-Why or A3 on top downtime events; update OEE dashboard."},
+        ],
+        "toolbox_requirements": {"mes": ["Plex MES", "SAP PP module", "Ignition SCADA"], "quality": ["SPC software", "GD&T gauging", "ISO 9001 NCR log"], "lean": ["VSM", "5S audit", "Kaizen board"]},
+    },
+
+    # ── 53 TRANSPORTATION ──────────────────────────────────────────────────────
+    "53-3032.00": {
+        "soc_code": "53-3032.00",
+        "primary_directive": "Transport freight safely, on time, and in compliance with FMCSA regulations — maintaining vehicle readiness, managing hours of service, and delivering exceptional service.",
+        "step_by_step_json": [
+            {"step": "Pre-trip inspection",     "detail": "Complete FMCSA-required inspection of tractor and trailer: lights, brakes, tires, coupling, fluids."},
+            {"step": "Load & secure",           "detail": "Verify BOL quantities; check load for weight distribution and cargo security per CVSA standards."},
+            {"step": "Route & HOS management",  "detail": "Plan route via ELD and GPS; log duty status changes; take required breaks before HOS limits."},
+            {"step": "Safe operation",          "detail": "Apply CDL best practices: speed management, space cushion, mirror scans, hazmat placard check."},
+            {"step": "Delivery & close",        "detail": "Verify delivery address and receiver identity; obtain signed POD; complete post-trip inspection log."},
+        ],
+        "toolbox_requirements": {"compliance": ["ELD mandate (Omnitracs/KeepTruckin)", "FMCSA regulations 49 CFR 390-399"], "navigation": ["Rand McNally TND", "Trucker Path app"], "safety": ["DOT physical card", "HAZMAT endorsement (if req'd)"]},
+    },
+
+    # ── SAL VAULT IP ───────────────────────────────────────────────────────────
     "15-1299.08": {
         "soc_code": "15-1299.08",
         "primary_directive": "Vault-grade systems engineering: integrate agentic workflows with audit-ready SAL steps and proprietary controls.",
