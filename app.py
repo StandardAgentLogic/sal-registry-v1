@@ -2359,8 +2359,8 @@ def _inject_studio_styles() -> None:
     position: relative;
     text-align: center;
     padding: 0.45rem 0 0;
-    border-top: 3px solid #1d4ed8;
-    border-bottom: 3px double #1d4ed8;
+    border-top: none;
+    border-bottom: none;
     margin-bottom: 0.85rem;
     background: linear-gradient(180deg, rgba(11,42,111,0.04) 0%, transparent 55%);
   }
@@ -2610,8 +2610,8 @@ def _inject_studio_styles() -> None:
     position: relative;
     text-align: center;
     padding: 1.2rem 0 0.6rem;
-    border-top: 3px solid #1d4ed8;
-    border-bottom: 3px double #1d4ed8;
+    border-top: none;
+    border-bottom: none;
     margin-bottom: 0.6rem;
     overflow: visible;
     /* Pure white base so mix-blend-mode:multiply fully erases the seal PNG's white bg */
