@@ -5351,37 +5351,57 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                 indent=2,
                 default=str,
             )
-            st.download_button(
-                label=f"\u21e9  Export Deployment Manifest ({len(bundle_data)} roles · full MCP spec)",
-                data=bundle_json,
-                file_name="sal_deployment_manifest.json",
-                mime="application/json",
-                use_container_width=True,
-                key="sal_bundle_export",
-            )
-
-            # ── Stripe checkout ───────────────────────────────────────────
             _stripe_url = (_secret_get("STRIPE_PAYMENT_LINK") or "").strip()
-            if _stripe_url:
-                role_count = len(bundle_data)
+            _paid = st.session_state.get("payment_verified", False)
+            _role_count = len(bundle_data)
+
+            if _paid:
+                # ── Payment verified — unlock export ──────────────────────
                 st.markdown(
-                    f'<a href="{_stripe_url}" target="_blank" rel="noopener noreferrer" style="'
-                    f'display:block;width:100%;box-sizing:border-box;margin-top:0.4rem;'
-                    f'padding:0.7rem 1rem;background:#16a34a;color:#fff;font-weight:700;'
-                    f'font-size:0.92rem;text-align:center;border-radius:4px;'
-                    f'text-decoration:none;letter-spacing:0.03em;">'
-                    f'&#9889;&nbsp; Proceed to Checkout &nbsp;&rarr;&nbsp; '
-                    f'{role_count} Role{"s" if role_count != 1 else ""}</a>',
+                    '<div style="margin-bottom:0.4rem;padding:0.35rem 0.65rem;'
+                    'background:#052e16;border:1px solid #16a34a55;border-radius:4px;'
+                    'font-size:0.7rem;color:#4ade80;font-family:\'Courier New\',monospace;">'
+                    '&#10003; Payment verified — manifest unlocked</div>',
                     unsafe_allow_html=True,
+                )
+                st.download_button(
+                    label=f"\u21e9  Export Deployment Manifest ({_role_count} role{'s' if _role_count != 1 else ''} · full MCP spec)",
+                    data=bundle_json,
+                    file_name="sal_deployment_manifest.json",
+                    mime="application/json",
+                    use_container_width=True,
+                    key="sal_bundle_export",
                 )
             else:
+                # ── Not paid — show locked export + checkout CTA ──────────
                 st.markdown(
-                    '<div style="margin-top:0.4rem;padding:0.5rem 0.75rem;'
-                    'background:#071540;border:1px dashed #1d4ed855;border-radius:4px;'
-                    'font-size:0.72rem;color:#60a5fa;font-family:\'Courier New\',monospace;">'
-                    '&#9889; Add <code>STRIPE_PAYMENT_LINK</code> to secrets to enable checkout</div>',
+                    '<div style="padding:0.6rem 0.75rem;margin-bottom:0.35rem;'
+                    'background:#0f172a;border:1px dashed #1d4ed855;border-radius:4px;'
+                    'font-size:0.75rem;color:#475569;text-align:center;">'
+                    '&#128274;&nbsp; Export Deployment Manifest — unlocked after checkout</div>',
                     unsafe_allow_html=True,
                 )
+                if _stripe_url:
+                    _checkout_url = f"{_stripe_url}?prefilled_quantity={_role_count}"
+                    st.markdown(
+                        f'<a href="{_checkout_url}" target="_blank" rel="noopener noreferrer" style="'
+                        f'display:block;width:100%;box-sizing:border-box;'
+                        f'padding:0.75rem 1rem;background:#16a34a;color:#fff;font-weight:700;'
+                        f'font-size:0.95rem;text-align:center;border-radius:4px;'
+                        f'text-decoration:none;letter-spacing:0.03em;'
+                        f'box-shadow:0 0 18px #16a34a44;">'
+                        f'&#9889;&nbsp; Proceed to Checkout &nbsp;&rarr;&nbsp;'
+                        f' {_role_count} Role{"s" if _role_count != 1 else ""}</a>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown(
+                        '<div style="margin-top:0.4rem;padding:0.5rem 0.75rem;'
+                        'background:#071540;border:1px dashed #1d4ed855;border-radius:4px;'
+                        'font-size:0.72rem;color:#60a5fa;font-family:\'Courier New\',monospace;">'
+                        '&#9889; Add <code>STRIPE_PAYMENT_LINK</code> to secrets to enable checkout</div>',
+                        unsafe_allow_html=True,
+                    )
 
 # ── Sovereign document header ────────────────────────────────────────────────
 
@@ -5477,6 +5497,11 @@ def main() -> None:
         st.session_state["dark_mode"] = False
     if "active_intent" not in st.session_state:
         st.session_state["active_intent"] = None
+    if "payment_verified" not in st.session_state:
+        st.session_state["payment_verified"] = False
+    # Detect Stripe redirect — ?checkout=success sets the payment flag for this session
+    if st.query_params.get("checkout") == "success":
+        st.session_state["payment_verified"] = True
 
     _inject_studio_styles()
 
