@@ -2841,90 +2841,41 @@ def _bright_outlook_svg() -> str:
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
-    """Left column: Federal Ledger — clickable role rows → drives active_soc + active_prefix."""
-    st.markdown('<div class="sal-col-bureau-anchor"></div>', unsafe_allow_html=True)
-    st.markdown('<p class="sal-stack-label">Federal Ledger &nbsp;&mdash;&nbsp; Verified Roles</p>', unsafe_allow_html=True)
+    """Left column (1.1): O*NET SOC Folder Tree — 22 major groups, collapsible by division.
+    Uses sal-col-engine-anchor so tree expander/folder CSS applies to this column.
+    """
+    # engine-anchor → tree CSS (expander rows, folder styling, filter input) targets this column
+    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
 
-    latest = fetch_latest_verified_logic(client, demo_mode=browse_mode, limit=10)
-    count_display = counts.get("agent_logic", 1095)
-
-    # ── Table header (static HTML) ──────────────────────────────────────────
+    # Filing-cabinet manifest header
     st.markdown(
-        '<table class="sal-lvl-table"><thead><tr>'
-        '<th>SOC code</th><th>Job Title</th><th>Salary</th><th>Status</th>'
-        '</tr></thead></table>',
-        unsafe_allow_html=True,
-    )
-
-    # ── Clickable ledger rows ───────────────────────────────────────────────
-    active_soc = str(st.session_state.get("active_soc") or "")
-    for item in latest[:10]:
-        soc   = str(item.get("soc_code") or "")
-        title = str(item.get("title") or soc)
-        if not soc:
-            continue
-        prefix     = soc[:2]
-        is_active  = soc == active_soc
-        row_bg     = "background:rgba(11,42,111,0.08);border-left:3px solid #1d4ed8" if is_active else "background:transparent;border-left:3px solid transparent"
-        # Row rendered as columns: SOC | Title | Salary | Badge + button
-        c1, c2, c3, c4 = st.columns([1.1, 2.4, 0.7, 1.0])
-        c1.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<code class="sal-ledger-soc">{escape(soc)}</code></div>',
-            unsafe_allow_html=True,
-        )
-        c2.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<span class="sal-ledger-title">{escape(title[:24])}</span></div>',
-            unsafe_allow_html=True,
-        )
-        c3.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<span class="sal-ledger-salary">$10,000</span></div>',
-            unsafe_allow_html=True,
-        )
-        with c4:
-            btn_label = "◉ ACTIVE" if is_active else "VERIFIED"
-            if st.button(
-                btn_label,
-                key=f"ledger_row_{soc}",
-                use_container_width=True,
-                type="primary" if is_active else "secondary",
-            ):
-                st.session_state["active_soc"]    = soc
-                st.session_state["active_prefix"] = prefix
-
-    # ── Footer count ────────────────────────────────────────────────────────
-    st.markdown(
-        f'<div style="display:flex;justify-content:space-between;align-items:center;'
-        f'border-top:2px double #1d4ed8;margin-top:0.25rem;padding-top:0.22rem">'
-        f'<span style="font-family:\'Courier New\',monospace;font-size:0.6rem;color:#64748b;'
-        f'font-weight:700;letter-spacing:0.08em">FEDERAL REGISTRY LEDGER &nbsp;·&nbsp; SAL V1.0.0</span>'
-        f'<span style="font-size:0.86rem;font-weight:900;color:#0b2a6f;letter-spacing:0.02em">'
-        f'{count_display:,} Verified Roles</span>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    # Staffing Agent chat widget
-    st.markdown(
-        '<div class="sal-chat-widget">'
-        '<div class="sal-chat-title">🤖 Staffing Agent</div>'
-        '<div class="sal-chat-prompt">Tell the Staffing Agent what you need.</div>'
+        '<div class="sal-filing-hdr">'
+        '<span class="sal-filing-hdr-code">DOL/O\u2217NET \u00b7 SAL</span>'
+        '<span>FEDERAL LABOR REGISTRY \u2014 SOC FILING CABINET</span>'
+        '<span class="sal-filing-hdr-count">22 DIVISIONS \u00b7 1,095 RECORDS</span>'
         '</div>',
         unsafe_allow_html=True,
     )
-    with st.form("sal_chat_bureau", clear_on_submit=True):
-        chat_q = st.text_input("chat", label_visibility="collapsed", placeholder="Tell the Staffing Agent what you need.")
-        if st.form_submit_button("Send ➤", use_container_width=True, type="primary") and chat_q.strip():
-            vault_only = bool(st.session_state.get("vault_only", False))
-            reply = sal_intent_hub_reply(client=client, user_request=chat_q.strip(), vault_only=vault_only, demo_mode=browse_mode)
-            st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
-            if reply.get("selected_soc"):
-                st.session_state["active_soc"] = str(reply["selected_soc"])
-    last = st.session_state.get("sal_hub_last_reply")
-    if last:
-        st.markdown(f'<p style="font-size:0.68rem;color:#1d4ed8;margin-top:0.35rem">{escape(str(last)[:220])}</p>', unsafe_allow_html=True)
+
+    # Filter input — monospaced ledger field (styled via engine-anchor CSS)
+    query = st.text_input(
+        "Filter records", key="sal_engine_filter",
+        placeholder="\u25b6 FILTER RECORDS\u2026",
+        label_visibility="collapsed",
+    )
+    vault_only = bool(st.session_state.get("vault_only", False))
+    with st.expander(
+        "\U0001f5c2\ufe0f  O\u2217NET SOC FOLDER TREE \u2014 DIVISIONS",
+        expanded=True,
+    ):
+        _render_file_tree_panel(
+            supabase_url=_resolve_supabase_url(),
+            supabase_key=_resolve_supabase_key(),
+            query=query,
+            vault_only=vault_only,
+            demo_mode=browse_mode,
+            button_key_prefix="engine_",
+        )
 
 
 _SECTOR_TILES_AUTH = [
@@ -3038,39 +2989,91 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             unsafe_allow_html=True,
         )
 
-def _render_col_engine(*, client, browse_mode: bool) -> None:
-    """Right column: SOC folder tree, Logic Spec, Bright Outlook chart."""
-    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
-
-    # Filing-cabinet manifest header
+def _render_col_engine(*, client, browse_mode: bool, counts: dict) -> None:
+    """Right column (1.2): Federal Ledger (clickable rows → active_soc) + Logic Spec card.
+    Uses sal-col-bureau-anchor so ledger row CSS and green-glow ACTIVE button apply here.
+    """
+    # bureau-anchor → ledger row styles + green glow ACTIVE button target this column
+    st.markdown('<div class="sal-col-bureau-anchor"></div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="sal-filing-hdr">'
-        '<span class="sal-filing-hdr-code">DOL/O*NET \u00b7 SAL</span>'
-        '<span>FEDERAL LABOR REGISTRY \u2014 SOC FILING CABINET</span>'
-        '<span class="sal-filing-hdr-count">22 DIVISIONS \u00b7 1,095 RECORDS</span>'
-        '</div>',
+        '<p class="sal-stack-label">Federal Ledger &nbsp;&mdash;&nbsp; Verified Roles</p>',
         unsafe_allow_html=True,
     )
 
-    # SOC folder tree
-    query = st.text_input("Filter records", key="sal_engine_filter", placeholder="\u25b6 FILTER RECORDS…", label_visibility="collapsed")
-    vault_only = bool(st.session_state.get("vault_only", False))
-    with st.expander("\U0001f5c2\ufe0f  O\u2217NET SOC FOLDER TREE — DIVISIONS", expanded=True):
-        _render_file_tree_panel(
-            supabase_url=_resolve_supabase_url(),
-            supabase_key=_resolve_supabase_key(),
-            query=query,
-            vault_only=vault_only,
-            demo_mode=browse_mode,
-            button_key_prefix="engine_",
-        )
+    latest = fetch_latest_verified_logic(client, demo_mode=browse_mode, limit=10)
+    count_display = counts.get("agent_logic", 1095)
 
-    # Logic specification
+    # ── Table header (static HTML) ──────────────────────────────────────────
+    st.markdown(
+        '<table class="sal-lvl-table"><thead><tr>'
+        '<th>SOC code</th><th>Job Title</th><th>Salary</th><th>Status</th>'
+        '</tr></thead></table>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Clickable ledger rows — each row sets active_soc + active_prefix ───
+    active_soc = str(st.session_state.get("active_soc") or "")
+    for item in latest[:10]:
+        soc   = str(item.get("soc_code") or "")
+        title = str(item.get("title") or soc)
+        if not soc:
+            continue
+        prefix    = soc[:2]
+        is_active = soc == active_soc
+        row_bg    = (
+            "background:rgba(11,42,111,0.08);border-left:3px solid #1d4ed8"
+            if is_active else
+            "background:transparent;border-left:3px solid transparent"
+        )
+        c1, c2, c3, c4 = st.columns([1.1, 2.4, 0.7, 1.0])
+        c1.markdown(
+            f'<div class="sal-ledger-cell" style="{row_bg}">'
+            f'<code class="sal-ledger-soc">{escape(soc)}</code></div>',
+            unsafe_allow_html=True,
+        )
+        c2.markdown(
+            f'<div class="sal-ledger-cell" style="{row_bg}">'
+            f'<span class="sal-ledger-title">{escape(title[:24])}</span></div>',
+            unsafe_allow_html=True,
+        )
+        c3.markdown(
+            f'<div class="sal-ledger-cell" style="{row_bg}">'
+            f'<span class="sal-ledger-salary">$10,000</span></div>',
+            unsafe_allow_html=True,
+        )
+        with c4:
+            btn_label = "\u25c9 ACTIVE" if is_active else "VERIFIED"
+            if st.button(
+                btn_label,
+                key=f"ledger_row_{soc}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state["active_soc"]    = soc
+                st.session_state["active_prefix"] = prefix
+
+    # ── Footer count ────────────────────────────────────────────────────────
+    st.markdown(
+        f'<div style="display:flex;justify-content:space-between;align-items:center;'
+        f'border-top:2px double #1d4ed8;margin-top:0.25rem;padding-top:0.22rem">'
+        f'<span style="font-family:\'Courier New\',monospace;font-size:0.6rem;color:#64748b;'
+        f'font-weight:700;letter-spacing:0.08em">FEDERAL REGISTRY LEDGER &nbsp;\u00b7&nbsp; SAL V1.0.0</span>'
+        f'<span style="font-size:0.86rem;font-weight:900;color:#0b2a6f;letter-spacing:0.02em">'
+        f'{count_display:,} Verified Roles</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Logic Specification card ─────────────────────────────────────────────
+    # Loads the full spec for the selected SOC — green glow badge + dark terminal JSON
     selected_soc = str(st.session_state.get("active_soc") or "")
     chosen_row: dict[str, Any] | None = None
     if selected_soc:
         if browse_mode:
-            chosen_row = next((dict(r) for r in _MOCK_REGISTRY if r.get("soc_code") == selected_soc), None)
+            chosen_row = next(
+                (dict(r) for r in _MOCK_REGISTRY if r.get("soc_code") == selected_soc),
+                None,
+            )
         elif client is not None:
             try:
                 rr = (
@@ -3102,7 +3105,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         browse_mode=browse_mode,
     )
 
-    # Bright Outlook — agency readout
+    # ── Bright Outlook — Sector Performance Readout ──────────────────────────
     st.markdown(
         '<div class="sal-bright-outlook-wrap">'
         '<div class="sal-bright-outlook-title" '
@@ -3219,7 +3222,7 @@ def main() -> None:
         _render_col_authority(client=client, browse_mode=browse_mode)
 
     with right_col:
-        _render_col_engine(client=client, browse_mode=browse_mode)
+        _render_col_engine(client=client, browse_mode=browse_mode, counts=counts)
 
     # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
