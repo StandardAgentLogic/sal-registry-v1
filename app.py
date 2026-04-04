@@ -1999,6 +1999,20 @@ def _inject_studio_styles() -> None:
     background-repeat: no-repeat;
     background-position: center 40%;
   }}
+
+  /* Header flanks — tiling diagonal SAL watermark at low opacity */
+  .sal-header-flank-left {{
+    background-image: url("{stamp_l}"), url("{wm_light}");
+    background-size: 88% auto, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center center, 0 0;
+  }}
+  .sal-header-flank-right {{
+    background-image: url("{stamp_r}"), url("{wm_light}");
+    background-size: 88% auto, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center center, 0 0;
+  }}
 </style>
 """, unsafe_allow_html=True)
     st.markdown("""
@@ -3350,10 +3364,25 @@ def _inject_studio_styles() -> None:
     line-height: 1;
   }
 
-  /* ── Seal image — remove rectangular drop-shadow, multiply handles bg ── */
+  /* ── Seal image — strip every possible box source ── */
   .sal-great-seal-img {
     filter: none !important;
     mix-blend-mode: multiply !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+  }
+  /* Streamlit wraps <img> in stImage figure — strip its shadow too */
+  .sal-eagle-wrap figure,
+  .sal-eagle-wrap [data-testid="stImage"],
+  .sal-eagle-wrap [data-testid="stImage"] > div,
+  .sal-eagle-wrap img {
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
   }
 
   /* ── Header ribbon: remove border box, let title float clean ── */
