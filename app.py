@@ -3823,12 +3823,68 @@ def _render_bundle_staging_area() -> None:
 
     # ── Actions row ───────────────────────────────────────────────────────
     if bundle:
-        act_a, act_b, _ = st.columns([1, 1, 3])
+        act_a, _, _2 = st.columns([1, 1, 3])
         with act_a:
             if st.button("Clear All", key="staging_clear_all",
                          use_container_width=True, type="secondary"):
                 st.session_state["agent_bundle"] = []
                 st.rerun()
+
+    # ── Suggested Additions ───────────────────────────────────────────────
+    if bundle:
+        bundled_socs    = {item.get("soc_code", "") for item in bundle}
+        bundled_prefixes = [soc.split("-")[0] for soc in bundled_socs if "-" in soc]
+
+        suggestions: list[tuple[str, str, str]] = []
+        seen: set[str] = set()
+        for pfx in bundled_prefixes:
+            for soc_code, title, rationale in _COMPLEMENTS.get(pfx, []):
+                if soc_code not in bundled_socs and soc_code not in seen:
+                    suggestions.append((soc_code, title, rationale))
+                    seen.add(soc_code)
+                if len(suggestions) >= 3:
+                    break
+            if len(suggestions) >= 3:
+                break
+
+        if suggestions:
+            st.markdown(
+                '<div style="font-family:\'Courier New\',monospace;font-size:0.6rem;'
+                'font-weight:800;color:#60a5fa;letter-spacing:0.12em;'
+                'padding:0.6rem 0 0.35rem;border-top:1px solid #1d4ed822;margin-top:0.4rem">'
+                '&#9670; SUGGESTED ADDITIONS &nbsp;&middot;&nbsp; ROLES THAT COMPLETE THIS BUNDLE'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+            sug_cols = st.columns(len(suggestions))
+            for col, (soc_code, title, rationale) in zip(sug_cols, suggestions):
+                with col:
+                    prefix = soc_code.split("-")[0] if "-" in soc_code else "??"
+                    _, __, acc_c = _RISK_COLORS.get(
+                        next((risk for p, _l, _pct, risk, *_ in _AI_DISPLACEMENT if p == prefix), "LOW"),
+                        _RISK_COLORS["LOW"],
+                    )
+                    st.markdown(
+                        f'<div style="background:#071540;border:1px solid {acc_c}44;'
+                        f'border-left:3px solid {acc_c};border-radius:5px;'
+                        f'padding:0.6rem 0.7rem;margin-bottom:0.3rem">'
+                        f'<div style="font-weight:700;font-size:0.82rem;color:#e2e8f0;'
+                        f'margin-bottom:0.15rem;line-height:1.3">{escape(title)}</div>'
+                        f'<div style="font-family:\'Courier New\',monospace;font-size:0.58rem;'
+                        f'color:{acc_c};margin-bottom:0.3rem">{escape(soc_code)}</div>'
+                        f'<div style="font-size:0.68rem;color:#94a3b8;font-style:italic">'
+                        f'{escape(rationale)}</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button(f"+ Add {title.split()[0]}...", key=f"suggest_add_{soc_code}",
+                                 use_container_width=True):
+                        current = st.session_state.get("agent_bundle", [])
+                        if not any(r.get("soc_code") == soc_code for r in current):
+                            st.session_state["agent_bundle"] = current + [
+                                {"soc_code": soc_code, "title": title}
+                            ]
+                        st.rerun()
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
@@ -3988,6 +4044,79 @@ _RISK_COLORS = {
     "MINIMAL":  ("#1e1b4b", "#c4b5fd", "#7c3aed"),
 }
 
+# Suggested pairings: prefix → [(soc_code, title, one-line rationale), ...]
+_COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
+    "11": [("13-2051.00","Financial Analysts","Budget oversight and ROI tracking"),
+           ("15-1252.00","Software Developers","Digital infrastructure and tooling"),
+           ("23-1011.00","Lawyers","Legal compliance and contract governance")],
+    "13": [("11-1011.00","Chief Executives","Strategic direction and capital allocation"),
+           ("15-1245.00","Database Administrators","Financial data integrity and reporting"),
+           ("23-1011.00","Lawyers","Regulatory compliance and fiduciary risk")],
+    "15": [("11-1011.00","Chief Executives","Executive sponsorship and roadmap alignment"),
+           ("17-2141.00","Mechanical Engineers","Systems integration and hardware interface"),
+           ("13-2051.00","Financial Analysts","Budget management and vendor contracts")],
+    "17": [("15-1252.00","Software Developers","Software-hardware integration"),
+           ("19-1042.00","Medical Scientists","Applied research and validation"),
+           ("11-1011.00","Chief Executives","Project authorization and resource allocation")],
+    "19": [("17-2141.00","Mechanical Engineers","Lab equipment and prototype development"),
+           ("15-1252.00","Software Developers","Data pipelines and ML tooling"),
+           ("25-2021.00","Elementary School Teachers","Science communication and outreach")],
+    "21": [("29-1215.00","Family Medicine Physicians","Co-located health and social services"),
+           ("23-1011.00","Lawyers","Advocacy and legal aid support"),
+           ("25-2021.00","Elementary School Teachers","Educational wraparound services")],
+    "23": [("11-1011.00","Chief Executives","Corporate governance and risk oversight"),
+           ("13-2051.00","Financial Analysts","Financial due diligence and forensics"),
+           ("15-1252.00","Software Developers","Legal tech and e-discovery tooling")],
+    "25": [("27-3042.00","Technical Writers","Curriculum documentation and content"),
+           ("15-1252.00","Software Developers","EdTech platforms and LMS administration"),
+           ("21-1023.00","Mental Health Counselors","Student wellbeing and support services")],
+    "27": [("41-3021.00","Insurance Sales Agents","Brand deals and partnership sales"),
+           ("15-1252.00","Software Developers","Digital production and platform tools"),
+           ("11-1011.00","Chief Executives","Creative direction and business strategy")],
+    "29": [("31-1131.00","Nursing Assistants","Direct patient care and bedside support"),
+           ("19-1042.00","Medical Scientists","Clinical research and protocol development"),
+           ("15-1252.00","Software Developers","EHR systems and telehealth platforms")],
+    "31": [("29-1215.00","Family Medicine Physicians","Clinical supervision and care orders"),
+           ("21-1023.00","Mental Health Counselors","Behavioral health integration"),
+           ("29-1141.00","Registered Nurses","Nursing oversight and care coordination")],
+    "33": [("11-1011.00","Chief Executives","Command structure and policy oversight"),
+           ("21-1023.00","Mental Health Counselors","Crisis intervention and de-escalation"),
+           ("15-1252.00","Software Developers","Surveillance systems and incident software")],
+    "35": [("11-1011.00","Chief Executives","Operations strategy and franchise management"),
+           ("41-4011.00","Sales Representatives","Vendor procurement and supply chain sales"),
+           ("43-6014.00","Secretaries and Admin Assistants","Scheduling and back-office support")],
+    "37": [("47-1011.00","Construction Managers","Site coordination and project management"),
+           ("49-9071.00","Maintenance Workers","Equipment maintenance and repair"),
+           ("11-1011.00","Chief Executives","Facilities strategy and budget oversight")],
+    "39": [("29-1215.00","Family Medicine Physicians","Medical oversight and referrals"),
+           ("21-1023.00","Mental Health Counselors","Behavioral support and care planning"),
+           ("31-1131.00","Nursing Assistants","Hands-on care team integration")],
+    "41": [("11-1011.00","Chief Executives","Sales strategy and quota alignment"),
+           ("13-2051.00","Financial Analysts","Revenue forecasting and deal finance"),
+           ("43-6014.00","Secretaries and Admin Assistants","CRM admin and sales operations")],
+    "43": [("11-1011.00","Chief Executives","Executive support and decision routing"),
+           ("13-2051.00","Financial Analysts","Budget tracking and expense reporting"),
+           ("15-1252.00","Software Developers","Workflow automation and office systems")],
+    "45": [("19-1042.00","Medical Scientists","Crop science and applied agronomy"),
+           ("49-9071.00","Maintenance Workers","Farm equipment repair and upkeep"),
+           ("11-1011.00","Chief Executives","Agricultural business and export strategy")],
+    "47": [("17-2141.00","Mechanical Engineers","Structural design and load analysis"),
+           ("49-9071.00","Maintenance Workers","Site equipment and tool maintenance"),
+           ("11-1011.00","Chief Executives","Project bid management and oversight")],
+    "49": [("47-2061.00","Construction Laborers","Repair and build-out site support"),
+           ("15-1252.00","Software Developers","Predictive maintenance software"),
+           ("11-1011.00","Chief Executives","Facilities management and capital planning")],
+    "51": [("49-9071.00","Maintenance Workers","Line equipment maintenance and uptime"),
+           ("17-2141.00","Mechanical Engineers","Production line design and optimization"),
+           ("11-1011.00","Chief Executives","Manufacturing strategy and output targets")],
+    "53": [("49-9071.00","Maintenance Workers","Fleet maintenance and safety inspections"),
+           ("11-1011.00","Chief Executives","Logistics strategy and route optimization"),
+           ("43-6014.00","Secretaries and Admin Assistants","Dispatch coordination and scheduling")],
+    "55": [("11-1011.00","Chief Executives","Command structure and strategic leadership"),
+           ("15-1252.00","Software Developers","Defense systems and cyber operations"),
+           ("23-1011.00","Lawyers","Military law and JAG corps support")],
+}
+
 def _render_ai_sales_floor() -> None:
     """AI Displacement Sales Floor — full-width sector cards sorted by automation risk."""
     st.markdown(
@@ -4028,10 +4157,10 @@ def _render_ai_sales_floor() -> None:
                     f'</div>',
                     unsafe_allow_html=True,
                 )
-                # Invisible Streamlit button to open the sector in the tree
+                # Button opens the matching sector folder in the O*NET tree
                 if st.button(f"Browse {label}", key=f"ai_floor_{prefix}",
                              use_container_width=True, type="secondary"):
-                    st.session_state["active_sector_filter"] = prefix
+                    st.session_state["active_prefix"] = prefix
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
@@ -4132,8 +4261,32 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
     )
     render_unified_seals()
 
+    # ── Auto-scroll to tree when active_prefix changes ────────────────────
+    _cur_prefix  = str(st.session_state.get("active_prefix") or "")
+    _prev_prefix = str(st.session_state.get("_prev_active_prefix") or "")
+    if _cur_prefix and _cur_prefix != _prev_prefix:
+        st.session_state["_prev_active_prefix"] = _cur_prefix
+        _stc.html("""<script>
+        (function() {
+            function scrollToTree() {
+                var anchor = window.parent.document.getElementById('sal-onet-tree');
+                var main   = window.parent.document.querySelector('[data-testid="stMain"]');
+                if (anchor && main) {
+                    var mainRect   = main.getBoundingClientRect();
+                    var anchorRect = anchor.getBoundingClientRect();
+                    var target     = main.scrollTop + (anchorRect.top - mainRect.top) - 16;
+                    main.scrollTo({top: target, behavior: 'smooth'});
+                    return true;
+                }
+                return false;
+            }
+            if (!scrollToTree()) { setTimeout(scrollToTree, 400); }
+            else { setTimeout(scrollToTree, 400); }
+        })();
+        </script>""", height=1, scrolling=False)
+
     # ── O*NET SOC Directory — engine anchor for CSS ───────────────────────
-    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
+    st.markdown('<div id="sal-onet-tree" class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="sal-dir-rule">'
         '<span>O\u2217NET SOC DIRECTORY</span>'
