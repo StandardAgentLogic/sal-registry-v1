@@ -3186,12 +3186,67 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         if st.session_state.get("agent_bundle"):
             bundle_data = st.session_state["agent_bundle"]
             import json as _json
+
+            # ── Build full MCP spec for every bundled role ────────────────
+            full_roles: list[dict] = []
+            for entry in bundle_data:
+                code = entry.get("soc_code", "")
+                # Pull registry metadata
+                reg_row: dict | None = None
+                if browse_mode:
+                    reg_row = next(
+                        (dict(r) for r in _MOCK_REGISTRY if r.get("soc_code") == code),
+                        None,
+                    )
+                elif client is not None:
+                    try:
+                        rr = (
+                            client.table("registry_metadata")
+                            .select("soc_code,title,market_value,outlook,description")
+                            .eq("soc_code", code).limit(1).execute()
+                        )
+                        if rr.data:
+                            reg_row = rr.data[0]
+                    except Exception:
+                        pass
+
+                # Pull agent logic spec
+                logic_row: dict | None = None
+                if browse_mode:
+                    logic_row = _demo_fetch_agent_logic_detail(code)
+                elif client is not None:
+                    try:
+                        logic_row = fetch_agent_logic_detail(client, code)
+                    except Exception:
+                        pass
+
+                full_roles.append({
+                    "soc_code": code,
+                    "title": entry.get("title", ""),
+                    "registry": {
+                        "market_value": (reg_row or {}).get("market_value"),
+                        "outlook":      (reg_row or {}).get("outlook"),
+                        "description":  (reg_row or {}).get("description"),
+                    },
+                    "mcp_spec": {
+                        "primary_directive":  (logic_row or {}).get("primary_directive"),
+                        "execution_steps":    _normalize_steps((logic_row or {}).get("step_by_step_json")),
+                        "toolbox_requirements": (logic_row or {}).get("toolbox_requirements"),
+                    },
+                })
+
             bundle_json = _json.dumps(
-                {"sal_agent_bundle": bundle_data, "format": "MCP/SAL-v1", "exported": "2026"},
+                {
+                    "format":          "MCP/SAL-v1.2",
+                    "exported":        "2026-04-04",
+                    "total_roles":     len(full_roles),
+                    "sal_agent_bundle": full_roles,
+                },
                 indent=2,
+                default=str,
             )
             st.download_button(
-                label=f"\u21e9  Export Bundle ({len(bundle_data)} roles)",
+                label=f"\u21e9  Export Bundle ({len(bundle_data)} roles · full MCP spec)",
                 data=bundle_json,
                 file_name="sal_agent_bundle.json",
                 mime="application/json",
