@@ -180,6 +180,73 @@ def fetch_agent_logic_detail(client, soc_code: str) -> dict[str, Any] | None:
     return None
 
 
+def fetch_guardrails_for_soc(client, soc_code: str) -> dict[str, Any] | None:
+    """Fetch safety_protocols + compliance_standards for a SOC code.
+    The soc_code column may be null; the SOC is embedded in verification_logic JSON.
+    Falls back to a prefix match or first available row."""
+    try:
+        # Try exact match on the soc_code column first
+        result = (
+            client.table("guardrails_and_compliance")
+            .select("safety_protocols,verification_logic")
+            .eq("soc_code", soc_code)
+            .limit(1)
+            .execute()
+        )
+        if result.data:
+            return result.data[0]
+        # Fall back: match soc_code embedded in verification_logic JSON
+        result2 = (
+            client.table("guardrails_and_compliance")
+            .select("safety_protocols,verification_logic")
+            .like("verification_logic", f'%"{soc_code}"%')
+            .limit(1)
+            .execute()
+        )
+        if result2.data:
+            return result2.data[0]
+        # Last resort: return any guardrail (they all represent safety standards)
+        result3 = (
+            client.table("guardrails_and_compliance")
+            .select("safety_protocols,verification_logic")
+            .limit(1)
+            .execute()
+        )
+        if result3.data:
+            return result3.data[0]
+    except Exception:
+        pass
+    return None
+
+
+def _parse_pg_array(raw: Any) -> list[str]:
+    """Parse PostgreSQL text array {val1,val2,...} or a plain Python list."""
+    if isinstance(raw, list):
+        return [str(x) for x in raw]
+    if not isinstance(raw, str):
+        return []
+    s = raw.strip()
+    if s.startswith("{") and s.endswith("}"):
+        inner = s[1:-1]
+        # split on commas that are not inside quotes
+        import csv
+        parts = list(csv.reader([inner]))[0] if inner else []
+        return [p.strip().strip('"') for p in parts if p.strip()]
+    return [s] if s else []
+
+
+_MOCK_GUARDRAILS = {
+    "protocols": [
+        "All agent outputs must be logged and auditable",
+        "No personally identifiable information (PII) may be stored without consent",
+        "Agent actions must be reversible or require human confirmation for irreversible steps",
+        "All third-party API calls must use authenticated, rate-limited endpoints",
+        "Agent must halt and escalate on ambiguous authorization boundaries",
+    ],
+    "standards": ["NIST_AI_RMF", "ISO_27001", "SOC2_Type2", "OWASP_Top10"],
+}
+
+
 def _normalize_steps(raw: Any) -> list[Any]:
     if raw is None:
         return []
@@ -1802,7 +1869,7 @@ def _steps_to_html(steps: list[Any]) -> str:
     return f"<ol class='sal-steps'>{''.join(parts)}</ol>"
 
 
-def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any] | None, logic: dict[str, Any] | None, browse_mode: bool) -> None:
+def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any] | None, logic: dict[str, Any] | None, browse_mode: bool, guardrails: dict[str, Any] | None = None) -> None:
     display_title = str((chosen_row or {}).get("title") or "Select a role from the Federal Ledger")
     is_custom  = chosen_row is not None and chosen_row.get("is_custom") is True
     is_verified = chosen_row is not None  # every selected mock row is VERIFIED
@@ -1928,6 +1995,47 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
             f"</div>"
         )
 
+    # ── Compliance Guardrails block ──────────────────────────────────────────
+    gr_html = ""
+    if guardrails or browse_mode:
+        if browse_mode:
+            protocols = _MOCK_GUARDRAILS["protocols"]
+            standards = _MOCK_GUARDRAILS["standards"]
+        else:
+            raw_p = (guardrails or {}).get("safety_protocols", [])
+            protocols = _parse_pg_array(raw_p)
+            vl = (guardrails or {}).get("verification_logic") or {}
+            if isinstance(vl, str):
+                try:
+                    vl = json.loads(vl)
+                except Exception:
+                    vl = {}
+            standards = vl.get("compliance_standards", []) if isinstance(vl, dict) else []
+
+        if protocols or standards:
+            protocol_items = "".join(
+                f"<li style='margin:0.22rem 0;font-size:0.82rem;color:#334155'>"
+                f"<span style='color:#059669;margin-right:0.4rem'>&#10003;</span>{escape(str(p))}</li>"
+                for p in protocols
+            )
+            standard_badges = "".join(
+                f"<span style='display:inline-block;font-family:\"Courier New\",monospace;"
+                f"font-size:0.65rem;font-weight:700;letter-spacing:0.08em;color:#1d4ed8;"
+                f"background:#eff6ff;border:1px solid #bfdbfe;border-radius:3px;"
+                f"padding:0.12rem 0.45rem;margin:0.15rem 0.2rem 0.15rem 0'>{escape(str(s))}</span>"
+                for s in standards
+            )
+            gr_html = (
+                f"<div class='sal-section' style='border-top:2px solid #dcfce7;margin-top:1rem;padding-top:0.85rem'>"
+                f"<span style='font-family:\"Courier New\",monospace;font-size:0.65rem;font-weight:700;"
+                f"letter-spacing:0.1em;color:#059669;text-transform:uppercase;border-bottom:2px double #059669;"
+                f"padding-bottom:0.25rem;margin-bottom:0.5rem;display:block'>"
+                f"&#9632; COMPLIANCE GUARDRAILS &nbsp;&#9670;&nbsp; SAFETY PROTOCOLS</span>"
+                f"<ul style='margin:0 0 0.6rem;padding-left:1rem'>{protocol_items}</ul>"
+                f"<div style='margin-top:0.4rem'>{standard_badges}</div>"
+                f"</div>"
+            )
+
     browse_note = (
         "<p style='font-family:\"Courier New\",monospace;font-size:0.72rem;color:#64748b;margin:0.6rem 0 0'>"
         "<em>SAL Mock Vault — sample logic. Add live Supabase keys for production mode.</em></p>"
@@ -1955,6 +2063,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     {pd_html}
     {steps_html}
     {tb_html}
+    {gr_html}
     <p style="font-size:0.78rem;color:#64748b;margin:0.8rem 0 0">Rendered: {rendered_ts}</p>
     {browse_note}
   </div>
@@ -3036,33 +3145,36 @@ def _inject_studio_styles() -> None:
   }
   /* Style the Streamlit text input inside the command interface zone */
   .sal-search-anchor ~ div div[data-testid="stTextInput"] > div {
-    border: none !important;
-    border-bottom: 1px solid #1d4ed855 !important;
-    border-radius: 0 !important;
+    border: 1px solid #1d4ed855 !important;
+    border-radius: 4px !important;
     background: #030b19 !important;
     padding: 0 !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input {
     background: #030b19 !important;
     color: #e2e8f0 !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 0.88rem !important;
+    font-size: 1rem !important;
     caret-color: #38bdf8 !important;
     border: none !important;
-    border-bottom: 1px solid transparent !important;
-    border-radius: 0 !important;
-    padding: 0.65rem 1rem !important;
-    letter-spacing: 0.02em !important;
+    border-radius: 4px !important;
+    padding: 0.85rem 1.2rem !important;
+    letter-spacing: 0.03em !important;
     transition: border-color 0.2s !important;
+    height: 3rem !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input:focus {
-    border-bottom-color: #38bdf8 !important;
-    box-shadow: 0 1px 0 #38bdf855 !important;
     outline: none !important;
   }
+  .sal-search-anchor ~ div div[data-testid="stTextInput"]:focus-within > div {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 3px #38bdf822, 0 0 18px #1d4ed822 !important;
+  }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input::placeholder {
-    color: #1e3a5f !important;
+    color: #60a5fa !important;
     font-style: italic;
+    opacity: 0.75;
   }
   /* Dispatch button */
   .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"] {
@@ -3768,7 +3880,10 @@ def _render_bureau(*, client, browse_mode: bool) -> None:
                 except Exception as exc:
                     st.warning(escape(str(exc)))
 
-        _render_logic_spec_html_card(selected_soc=selected_soc, chosen_row=chosen_row, logic=logic, browse_mode=browse_mode)
+        _guardrails = None
+        if selected_soc and not browse_mode and client is not None:
+            _guardrails = fetch_guardrails_for_soc(client, selected_soc)
+        _render_logic_spec_html_card(selected_soc=selected_soc, chosen_row=chosen_row, logic=logic, browse_mode=browse_mode, guardrails=_guardrails)
 
 
 def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, icon_svg: str) -> str:
@@ -5102,11 +5217,15 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             except Exception:
                 pass
 
+    _guardrails = None
+    if selected_soc and not browse_mode and client is not None:
+        _guardrails = fetch_guardrails_for_soc(client, selected_soc)
     _render_logic_spec_html_card(
         selected_soc=selected_soc,
         chosen_row=chosen_row,
         logic=logic,
         browse_mode=browse_mode,
+        guardrails=_guardrails,
     )
 
     # ── Agent Bundle — Shopping Cart ─────────────────────────────────────────
@@ -5240,6 +5359,29 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                 use_container_width=True,
                 key="sal_bundle_export",
             )
+
+            # ── Stripe checkout ───────────────────────────────────────────
+            _stripe_url = (_secret_get("STRIPE_PAYMENT_LINK") or "").strip()
+            if _stripe_url:
+                role_count = len(bundle_data)
+                st.markdown(
+                    f'<a href="{_stripe_url}" target="_blank" rel="noopener noreferrer" style="'
+                    f'display:block;width:100%;box-sizing:border-box;margin-top:0.4rem;'
+                    f'padding:0.7rem 1rem;background:#16a34a;color:#fff;font-weight:700;'
+                    f'font-size:0.92rem;text-align:center;border-radius:4px;'
+                    f'text-decoration:none;letter-spacing:0.03em;">'
+                    f'&#9889;&nbsp; Proceed to Checkout &nbsp;&rarr;&nbsp; '
+                    f'{role_count} Role{"s" if role_count != 1 else ""}</a>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    '<div style="margin-top:0.4rem;padding:0.5rem 0.75rem;'
+                    'background:#071540;border:1px dashed #1d4ed855;border-radius:4px;'
+                    'font-size:0.72rem;color:#60a5fa;font-family:\'Courier New\',monospace;">'
+                    '&#9889; Add <code>STRIPE_PAYMENT_LINK</code> to secrets to enable checkout</div>',
+                    unsafe_allow_html=True,
+                )
 
 # ── Sovereign document header ────────────────────────────────────────────────
 
@@ -5395,6 +5537,55 @@ def main() -> None:
                 st.session_state["vault_unlocked"] = False
                 st.session_state["vault_only"] = False
                 st.rerun()
+
+            with st.expander("\u2699\ufe0f Admin Settings"):
+                st.markdown(
+                    '<p style="font-size:0.65rem;color:#64748b;margin:0 0 0.4rem;'
+                    'font-family:\'Courier New\',monospace;letter-spacing:0.06em">'
+                    'CHANGE VAULT PASSWORD</p>',
+                    unsafe_allow_html=True,
+                )
+                new_pw1 = st.text_input("New password", type="password",
+                                        placeholder="New vault password\u2026",
+                                        key="sal_admin_pw1", label_visibility="collapsed")
+                new_pw2 = st.text_input("Confirm password", type="password",
+                                        placeholder="Confirm password\u2026",
+                                        key="sal_admin_pw2", label_visibility="collapsed")
+                if st.button("Save Password", use_container_width=True, key="sal_admin_pw_save"):
+                    if not new_pw1:
+                        st.error("Password cannot be empty.")
+                    elif new_pw1 != new_pw2:
+                        st.error("Passwords don't match.")
+                    else:
+                        # Write to local secrets.toml
+                        _secrets_path = os.path.join(
+                            os.path.dirname(__file__), ".streamlit", "secrets.toml"
+                        )
+                        try:
+                            if os.path.exists(_secrets_path):
+                                with open(_secrets_path, "r", encoding="utf-8") as _f:
+                                    _raw = _f.read()
+                                import re as _re
+                                _new_raw = _re.sub(
+                                    r'(?m)^VAULT_PASSWORD\s*=\s*.*$',
+                                    f'VAULT_PASSWORD = "{new_pw1}"',
+                                    _raw,
+                                )
+                                if "VAULT_PASSWORD" not in _new_raw:
+                                    _new_raw += f'\nVAULT_PASSWORD = "{new_pw1}"\n'
+                                with open(_secrets_path, "w", encoding="utf-8") as _f:
+                                    _f.write(_new_raw)
+                                st.success("Password updated in secrets.toml.")
+                            else:
+                                st.warning("secrets.toml not found — update manually.")
+                        except Exception as _e:
+                            st.error(f"Could not write file: {_e}")
+                        st.markdown(
+                            "<p style='font-size:0.7rem;color:#94a3b8;margin-top:0.5rem'>"
+                            "Also paste into <b>Streamlit Cloud → Settings → Secrets</b>:</p>",
+                            unsafe_allow_html=True,
+                        )
+                        st.code(f'VAULT_PASSWORD = "{new_pw1}"', language="toml")
         else:
             # Not yet authenticated — show password prompt
             st.session_state["vault_only"] = False
