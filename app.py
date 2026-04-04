@@ -5484,9 +5484,9 @@ def _sovereign_header_html() -> str:
 def main() -> None:
     # ── Session state initialisation (MUST run before any widget) ──
     if "active_soc" not in st.session_state:
-        st.session_state["active_soc"] = "15-1299.08"
+        st.session_state["active_soc"] = ""
     if "active_prefix" not in st.session_state:
-        st.session_state["active_prefix"] = "15"
+        st.session_state["active_prefix"] = ""
     if "vault_only" not in st.session_state:
         st.session_state["vault_only"] = False
     if "agent_bundle" not in st.session_state:
@@ -5504,6 +5504,34 @@ def main() -> None:
         st.session_state["payment_verified"] = True
 
     _inject_studio_styles()
+
+    # Scroll to top — fires after Streamlit finishes rendering
+    _stc.html(
+        """<script>
+        (function() {
+            function scrollTop() {
+                var doc = window.parent.document;
+                var targets = [
+                    doc.querySelector('[data-testid="stAppViewBlockContainer"]'),
+                    doc.querySelector('[data-testid="stMain"]'),
+                    doc.querySelector('.main'),
+                    doc.querySelector('.block-container'),
+                    doc.documentElement,
+                    doc.body,
+                ];
+                for (var i = 0; i < targets.length; i++) {
+                    if (targets[i]) { targets[i].scrollTop = 0; }
+                }
+                window.parent.scrollTo(0, 0);
+            }
+            scrollTop();
+            setTimeout(scrollTop, 120);
+            setTimeout(scrollTop, 400);
+        })();
+        </script>""",
+        height=0,
+        scrolling=False,
+    )
 
     if st.session_state.get("sal_stack_v") != 5:
         st.session_state["sal_stack_v"] = 5
