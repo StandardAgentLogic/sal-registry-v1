@@ -2685,6 +2685,234 @@ _SEAL_ICONS: dict[str, str] = {
     <circle cx="116" cy="85" r="1.5" fill="#5ee8c8" opacity="0.65"/>
     <text x="100" y="75" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#5ee8c8" letter-spacing="1.8">HEALTHCARE</text>""",
+
+    # Life, Physical & Social Science (19) — atom / orbital rings
+    "19": """
+    <circle cx="100" cy="106" r="6.5" fill="#86efac" opacity="0.9"/>
+    <circle cx="100" cy="106" r="3" fill="#071a10"/>
+    <ellipse cx="100" cy="106" rx="24" ry="8" fill="none" stroke="#86efac" stroke-width="1.8" opacity="0.85"/>
+    <ellipse cx="100" cy="106" rx="24" ry="8" fill="none" stroke="#86efac" stroke-width="1.8" opacity="0.85" transform="rotate(60 100 106)"/>
+    <ellipse cx="100" cy="106" rx="24" ry="8" fill="none" stroke="#86efac" stroke-width="1.8" opacity="0.85" transform="rotate(120 100 106)"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7.5" font-weight="800" fill="#86efac" letter-spacing="1">SCIENCE</text>""",
+
+    # Community &amp; Social Service (21) — three linked nodes / community network
+    "21": """
+    <circle cx="100" cy="93" r="10" fill="none" stroke="#d8b4fe" stroke-width="2" opacity="0.85"/>
+    <circle cx="87" cy="115" r="10" fill="none" stroke="#d8b4fe" stroke-width="2" opacity="0.85"/>
+    <circle cx="113" cy="115" r="10" fill="none" stroke="#d8b4fe" stroke-width="2" opacity="0.85"/>
+    <line x1="100" y1="103" x2="91" y2="109" stroke="#d8b4fe" stroke-width="1.8" opacity="0.65"/>
+    <line x1="100" y1="103" x2="109" y2="109" stroke="#d8b4fe" stroke-width="1.8" opacity="0.65"/>
+    <line x1="93" y1="112" x2="107" y2="112" stroke="#d8b4fe" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="100" cy="93" r="3.5" fill="#d8b4fe" opacity="0.8"/>
+    <circle cx="87" cy="115" r="3.5" fill="#d8b4fe" opacity="0.8"/>
+    <circle cx="113" cy="115" r="3.5" fill="#d8b4fe" opacity="0.8"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7.5" font-weight="800" fill="#d8b4fe" letter-spacing="1">COMMUNITY</text>""",
+
+    # Legal (23) — scales of justice
+    "23": """
+    <line x1="100" y1="82" x2="100" y2="130" stroke="#fcd34d" stroke-width="2.5"/>
+    <line x1="78" y1="90" x2="122" y2="90" stroke="#fcd34d" stroke-width="2"/>
+    <line x1="78" y1="90" x2="82" y2="112" stroke="#fcd34d" stroke-width="1.6"/>
+    <line x1="122" y1="90" x2="118" y2="112" stroke="#fcd34d" stroke-width="1.6"/>
+    <ellipse cx="80" cy="114" rx="9" ry="3.5" fill="#fcd34d" opacity="0.5"/>
+    <ellipse cx="120" cy="114" rx="9" ry="3.5" fill="#fcd34d" opacity="0.5"/>
+    <line x1="71" y1="114" x2="89" y2="114" stroke="#fcd34d" stroke-width="1.5" opacity="0.7"/>
+    <line x1="111" y1="114" x2="129" y2="114" stroke="#fcd34d" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="100" cy="90" r="4" fill="#fcd34d"/>
+    <line x1="93" y1="130" x2="107" y2="130" stroke="#fcd34d" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="8" font-weight="800" fill="#fcd34d" letter-spacing="1.5">LEGAL</text>""",
+
+    # Educational Instruction &amp; Library (25) — open book
+    "25": """
+    <rect x="78" y="88" width="22" height="32" rx="1" fill="none" stroke="#7dd3fc" stroke-width="2"/>
+    <rect x="100" y="88" width="22" height="32" rx="1" fill="none" stroke="#7dd3fc" stroke-width="2"/>
+    <line x1="100" y1="88" x2="100" y2="120" stroke="#7dd3fc" stroke-width="2.5"/>
+    <line x1="83" y1="96" x2="97" y2="96" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="83" y1="101" x2="97" y2="101" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="83" y1="106" x2="97" y2="106" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="83" y1="111" x2="97" y2="111" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="103" y1="96" x2="119" y2="96" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="103" y1="101" x2="119" y2="101" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="103" y1="106" x2="119" y2="106" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="103" y1="111" x2="119" y2="111" stroke="#7dd3fc" stroke-width="1.1" opacity="0.65"/>
+    <line x1="76" y1="122" x2="124" y2="122" stroke="#7dd3fc" stroke-width="1.5" opacity="0.45"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#7dd3fc" letter-spacing="1">EDUCATION</text>""",
+
+    # Arts, Design, Entertainment &amp; Media (27) — painter's palette + brush
+    "27": """
+    <ellipse cx="99" cy="107" rx="20" ry="18" fill="none" stroke="#f9a8d4" stroke-width="2"/>
+    <circle cx="89" cy="98" r="3.5" fill="#f9a8d4" opacity="0.85"/>
+    <circle cx="83" cy="108" r="3.5" fill="#f9a8d4" opacity="0.85"/>
+    <circle cx="89" cy="118" r="3.5" fill="#f9a8d4" opacity="0.85"/>
+    <circle cx="108" cy="97" r="3.5" fill="#f9a8d4" opacity="0.85"/>
+    <circle cx="115" cy="108" r="3.5" fill="#f9a8d4" opacity="0.85"/>
+    <ellipse cx="102" cy="116" rx="6" ry="4" fill="#f9a8d4" opacity="0.35"/>
+    <line x1="113" y1="116" x2="126" y2="87" stroke="#f9a8d4" stroke-width="2.8" stroke-linecap="round"/>
+    <circle cx="126" cy="87" r="3.5" fill="#f9a8d4" opacity="0.7"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7.5" font-weight="800" fill="#f9a8d4" letter-spacing="1">ARTS &amp; MEDIA</text>""",
+
+    # Healthcare Support (31) — stethoscope
+    "31": """
+    <path d="M86,86 Q80,86 80,93 L80,108 Q80,124 100,124 Q120,124 120,108 L120,93 Q120,86 114,86"
+          fill="none" stroke="#6ee7b7" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="86" y1="86" x2="114" y2="86" stroke="#6ee7b7" stroke-width="2.5"/>
+    <circle cx="100" cy="124" r="9" fill="none" stroke="#6ee7b7" stroke-width="2.5"/>
+    <circle cx="100" cy="124" r="4" fill="#6ee7b7" opacity="0.7"/>
+    <circle cx="80" cy="86" r="3.5" fill="#6ee7b7" opacity="0.5"/>
+    <circle cx="120" cy="86" r="3.5" fill="#6ee7b7" opacity="0.5"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#6ee7b7" letter-spacing="1">HLTH SUPPORT</text>""",
+
+    # Protective Service (33) — badge shield with star
+    "33": """
+    <path d="M100,85 L121,94 L121,113 Q121,128 100,135 Q79,128 79,113 L79,94 Z"
+          fill="none" stroke="#a3e635" stroke-width="2.2"/>
+    <path d="M100,91 L115,98 L115,112 Q115,124 100,129 Q85,124 85,112 L85,98 Z"
+          fill="#a3e635" opacity="0.1"/>
+    <polygon points="100,100 102.8,108.4 111.8,108.4 104.6,113.6 107.4,122 100,116.8 92.6,122 95.4,113.6 88.2,108.4 97.2,108.4"
+             fill="#a3e635" opacity="0.9"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#a3e635" letter-spacing="1">PROTECTIVE</text>""",
+
+    # Food Preparation &amp; Serving (35) — chef hat + brim
+    "35": """
+    <rect x="81" y="112" width="38" height="11" rx="1.5" fill="none" stroke="#fb923c" stroke-width="2.2"/>
+    <path d="M83,112 Q83,92 100,92 Q117,92 117,112" fill="none" stroke="#fb923c" stroke-width="2"/>
+    <ellipse cx="100" cy="92" rx="17" ry="14" fill="none" stroke="#fb923c" stroke-width="2"/>
+    <ellipse cx="100" cy="92" rx="10" ry="8" fill="#fb923c" opacity="0.15"/>
+    <line x1="89" y1="112" x2="89" y2="123" stroke="#fb923c" stroke-width="1" opacity="0.5"/>
+    <line x1="97" y1="112" x2="97" y2="123" stroke="#fb923c" stroke-width="1" opacity="0.5"/>
+    <line x1="103" y1="112" x2="103" y2="123" stroke="#fb923c" stroke-width="1" opacity="0.5"/>
+    <line x1="111" y1="112" x2="111" y2="123" stroke="#fb923c" stroke-width="1" opacity="0.5"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7.5" font-weight="800" fill="#fb923c" letter-spacing="1">FOOD SERVICE</text>""",
+
+    # Building &amp; Grounds (37) — rake over leaf cluster
+    "37": """
+    <line x1="100" y1="83" x2="100" y2="127" stroke="#bef264" stroke-width="2.2"/>
+    <line x1="81" y1="127" x2="119" y2="127" stroke="#bef264" stroke-width="2.5"/>
+    <line x1="87" y1="121" x2="87" y2="127" stroke="#bef264" stroke-width="1.6"/>
+    <line x1="94" y1="119" x2="94" y2="127" stroke="#bef264" stroke-width="1.6"/>
+    <line x1="100" y1="118" x2="100" y2="127" stroke="#bef264" stroke-width="1.6"/>
+    <line x1="106" y1="119" x2="106" y2="127" stroke="#bef264" stroke-width="1.6"/>
+    <line x1="113" y1="121" x2="113" y2="127" stroke="#bef264" stroke-width="1.6"/>
+    <path d="M87,83 Q79,93 87,104 Q96,93 100,83" fill="#bef264" opacity="0.65"/>
+    <path d="M113,83 Q121,93 113,104 Q104,93 100,83" fill="#bef264" opacity="0.65"/>
+    <ellipse cx="100" cy="83" rx="5.5" ry="7" fill="#bef264" opacity="0.9"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="8" font-weight="800" fill="#bef264" letter-spacing="1.5">GROUNDS</text>""",
+
+    # Personal Care &amp; Service (39) — figure with heart
+    "39": """
+    <circle cx="100" cy="90" r="9.5" fill="none" stroke="#fbcfe8" stroke-width="2"/>
+    <path d="M83,130 Q83,113 100,113 Q117,113 117,130" fill="none" stroke="#fbcfe8" stroke-width="2"/>
+    <path d="M100,107 Q94,102 92,106 Q90,113 100,120 Q110,113 108,106 Q106,102 100,107 Z"
+          fill="#fbcfe8" opacity="0.85"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#fbcfe8" letter-spacing="1">PERSONAL CARE</text>""",
+
+    # Sales &amp; Related (41) — rising trend line + dollar sign
+    "41": """
+    <line x1="73" y1="83" x2="73" y2="128" stroke="#fdba74" stroke-width="1.5" opacity="0.55"/>
+    <line x1="71" y1="128" x2="129" y2="128" stroke="#fdba74" stroke-width="1.5" opacity="0.55"/>
+    <line x1="73" y1="95" x2="129" y2="95" stroke="#fdba74" stroke-width="0.7" opacity="0.3" stroke-dasharray="3 2"/>
+    <line x1="73" y1="108" x2="129" y2="108" stroke="#fdba74" stroke-width="0.7" opacity="0.3" stroke-dasharray="3 2"/>
+    <polyline points="77,122 92,108 107,115 123,90" fill="none" stroke="#fdba74" stroke-width="2.5"/>
+    <polygon points="123,90 117,96 127,96" fill="#fdba74"/>
+    <text x="84" y="101" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="13" font-weight="900" fill="#fdba74" opacity="0.5">$</text>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="8" font-weight="800" fill="#fdba74" letter-spacing="1.5">SALES</text>""",
+
+    # Office &amp; Administrative Support (43) — stacked document tray
+    "43": """
+    <rect x="80" y="118" width="40" height="12" rx="1" fill="none" stroke="#93c5fd" stroke-width="1.5" opacity="0.45"/>
+    <rect x="80" y="107" width="40" height="12" rx="1" fill="none" stroke="#93c5fd" stroke-width="1.8" opacity="0.65"/>
+    <rect x="80" y="94" width="40" height="14" rx="1.5" fill="#071428" stroke="#93c5fd" stroke-width="2"/>
+    <line x1="85" y1="100" x2="112" y2="100" stroke="#93c5fd" stroke-width="1.4" opacity="0.85"/>
+    <line x1="85" y1="104" x2="112" y2="104" stroke="#93c5fd" stroke-width="1.4" opacity="0.85"/>
+    <line x1="85" y1="108" x2="103" y2="108" stroke="#93c5fd" stroke-width="1.1" opacity="0.55"/>
+    <circle cx="116" cy="101" r="4" fill="none" stroke="#93c5fd" stroke-width="1.5" opacity="0.6"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#93c5fd" letter-spacing="1">ADMIN SUPPORT</text>""",
+
+    # Farming, Fishing &amp; Forestry (45) — wheat sheaf
+    "45": """
+    <line x1="100" y1="88" x2="100" y2="128" stroke="#d9f99d" stroke-width="2.2"/>
+    <path d="M100,97 Q87,90 84,82" fill="none" stroke="#d9f99d" stroke-width="1.8"/>
+    <path d="M100,103 Q85,96 81,88" fill="none" stroke="#d9f99d" stroke-width="1.8"/>
+    <path d="M100,97 Q113,90 116,82" fill="none" stroke="#d9f99d" stroke-width="1.8"/>
+    <path d="M100,103 Q115,96 119,88" fill="none" stroke="#d9f99d" stroke-width="1.8"/>
+    <ellipse cx="85" cy="81" rx="4" ry="6.5" fill="#d9f99d" opacity="0.85" transform="rotate(-28 85 81)"/>
+    <ellipse cx="115" cy="81" rx="4" ry="6.5" fill="#d9f99d" opacity="0.85" transform="rotate(28 115 81)"/>
+    <ellipse cx="80" cy="87" rx="3.5" ry="5.5" fill="#d9f99d" opacity="0.75" transform="rotate(-35 80 87)"/>
+    <ellipse cx="120" cy="87" rx="3.5" ry="5.5" fill="#d9f99d" opacity="0.75" transform="rotate(35 120 87)"/>
+    <ellipse cx="100" cy="80" rx="5" ry="7.5" fill="#d9f99d" opacity="0.9"/>
+    <path d="M83,128 Q100,120 117,128" fill="none" stroke="#d9f99d" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="8" font-weight="800" fill="#d9f99d" letter-spacing="1.5">FARMING</text>""",
+
+    # Construction &amp; Extraction (47) — hard hat
+    "47": """
+    <path d="M74,115 Q74,97 100,91 Q126,97 126,115 Z" fill="none" stroke="#fca5a5" stroke-width="2.2"/>
+    <path d="M76,115 Q76,99 100,94 Q124,99 124,115 Z" fill="#fca5a5" opacity="0.12"/>
+    <rect x="72" y="115" width="56" height="9" rx="2" fill="none" stroke="#fca5a5" stroke-width="2.5"/>
+    <rect x="95" y="83" width="10" height="20" rx="1.5" fill="#fca5a5" opacity="0.85"/>
+    <line x1="80" y1="111" x2="80" y2="123" stroke="#fca5a5" stroke-width="1" opacity="0.45"/>
+    <line x1="91" y1="107" x2="91" y2="123" stroke="#fca5a5" stroke-width="1" opacity="0.45"/>
+    <line x1="109" y1="107" x2="109" y2="123" stroke="#fca5a5" stroke-width="1" opacity="0.45"/>
+    <line x1="120" y1="111" x2="120" y2="123" stroke="#fca5a5" stroke-width="1" opacity="0.45"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#fca5a5" letter-spacing="1">CONSTRUCTION</text>""",
+
+    # Installation, Maintenance &amp; Repair (49) — wrench
+    "49": """
+    <path d="M115,82 Q126,82 126,92 Q126,99 119,101 L89,127 Q84,132 79,130 Q75,128 76,123 Q77,118 83,116 L113,90 Q114,85 115,82 Z"
+          fill="none" stroke="#a5b4fc" stroke-width="2.2"/>
+    <circle cx="83" cy="124" r="7" fill="none" stroke="#a5b4fc" stroke-width="2"/>
+    <circle cx="83" cy="124" r="2.8" fill="#a5b4fc" opacity="0.65"/>
+    <circle cx="116" cy="89" r="7" fill="none" stroke="#a5b4fc" stroke-width="2"/>
+    <circle cx="116" cy="89" r="2.8" fill="#a5b4fc" opacity="0.65"/>
+    <line x1="110" y1="94" x2="90" y2="114" stroke="#a5b4fc" stroke-width="3" opacity="0.25"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#a5b4fc" letter-spacing="1">MAINTENANCE</text>""",
+
+    # Production (51) — precision gear / cog
+    "51": """
+    <circle cx="100" cy="107" r="16" fill="none" stroke="#fcd34d" stroke-width="2.5"/>
+    <circle cx="100" cy="107" r="6.5" fill="none" stroke="#fcd34d" stroke-width="2"/>
+    <circle cx="100" cy="107" r="2.8" fill="#fcd34d" opacity="0.55"/>
+    <rect x="97" y="85" width="6" height="9" rx="1" fill="#fcd34d" opacity="0.85"/>
+    <rect x="97" y="120" width="6" height="9" rx="1" fill="#fcd34d" opacity="0.85"/>
+    <rect x="78" y="104" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.85"/>
+    <rect x="113" y="104" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.85"/>
+    <rect x="82" y="88" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.7" transform="rotate(45 86.5 91)"/>
+    <rect x="110" y="88" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.7" transform="rotate(-45 114.5 91)"/>
+    <rect x="82" y="116" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.7" transform="rotate(-45 86.5 119)"/>
+    <rect x="110" y="116" width="9" height="6" rx="1" fill="#fcd34d" opacity="0.7" transform="rotate(45 114.5 119)"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7.5" font-weight="800" fill="#fcd34d" letter-spacing="1">PRODUCTION</text>""",
+
+    # Transportation &amp; Material Moving (53) — steering wheel
+    "53": """
+    <circle cx="100" cy="108" r="23" fill="none" stroke="#67e8f9" stroke-width="2.5"/>
+    <circle cx="100" cy="108" r="8.5" fill="none" stroke="#67e8f9" stroke-width="2"/>
+    <circle cx="100" cy="108" r="3" fill="#67e8f9" opacity="0.5"/>
+    <line x1="100" y1="85" x2="100" y2="99.5" stroke="#67e8f9" stroke-width="2.5"/>
+    <line x1="100" y1="116.5" x2="100" y2="131" stroke="#67e8f9" stroke-width="2.5"/>
+    <line x1="77" y1="108" x2="91.5" y2="108" stroke="#67e8f9" stroke-width="2.5"/>
+    <line x1="108.5" y1="108" x2="123" y2="108" stroke="#67e8f9" stroke-width="2.5"/>
+    <line x1="83" y1="91" x2="93" y2="101" stroke="#67e8f9" stroke-width="2" opacity="0.65"/>
+    <line x1="117" y1="91" x2="107" y2="101" stroke="#67e8f9" stroke-width="2" opacity="0.65"/>
+    <line x1="83" y1="125" x2="93" y2="115" stroke="#67e8f9" stroke-width="2" opacity="0.65"/>
+    <line x1="117" y1="125" x2="107" y2="115" stroke="#67e8f9" stroke-width="2" opacity="0.65"/>
+    <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
+          font-size="7" font-weight="800" fill="#67e8f9" letter-spacing="1">TRANSPORT</text>""",
 }
 
 
@@ -2974,51 +3202,87 @@ def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
 # Unified sector seals — single source of truth for all sector access
 # Each entry: (soc_prefix, label, seal_bg, ring_color, accent_color)
 _UNIFIED_SEALS = [
-    ("13", "Finance",     "#060e1d", "#1d4ed8", "#93c5fd"),
-    ("15", "Technology",  "#060f36", "#7c3aed", "#c4b5fd"),
-    ("29", "Healthcare",  "#07211e", "#0d9488", "#5ee8c8"),
-    ("17", "Engineering", "#120b08", "#b45309", "#fbbf24"),
+    # Row 1 — SOC 11–21
+    ("11", "Management",   "#0d1130", "#7c3aed", "#c4b5fd"),
+    ("13", "Finance",      "#060e1d", "#1d4ed8", "#93c5fd"),
+    ("15", "Technology",   "#060f36", "#6d28d9", "#c4b5fd"),
+    ("17", "Engineering",  "#120b08", "#b45309", "#fbbf24"),
+    ("19", "Science",      "#071a10", "#15803d", "#86efac"),
+    ("21", "Community",    "#1a0b24", "#7e22ce", "#d8b4fe"),
+    # Row 2 — SOC 23–33
+    ("23", "Legal",        "#160f02", "#92400e", "#fcd34d"),
+    ("25", "Education",    "#051228", "#0369a1", "#7dd3fc"),
+    ("27", "Arts & Media", "#1a0820", "#be185d", "#f9a8d4"),
+    ("29", "Healthcare",   "#07211e", "#0d9488", "#5ee8c8"),
+    ("31", "Hlth Support", "#051a14", "#047857", "#6ee7b7"),
+    ("33", "Protective",   "#0a0e02", "#4d7c0f", "#a3e635"),
+    # Row 3 — SOC 35–45
+    ("35", "Food Service", "#1f0c00", "#c2410c", "#fb923c"),
+    ("37", "Grounds",      "#0a1700", "#3f6212", "#bef264"),
+    ("39", "Personal Care","#1f0616", "#9d174d", "#fbcfe8"),
+    ("41", "Sales",        "#1a0b00", "#b45309", "#fdba74"),
+    ("43", "Admin",        "#071428", "#1e40af", "#93c5fd"),
+    ("45", "Farming",      "#0e1400", "#365314", "#d9f99d"),
+    # Row 4 — SOC 47–53
+    ("47", "Construction", "#180800", "#991b1b", "#fca5a5"),
+    ("49", "Maintenance",  "#0f1018", "#3730a3", "#a5b4fc"),
+    ("51", "Production",   "#110805", "#78350f", "#fcd34d"),
+    ("53", "Transport",    "#030e1e", "#0e7490", "#67e8f9"),
 ]
 
 
 def render_unified_seals() -> None:
-    """Single merged row: high-resolution notary seals with sector number badges.
+    """All 22 SOC division seals — rendered in 4 rows (6 · 6 · 6 · 4).
     Replaces both render_sector_tiles() + render_notary_seals() — no duplicate rows.
     Clicking sets active_prefix + jumps active_soc to first matching role.
     """
-    cols = st.columns(4, gap="small")
-    for col, (code, label, bg, ring, accent) in zip(cols, _UNIFIED_SEALS):
-        is_active = st.session_state.get("active_prefix") == code
-        icon = _SEAL_ICONS.get(code, "")
-        svg  = _notary_seal_svg(code, label, bg, ring, accent, icon)
-        # Scale seal to 88px — large enough to read, compact enough to fit 4 across
-        svg_sm = svg.replace('width="190" height="190"', 'width="88" height="88"')
-        # Active glow ring around the seal
-        ring_style = (
-            f"box-shadow:0 0 0 2.5px {accent},0 0 10px {accent}44;"
-            f"border-radius:50%;display:inline-block;"
-        ) if is_active else "border-radius:50%;display:inline-block;"
-        with col:
+    # Pre-chunked rows matching _UNIFIED_SEALS comment structure
+    row_sizes = [6, 6, 6, 4]
+    idx = 0
+    for row_n, rsize in enumerate(row_sizes):
+        row_seals = _UNIFIED_SEALS[idx: idx + rsize]
+        idx += rsize
+        if not row_seals:
+            break
+        cols = st.columns(len(row_seals), gap="small")
+        for col, (code, label, bg, ring, accent) in zip(cols, row_seals):
+            is_active = st.session_state.get("active_prefix") == code
+            icon = _SEAL_ICONS.get(code, "")
+            svg  = _notary_seal_svg(code, label, bg, ring, accent, icon)
+            # Scale seal to 72px — 6-per-row needs to be a touch smaller
+            svg_sm = svg.replace('width="190" height="190"', 'width="72" height="72"')
+            # Active glow ring
+            ring_style = (
+                f"box-shadow:0 0 0 2px {accent},0 0 8px {accent}55;"
+                f"border-radius:50%;display:inline-block;"
+            ) if is_active else "border-radius:50%;display:inline-block;"
+            with col:
+                st.markdown(
+                    f'<div style="text-align:center;padding:0.1rem 0">'
+                    f'<span style="{ring_style}">{svg_sm}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+                if st.button(
+                    f"{'▶ ' if is_active else ''}{label}",
+                    key=f"unified_seal_{code}",
+                    use_container_width=True,
+                    type="primary" if is_active else "secondary",
+                ):
+                    st.session_state["active_prefix"] = code
+                    first = next(
+                        (r["soc_code"] for r in _MOCK_REGISTRY
+                         if str(r.get("soc_code", "")).startswith(f"{code}-")),
+                        None,
+                    )
+                    if first:
+                        st.session_state["active_soc"] = first
+        # thin rule between rows for breathing room
+        if row_n < len(row_sizes) - 1:
             st.markdown(
-                f'<div style="text-align:center;padding:0.15rem 0">'
-                f'<span style="{ring_style}">{svg_sm}</span>'
-                f'</div>',
+                '<hr style="margin:0.25rem 0;border:none;border-top:1px solid #dde4f444"/>',
                 unsafe_allow_html=True,
             )
-            if st.button(
-                f"{'▶ ' if is_active else ''}{label}",
-                key=f"unified_seal_{code}",
-                use_container_width=True,
-                type="primary" if is_active else "secondary",
-            ):
-                st.session_state["active_prefix"] = code
-                first = next(
-                    (r["soc_code"] for r in _MOCK_REGISTRY
-                     if str(r.get("soc_code", "")).startswith(f"{code}-")),
-                    None,
-                )
-                if first:
-                    st.session_state["active_soc"] = first
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
