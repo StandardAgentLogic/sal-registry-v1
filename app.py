@@ -1936,6 +1936,8 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     rendered_ts = escape(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
     _seal_stamp_uri = _great_seal_data_uri()
+    _cert_serial = f"SAL-{(selected_soc or '').replace('.','').replace('-','')}-2026"
+    _issue_date  = datetime.now(timezone.utc).strftime("%B %d, %Y").upper()
     st.markdown(f"""
 <div class="{doc_class}">
   <div class="sal-watermark-layer" aria-hidden="true"><span>SAL: OFFICIAL SOURCE OF TRUTH</span></div>
@@ -1943,6 +1945,10 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     {clearance_badge}
     <img src="{_seal_stamp_uri}" class="sal-notary-seal" alt="Official Seal of SAL"/>
     <h4 style="margin-top:0;padding-right:7.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
+    <div class="sal-cert-meta">
+      <span>ISSUED BY: STANDARD AGENT LOGIC REGISTRY &nbsp;&#9670;&nbsp; OFFICE OF AI LABOR STANDARDS</span>
+      <span class="sal-cert-serial">CERT NO: {_cert_serial}</span>
+    </div>
     <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
     <code style="font-size:0.9rem">{escape(selected_soc or "\u2014")}</code></p>
     {onet_block}
@@ -2049,17 +2055,90 @@ def _inject_studio_styles() -> None:
   .sal-metric-wrap .stMetric { padding-top: 0.25rem; }
 
   /* ── Logic spec document card ── */
+  /* ── Credibility ticker bar ── */
+  .sal-credibility-bar {
+    background: #020b1e;
+    border-top: 1px solid #1d4ed833;
+    border-bottom: 2px solid #1d4ed8;
+    padding: 0.4rem 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #60a5fa;
+    letter-spacing: 0.07em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .sal-cred-sep { color: #1d4ed8; font-weight: 400; }
+
+  /* ── SAL Seal CTA panel ── */
+  .sal-seal-cta {
+    background: linear-gradient(135deg, #040d1f 0%, #071540 60%, #0b1f4a 100%);
+    border: 1.5px solid #1d4ed855;
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin: 0.75rem 0;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .sal-seal-cta-title {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #f1f5f9;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+  .sal-seal-cta-sub {
+    font-size: 0.82rem;
+    color: #93c5fd;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .sal-seal-pillar {
+    display: inline-block;
+    background: #071540;
+    border: 1px solid #1d4ed855;
+    border-radius: 4px;
+    padding: 0.4rem 0.9rem;
+    margin: 0 0.3rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #93c5fd;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Logic spec document card — certificate style ── */
   .sal-doc {
-    border: 1px solid #d7dbe8;
-    border-radius: 14px;
+    border: 2px solid #1d4ed8;
+    border-radius: 8px;
     background: #ffffff;
     padding: 0;
     position: relative;
-    box-shadow: 0 12px 30px rgba(16,24,40,0.08);
+    box-shadow: 0 0 0 5px #f4f7ff, 0 0 0 7px #1d4ed822, 0 12px 30px rgba(16,24,40,0.10);
     box-sizing: border-box;
     overflow: hidden;
     min-height: 220px;
   }
+  .sal-cert-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.35rem 0 0.35rem;
+    margin-bottom: 0.6rem;
+  }
+  .sal-cert-serial { color: #1d4ed8; }
   .sal-watermark-layer {
     position: absolute;
     inset: 0;
@@ -2179,7 +2258,7 @@ def _inject_studio_styles() -> None:
     margin-bottom: 0.2rem; border-radius: 2px;
     border-left: 3px solid #1d4ed8;
   }
-  .sal-filing-hdr-code  { color: #93c5fd; font-size: 0.56rem; }
+  .sal-filing-hdr-code  { color: #93c5fd; font-size: 0.7rem; }
   .sal-filing-hdr-count { color: #60a5fa; opacity: 0.85; }
 
   /* Expander folders — ledger drawer rows */
@@ -2485,7 +2564,7 @@ def _inject_studio_styles() -> None:
   .sal-lvl-table th { background: #0b2a6f; color: #ffffff; padding: 0.28rem 0.4rem; text-align: left; font-weight: 700; font-size: 0.65rem; }
   .sal-lvl-table td { padding: 0.22rem 0.4rem; border-bottom: 1px solid #e8ecf4; color: #1e293b; }
   .sal-lvl-table tr:nth-child(even) td { background: #f8faff; }
-  .sal-verified-badge { background: #1d4ed8; color: #fff; font-size: 0.56rem; font-weight: 800; padding: 0.06rem 0.28rem; border-radius: 999px; letter-spacing: 0.06em; }
+  .sal-verified-badge { background: #1d4ed8; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 0.06rem 0.28rem; border-radius: 999px; letter-spacing: 0.06em; }
 
   /* Chat widget */
   .sal-chat-widget { border: 2px solid #1d4ed8; border-radius: 12px; background: #ffffff; padding: 0.6rem 0.7rem; margin-top: 1rem; box-shadow: 0 4px 14px rgba(29,78,216,0.12); }
@@ -2587,7 +2666,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-ribbon-sub {
     font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: 0.56rem; font-weight: 700;
+    font-size: 0.7rem; font-weight: 700;
     color: #1d4ed8; letter-spacing: 0.15em;
     text-transform: uppercase; margin-top: 0.07rem;
   }
@@ -2788,7 +2867,7 @@ def _inject_studio_styles() -> None:
     align-items: center;
     gap: 0.4rem;
     font-family: 'Courier New','Lucida Console',monospace;
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 900;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -2840,7 +2919,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-toolbox-cat-label {
     font-family: 'Courier New', monospace;
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     color: #f59e0b;
@@ -2999,7 +3078,7 @@ def _inject_studio_styles() -> None:
     border: 1px solid #1d4ed844;
     color: #60a5fa;
     font-family: 'Courier New', monospace;
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     letter-spacing: 0.08em;
     padding: 0.22rem 0.5rem;
     border-radius: 2px;
@@ -3022,7 +3101,7 @@ def _inject_studio_styles() -> None:
     line-height: 1.55;
   }
   .sal-cmd-transmission-hdr {
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     font-weight: 900;
     letter-spacing: 0.14em;
     color: #38bdf8;
@@ -3763,7 +3842,7 @@ def _render_bundle_staging_area() -> None:
         f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;font-weight:800;'
         f'color:#93c5fd;letter-spacing:0.14em;padding:0.6rem 0 0.4rem;'
         f'border-top:1px solid #1d4ed844;border-bottom:1px solid #1d4ed844;margin-bottom:0.75rem">'
-        f'&#9632; AGENT BUNDLE &nbsp;&#9670;&nbsp; STAGING AREA &nbsp;&#9670;&nbsp; {count_label}'
+        f'&#9632; DEPLOYMENT ROSTER &nbsp;&#9670;&nbsp; MANIFEST REVIEW &nbsp;&#9670;&nbsp; {count_label}'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -3825,7 +3904,7 @@ def _render_bundle_staging_area() -> None:
     if bundle:
         act_a, _, _2 = st.columns([1, 1, 3])
         with act_a:
-            if st.button("Clear All", key="staging_clear_all",
+            if st.button("Clear Roster", key="staging_clear_all",
                          use_container_width=True, type="secondary"):
                 st.session_state["agent_bundle"] = []
                 st.rerun()
@@ -3852,7 +3931,7 @@ def _render_bundle_staging_area() -> None:
                 '<div style="font-family:\'Courier New\',monospace;font-size:0.6rem;'
                 'font-weight:800;color:#60a5fa;letter-spacing:0.12em;'
                 'padding:0.6rem 0 0.35rem;border-top:1px solid #1d4ed822;margin-top:0.4rem">'
-                '&#9670; SUGGESTED ADDITIONS &nbsp;&middot;&nbsp; ROLES THAT COMPLETE THIS BUNDLE'
+                '&#9670; RECOMMENDED FOR ROSTER &nbsp;&middot;&nbsp; ROLES THAT COMPLETE THIS MANIFEST'
                 '</div>',
                 unsafe_allow_html=True,
             )
@@ -4063,6 +4142,39 @@ _COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
            ("23-1011.00","Lawyers","Military law and JAG corps support")],
 }
 
+def _render_sal_seal_cta() -> None:
+    """Full-width SAL Certification CTA — between command interface and sales floor."""
+    st.markdown(
+        '<div class="sal-seal-cta">'
+        '<div class="sal-seal-cta-title">THE SAL STANDARD &nbsp;&#9670;&nbsp; VERIFYING AI AGENTS WORLDWIDE</div>'
+        '<div class="sal-seal-cta-sub">'
+        'The SAL Registry is the federal-grade authority for AI agent role specifications.<br>'
+        'Companies and developers certify their agents against the O&#x2217;NET SOC standard — '
+        'earning the right to display the <strong style="color:#f1f5f9">SAL Verified Seal</strong> on their platforms.'
+        '</div>'
+        '<div style="margin-bottom:0.75rem">'
+        '<span class="sal-seal-pillar">&#9632; FEDERAL-GRADE</span>'
+        '<span class="sal-seal-pillar">&#9632; O&#x2217;NET VERIFIED</span>'
+        '<span class="sal-seal-pillar">&#9632; GLOBALLY RECOGNIZED</span>'
+        '<span class="sal-seal-pillar">&#9632; MCP SPEC COMPLIANT</span>'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    if st.button(
+        "Apply for SAL Certification  &#8594;",
+        key="sal_cert_cta",
+        use_container_width=False,
+        type="primary",
+    ):
+        st.info(
+            "SAL Certification is currently in private access. "
+            "Build your Deployment Roster below, export your Manifest, "
+            "and submit to certification@standardagentlogic.com for review.",
+            icon="🔐",
+        )
+
+
 def _render_ai_sales_floor() -> None:
     """AI Displacement Sales Floor — full-width sector cards with embedded seals, sorted by automation risk."""
     # Build seal param lookup: prefix → (bg, ring, accent, icon_svg)
@@ -4101,17 +4213,17 @@ def _render_ai_sales_floor() -> None:
                     f'<div style="display:flex;justify-content:center;margin-bottom:0.3rem">'
                     f'{seal_sm}</div>'
                     # risk badge
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.5rem;'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;'
                     f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.18rem">'
                     f'{risk}</div>'
                     # sector label
-                    f'<div style="font-weight:800;font-size:0.78rem;color:{txt};'
+                    f'<div style="font-weight:800;font-size:0.88rem;color:{txt};'
                     f'line-height:1.2;margin-bottom:0.12rem">{escape(label)}</div>'
                     # big pct
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.45rem;'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.55rem;'
                     f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.12rem">'
-                    f'{pct}<span style="font-size:0.65rem;font-weight:600">%</span></div>'
-                    f'<div style="font-size:0.5rem;color:{txt}99;line-height:1.3">'
+                    f'{pct}<span style="font-size:0.75rem;font-weight:600">%</span></div>'
+                    f'<div style="font-size:0.68rem;color:{txt}cc;line-height:1.4">'
                     f'{escape(tech)}</div>'
                     f'</div>',
                     unsafe_allow_html=True,
@@ -4119,6 +4231,13 @@ def _render_ai_sales_floor() -> None:
                 if st.button(f"Browse {label}", key=f"ai_floor_{prefix}",
                              use_container_width=True, type="secondary"):
                     st.session_state["active_prefix"] = prefix
+                    _first = next(
+                        (r["soc_code"] for r in _MOCK_REGISTRY
+                         if str(r.get("soc_code", "")).startswith(f"{prefix}-")),
+                        None,
+                    )
+                    if _first:
+                        st.session_state["active_soc"] = _first
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
@@ -4208,6 +4327,9 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             f'</div>',
             unsafe_allow_html=True,
         )
+
+    # ── SAL Certification CTA ─────────────────────────────────────────────────
+    _render_sal_seal_cta()
 
     # ── AI Displacement Sales Floor ───────────────────────────────────────────
     _render_ai_sales_floor()
@@ -4370,14 +4492,14 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         already_in = any(r.get("soc_code") == selected_soc for r in bundle)
         role_title = str(chosen_row.get("title") or selected_soc)
         if already_in:
-            if st.button("✖  Remove from Bundle", key="sal_bundle_remove",
+            if st.button("✖  Decommission Role", key="sal_bundle_remove",
                          use_container_width=True, type="secondary"):
                 st.session_state["agent_bundle"] = [
                     r for r in bundle if r.get("soc_code") != selected_soc
                 ]
                 st.rerun()
         else:
-            if st.button("＋  Add to Agent Bundle", key="sal_bundle_add",
+            if st.button("＋  Commission This Role", key="sal_bundle_add",
                          use_container_width=True, type="primary"):
                 st.session_state["agent_bundle"] = bundle + [
                     {"soc_code": selected_soc, "title": role_title}
@@ -4393,7 +4515,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             f'<div style="font-family:\'Courier New\',monospace;font-size:0.62rem;'
             f'font-weight:800;color:#93c5fd;letter-spacing:0.14em;border-bottom:1px solid #1d4ed855;'
             f'padding-bottom:0.35rem;margin-bottom:0.5rem">'
-            f'&#9632; AGENT BUNDLE &nbsp;&#9670;&nbsp; {len(bundle)} ROLE{"S" if len(bundle)!=1 else ""} QUEUED</div>',
+            f'&#9632; DEPLOYMENT ROSTER &nbsp;&#9670;&nbsp; {len(bundle)} ROLE{"S" if len(bundle)!=1 else ""} COMMISSIONED</div>',
             unsafe_allow_html=True,
         )
         for item in bundle:
@@ -4411,7 +4533,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                     f'<span style="font-weight:700;font-size:0.83rem;color:#e2e8f0">{escape(item_title)}</span><br>'
                     f'<span style="font-family:\'Courier New\',monospace;font-size:0.65rem;color:#60a5fa">'
                     f'{escape(item_soc)}</span>'
-                    f'<span style="font-size:0.62rem;color:#64748b;margin-left:0.5rem">{escape(sector_lbl)}</span>'
+                    f'<span style="font-size:0.72rem;color:#64748b;margin-left:0.5rem">{escape(sector_lbl)}</span>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
@@ -4488,9 +4610,9 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                 default=str,
             )
             st.download_button(
-                label=f"\u21e9  Export Bundle ({len(bundle_data)} roles · full MCP spec)",
+                label=f"\u21e9  Export Deployment Manifest ({len(bundle_data)} roles · full MCP spec)",
                 data=bundle_json,
-                file_name="sal_agent_bundle.json",
+                file_name="sal_deployment_manifest.json",
                 mime="application/json",
                 use_container_width=True,
                 key="sal_bundle_export",
@@ -4519,6 +4641,20 @@ def _sovereign_header_html() -> str:
         '</div>'
         '</div>'
         '</div>'
+        '</div>'
+        # Credibility ticker bar
+        '<div class="sal-credibility-bar">'
+        '<span>&#9632; POWERED BY O&#x2217;NET</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span>U.S. DEPARTMENT OF LABOR FEDERAL STANDARD</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span>1,095 VERIFIED ROLE SPECIFICATIONS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span>22 SOC MAJOR DIVISIONS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span>LAST VERIFIED: APRIL 2026</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span>CLASSIFICATION: UNCLASSIFIED &#47;&#47; FOR OFFICIAL USE</span>'
         '</div>'
         '</div>'
     )
