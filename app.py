@@ -3202,6 +3202,263 @@ def _inject_studio_styles() -> None:
 </style>
 """, unsafe_allow_html=True)
 
+    # ── QUANTUM DARK MODE ─────────────────────────────────────────────────────
+    st.markdown("""
+<style>
+  /* ══════════════════════════════════════════════════════════════════════════
+     QUANTUM INSTITUTIONAL DARK MODE
+     Retrofuturist aesthetic: deep navy-black shell, certificate stays white
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* Page shell */
+  .stApp,
+  [data-testid="stAppViewContainer"],
+  [data-testid="stMain"],
+  [data-testid="stMainBlockContainer"],
+  section.main { background-color: #020b1e !important; }
+
+  /* Permanent column white-override fix — transparent instead of injected white */
+  [data-testid="stColumn"],
+  div[data-testid="stHorizontalBlock"],
+  div[data-testid="stVerticalBlock"] { background-color: transparent !important; }
+
+  /* Three-column wraps → dark quantum treatment */
+  .sal-col-bureau    { background: linear-gradient(160deg,#020c1b 0%,#040d20 100%) !important; border-color: #1d4ed822 !important; }
+  .sal-col-authority { background: #030b19 !important; border-color: #1d4ed833 !important; box-shadow: 0 4px 32px rgba(0,0,0,0.65) !important; }
+  .sal-col-engine    { background: linear-gradient(160deg,#020c1b 0%,#030e1d 100%) !important; border-color: #1d4ed822 !important; }
+
+  /* Authority full-width center panel override */
+  div[data-testid="stVerticalBlock"]:has(div.sal-col-authority-anchor) {
+    background-color: #030b19 !important;
+    border-color: #1d4ed833 !important;
+    box-shadow: none !important;
+  }
+
+  /* Sidebar */
+  [data-testid="stSidebar"] { background: #020c1b !important; border-right: 1px solid #1d4ed811 !important; }
+  [data-testid="stSidebar"] .stMarkdown p,
+  [data-testid="stSidebar"] .stMarkdown li,
+  [data-testid="stSidebar"] label { color: #64748b !important; }
+  [data-testid="stSidebar"] .stMarkdown h3,
+  [data-testid="stSidebar"] .stMarkdown h4 { color: #93c5fd !important; }
+
+  /* Sovereign header — dark quantum */
+  .sal-sovereign-header {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0L0 0 0 60' fill='none' stroke='%231d4ed8' stroke-width='0.4' opacity='0.12'/%3E%3Ccircle cx='0' cy='0' r='1.5' fill='%231d4ed8' opacity='0.15'/%3E%3C/svg%3E") repeat,
+      linear-gradient(180deg, rgba(11,42,111,0.22) 0%, #020b1e 100%) !important;
+    border-top-color: #1d4ed8 !important;
+    border-bottom-color: #1d4ed844 !important;
+  }
+  .sal-ribbon-inner {
+    background: rgba(3,11,25,0.92) !important;
+    border-color: #1d4ed833 !important;
+  }
+  .sal-ribbon-title { color: #e2e8f0 !important; }
+  .sal-ribbon-sub   { color: #60a5fa !important; }
+  .sal-serial, .sal-seal-emblem-wrap .sal-serial-pin {
+    background: rgba(2,11,30,0.88) !important;
+    color: #60a5fa !important;
+    border-color: #1d4ed844 !important;
+  }
+  /* Great seal — screen blend works on dark; multiply vanishes */
+  .sal-great-seal-img {
+    mix-blend-mode: screen !important;
+    filter: drop-shadow(0 4px 24px rgba(29,78,216,0.4)) brightness(1.08) !important;
+  }
+
+  /* Native Streamlit text */
+  .stMarkdown p, .stMarkdown li { color: #64748b !important; }
+  .stMarkdown strong { color: #cbd5e1 !important; }
+  .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 { color: #e2e8f0 !important; }
+  .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 { color: #93c5fd !important; }
+  .stMarkdown a { color: #60a5fa !important; }
+
+  /* Metrics */
+  [data-testid="stMetricValue"] { color: #f1f5f9 !important; }
+  [data-testid="stMetricLabel"] { color: #475569 !important; }
+
+  /* Global default buttons → dark institutional */
+  .stButton > button:not([kind="primary"]) {
+    background: #071540 !important;
+    border: 1px solid #1d4ed844 !important;
+    color: #93c5fd !important;
+  }
+  .stButton > button:not([kind="primary"]):hover {
+    background: #0b2a6f !important;
+    border-color: #3b82f6 !important;
+    color: #bfdbfe !important;
+    box-shadow: 0 0 14px rgba(59,130,246,0.2) !important;
+  }
+
+  /* Global text inputs → dark */
+  [data-testid="stTextInput"] input {
+    background: #030b19 !important;
+    color: #e2e8f0 !important;
+    border-color: #1d4ed844 !important;
+  }
+  [data-testid="stTextInput"] input::placeholder { color: #334155 !important; }
+
+  /* Expanders (global base — engine col overrides below) */
+  details { background: #030e1d !important; border-color: #1d4ed811 !important; }
+  details summary { color: #93c5fd !important; }
+  details > div   { background: #020b1e !important; }
+
+  /* Engine column (SOC tree) — dark tree rows */
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) details summary {
+    color: #93c5fd !important;
+    background: rgba(11,42,111,0.2) !important;
+    border-left-color: rgba(29,78,216,0.3) !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) details[open] > summary {
+    color: #bfdbfe !important;
+    background: rgba(29,78,216,0.22) !important;
+    border-left-color: #1d4ed8 !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) .stButton > button {
+    color: #7aa2cc !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) .stButton > button:hover {
+    color: #bfdbfe !important;
+    background: rgba(29,78,216,0.12) !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) .stButton > button[kind="primary"] {
+    color: #dbeafe !important;
+    background: rgba(29,78,216,0.22) !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) [data-testid="stTextInput"] input {
+    background: rgba(3,11,25,0.95) !important;
+    color: #93c5fd !important;
+    border-color: #1d4ed844 !important;
+  }
+
+  /* Authority column nav buttons */
+  div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) .stButton > button {
+    background: #04112e !important;
+    border-color: #1d4ed833 !important;
+    color: #93c5fd !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) .stButton > button:hover {
+    background: #071540 !important;
+    color: #bfdbfe !important;
+    border-color: #3b82f6 !important;
+  }
+
+  /* Bureau column ledger buttons */
+  div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) .stButton > button {
+    background: #030b19 !important;
+    border-color: #1d4ed833 !important;
+    color: #60a5fa !important;
+  }
+  div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) .stButton > button:hover {
+    background: #071540 !important;
+    color: #93c5fd !important;
+  }
+
+  /* Sidebar buttons */
+  [data-testid="stSidebar"] .stButton > button {
+    background: transparent !important;
+    border-color: #1d4ed822 !important;
+    color: #475569 !important;
+  }
+  [data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(29,78,216,0.1) !important;
+    color: #93c5fd !important;
+  }
+
+  /* Ledger cells */
+  .sal-ledger-title  { color: #cbd5e1 !important; }
+  .sal-ledger-salary { color: #475569 !important; }
+  .sal-ledger-soc    { color: #93c5fd !important; background: rgba(11,42,111,0.22) !important; border-color: #1d4ed833 !important; }
+
+  /* Tree feedback bar — dark version */
+  .sal-tree-loaded {
+    background: linear-gradient(90deg, #04112e 0%, rgba(4,17,46,0) 100%) !important;
+    border-color: #22c55e !important;
+    border-top-color: #22c55e33 !important;
+    border-bottom-color: #22c55e22 !important;
+  }
+  .sal-tree-loaded-label { color: #22c55e !important; }
+  .sal-tree-loaded-title { color: #cbd5e1 !important; }
+  .sal-tree-loaded-soc   { background: rgba(29,78,216,0.25) !important; color: #60a5fa !important; }
+
+  /* Filter pill — dark amber */
+  .sal-tree-filter {
+    background: #0d0800 !important;
+    border-color: #92400e !important;
+    color: #fbbf24 !important;
+  }
+  .sal-tree-filter-q    { color: #fde68a !important; }
+  .sal-tree-filter-hint { color: #92400e !important; opacity: 0.8 !important; }
+
+  /* Dividers */
+  .sal-sector-divider::before, .sal-sector-divider::after { background: #1d4ed822 !important; }
+  .sal-sector-divider span { color: #1d4ed8 !important; }
+  .sal-center-section-label {
+    color: #60a5fa !important;
+    border-top-color: #1d4ed833 !important;
+    border-bottom-color: #1d4ed811 !important;
+  }
+  .sal-section { border-top-color: #1d4ed811 !important; }
+
+  /* Search anchor + dir rule */
+  .sal-search-anchor { border-top-color: #1d4ed822 !important; }
+  .sal-search-anchor p { color: #60a5fa !important; }
+  .sal-dir-rule {
+    border-top-color: #1d4ed833 !important;
+    border-bottom-color: #1d4ed811 !important;
+    color: #60a5fa !important;
+    background: linear-gradient(90deg, rgba(11,42,111,0.2) 0%, transparent 100%) !important;
+  }
+  .sal-dir-count { color: #334155 !important; }
+
+  /* Sector tiles */
+  .sal-sector-tile { background: rgba(4,9,26,0.8) !important; border-color: #1d4ed822 !important; }
+  .sal-sector-tile-label { color: #93c5fd !important; }
+  .sal-sector-tile-desc  { color: #334155 !important; }
+
+  /* Stack / section labels */
+  .sal-stack-label { color: #60a5fa !important; border-bottom-color: #1d4ed833 !important; }
+
+  /* Hub */
+  .sal-hub-wrap h2           { color: #e2e8f0 !important; }
+  .sal-hub-wrap .sal-hub-sub { color: #475569 !important; }
+
+  /* LVL table */
+  .sal-lvl-table th { background: #071540 !important; }
+  .sal-lvl-table td { color: #94a3b8 !important; border-bottom-color: #1d4ed811 !important; }
+  .sal-lvl-table tr:nth-child(even) td { background: #030e1d !important; }
+  .sal-lvl-table tr:nth-child(odd) td  { background: transparent !important; }
+
+  /* Footer */
+  .sal-footer { color: #334155 !important; border-top-color: #1d4ed811 !important; }
+  .sal-footer-metric { color: #93c5fd !important; }
+
+  /* Chat widget */
+  .sal-chat-widget { background: #030b19 !important; border-color: #1d4ed844 !important; }
+  .sal-chat-title  { color: #93c5fd !important; }
+  .sal-chat-prompt { color: #334155 !important; }
+
+  /* Gold frame (dark base) */
+  .sal-gold-frame {
+    background: linear-gradient(145deg, #070400 0%, #0a0600 55%, #060300 100%) !important;
+  }
+
+  /* Outlook pill (dark) */
+  .sal-outlook {
+    background: rgba(11,42,111,0.3) !important;
+    border-color: #1d4ed855 !important;
+    color: #93c5fd !important;
+  }
+
+  /* Bright outlook label (dark) */
+  .sal-bright-outlook-title { color: #60a5fa !important; }
+
+  /* .sal-doc STAYS white — certificate on dark background = premium */
+  /* All other dark custom elements already have dark bg set inline */
+</style>
+""", unsafe_allow_html=True)
+
 
 # ── Section renderers ────────────────────────────────────────────────────────
 
