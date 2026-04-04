@@ -2533,9 +2533,9 @@ def _inject_studio_styles() -> None:
     height: 112% !important;
     max-width: none !important;
     object-fit: cover;
+    object-position: 56% 50%;
     mix-blend-mode: multiply;
     image-rendering: -webkit-optimize-contrast;
-    clip-path: circle(47% at 50% 50%);
   }
   .sal-eagle-wrap svg {
     max-width: 100%;
@@ -5501,9 +5501,8 @@ def main() -> None:
                     f'<div style="width:200px;height:200px;border-radius:50%;'
                     f'overflow:hidden;margin:0 auto 1.25rem;position:relative;">'
                     f'<img src="{_seal_uri}" style="position:absolute;top:50%;left:50%;'
-                    f'transform:translate(-50%,-50%);width:112%;height:112%;'
-                    f'object-fit:cover;mix-blend-mode:multiply;'
-                    f'clip-path:circle(47% at 50% 50%);" /></div>'
+                    f'transform:translate(-50%,-50%);width:112%;height:112%;max-width:none;'
+                    f'object-fit:cover;object-position:56% 50%;mix-blend-mode:multiply;" /></div>'
                 )
             except Exception:
                 _seal_html = ""
