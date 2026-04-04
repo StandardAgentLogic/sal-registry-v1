@@ -2351,8 +2351,9 @@ def _inject_studio_styles() -> None:
   /* ── Sovereign document header ──────────────────────────────────────────── */
   .sal-header-container {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
     box-sizing: border-box;
+    position: relative;
   }
   .sal-sovereign-header {
     position: relative;
@@ -3293,12 +3294,12 @@ def _inject_studio_styles() -> None:
     justify-content: center;
     width: 100%;
     box-sizing: border-box;
-    padding: 0.4rem 1rem 0.2rem;
+    padding: 0.5rem 1rem 0;
     gap: 0;
   }
   .sal-header-center {
     flex: 0 0 auto;
-    width: clamp(180px, 24%, 260px);
+    width: clamp(220px, 27%, 300px);
     text-align: center;
   }
   .sal-header-flank {
@@ -3372,7 +3373,7 @@ def _inject_studio_styles() -> None:
     border: none !important;
     outline: none !important;
     background: transparent !important;
-    clip-path: circle(47% at 50% 50%) !important;
+    clip-path: circle(48% at 50% 50%) !important;
   }
   /* Streamlit wraps <img> in stImage figure — strip its shadow too */
   .sal-eagle-wrap figure,
@@ -3396,7 +3397,7 @@ def _inject_studio_styles() -> None:
   .sal-ribbon-inner {
     border: none !important;
     background: transparent !important;
-    padding: 0.2rem 1rem 0.3rem !important;
+    padding: 0.1rem 1rem 0.25rem !important;
   }
 </style>
 """, unsafe_allow_html=True)
