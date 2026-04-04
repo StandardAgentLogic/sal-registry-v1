@@ -2398,20 +2398,34 @@ def _inject_studio_styles() -> None:
     box-sizing: border-box;
   }
   .sal-eagle-wrap {
-    display: flex; justify-content: center; align-items: flex-start;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    overflow: hidden;
     margin: 0 auto;
-    overflow: visible;
-    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .sal-eagle-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, transparent 78%, rgba(255,255,255,0.7) 88%, white 97%);
+    pointer-events: none;
+    z-index: 10;
   }
   .sal-great-seal-img {
     display: block;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 450px;
-    height: auto;
-    object-fit: contain;
+    width: 112%;
+    height: 112%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
   }
   .sal-eagle-wrap svg {
     max-width: 100%;
@@ -2640,17 +2654,8 @@ def _inject_studio_styles() -> None:
     pointer-events: none;
   }
   .sal-great-seal-img {
-    display: block !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 300px !important;
-    height: auto !important;
-    object-fit: contain !important;
     position: relative;
     z-index: 1;
-    filter: none;
-    mix-blend-mode: multiply;
   }
   .sal-serial {
     position: absolute; top: 0.35rem; right: 0.9rem;
@@ -3289,27 +3294,24 @@ def _inject_studio_styles() -> None:
 
   /* ── Header trio layout ── */
   .sal-header-trio {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: center;
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
     box-sizing: border-box;
     padding: 0.5rem 1rem 0;
-    gap: 0;
+    overflow: visible;
   }
   .sal-header-center {
-    flex: 0 0 auto;
-    width: clamp(220px, 27%, 300px);
-    max-width: 300px;
-    overflow: hidden;
+    width: clamp(240px, 30%, 340px);
+    overflow: visible;
     text-align: center;
+    justify-self: center;
   }
   .sal-header-flank {
-    flex: 0 1 180px;
     min-width: 0;
-    max-width: 200px;
     position: relative;
     display: flex;
     align-items: center;
@@ -3380,7 +3382,6 @@ def _inject_studio_styles() -> None:
     border: none !important;
     outline: none !important;
     background: transparent !important;
-    clip-path: circle(48% at 50% 50%) !important;
   }
   /* Streamlit wraps <img> in stImage figure — strip its shadow too */
   .sal-eagle-wrap figure,
