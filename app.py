@@ -3364,7 +3364,7 @@ def _inject_studio_styles() -> None:
     line-height: 1;
   }
 
-  /* ── Seal image — strip every possible box source ── */
+  /* ── Seal image — clip to circle, eliminating baked-in PNG shadow corners ── */
   .sal-great-seal-img {
     filter: none !important;
     mix-blend-mode: multiply !important;
@@ -3372,6 +3372,7 @@ def _inject_studio_styles() -> None:
     border: none !important;
     outline: none !important;
     background: transparent !important;
+    clip-path: circle(47% at 50% 50%) !important;
   }
   /* Streamlit wraps <img> in stImage figure — strip its shadow too */
   .sal-eagle-wrap figure,
