@@ -4221,7 +4221,8 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                 if (el) el.scrollTo({top: 0, behavior: 'smooth'});
             })();
             </script>""",
-            height=0,
+            height=1,
+            scrolling=False,
         )
 
     # ── Logic Specification card ─────────────────────────────────────────────
