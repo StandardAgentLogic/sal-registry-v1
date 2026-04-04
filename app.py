@@ -2642,9 +2642,9 @@ def _inject_studio_styles() -> None:
   .sal-great-seal-img {
     display: block !important;
     margin: 0 auto !important;
-    width: auto !important;
-    max-width: 400px !important;
-    max-height: 360px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 300px !important;
     height: auto !important;
     object-fit: contain !important;
     position: relative;
@@ -3302,6 +3302,8 @@ def _inject_studio_styles() -> None:
   .sal-header-center {
     flex: 0 0 auto;
     width: clamp(220px, 27%, 300px);
+    max-width: 300px;
+    overflow: hidden;
     text-align: center;
   }
   .sal-header-flank {
