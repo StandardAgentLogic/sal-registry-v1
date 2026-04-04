@@ -12,6 +12,7 @@ from typing import Any
 from datetime import datetime, timezone
 
 import streamlit as st
+import streamlit.components.v1 as _stc
 
 # ── Page config — MUST be the first st.* call in the module ─────────────────
 st.set_page_config(
@@ -3813,18 +3814,33 @@ def _great_seal_data_uri() -> str:
 
 
 def _bright_outlook_svg() -> str:
-    """Official agency-readout bar chart — full-width, stat pills, dark header, Y-axis grid."""
+    """Official agency-readout bar chart — all 22 SOC divisions, full-width, dark header."""
     groups = [
-        ("MGMT",  "11-19", 72, 58,  "Management"),
-        ("TECH",  "15-19", 88, 76,  "Technology"),
-        ("ENG",   "17-19", 70, 55,  "Engineering"),
-        ("HLTH",  "29-31", 82, 70,  "Healthcare"),
-        ("LEGAL", "23-23", 78, 62,  "Legal"),
-        ("ADMIN", "43-43", 65, 45,  "Admin/Office"),
-        ("SALES", "41-41", 60, 42,  "Sales"),
+        ("MGMT",  "11", 72, 58),
+        ("FIN",   "13", 80, 64),
+        ("TECH",  "15", 88, 76),
+        ("ENG",   "17", 70, 55),
+        ("SCI",   "19", 74, 61),
+        ("COMM",  "21", 58, 44),
+        ("LEGAL", "23", 78, 62),
+        ("EDU",   "25", 62, 49),
+        ("ARTS",  "27", 55, 38),
+        ("HLTH",  "29", 82, 70),
+        ("SUPP",  "31", 68, 52),
+        ("PROT",  "33", 65, 48),
+        ("FOOD",  "35", 48, 32),
+        ("GRND",  "37", 42, 28),
+        ("CARE",  "39", 52, 38),
+        ("SALE",  "41", 60, 42),
+        ("ADMN",  "43", 65, 45),
+        ("FARM",  "45", 45, 31),
+        ("CNST",  "47", 56, 40),
+        ("MECH",  "49", 61, 44),
+        ("PROD",  "51", 52, 36),
+        ("TRAN",  "53", 55, 38),
     ]
-    W, H = 580, 260
-    lp, rp, tp, bp = 40, 14, 72, 48   # chart margins
+    W, H = 1100, 270
+    lp, rp, tp, bp = 38, 12, 72, 46   # chart margins
     cw = W - lp - rp
     ch = H - tp - bp
     mono = "font-family='Courier New,Lucida Console,monospace'"
@@ -3871,7 +3887,7 @@ def _bright_outlook_svg() -> str:
     gw  = cw / n
     bw  = gw * 0.28
 
-    for i, (label, soc, forecast, bright, _name) in enumerate(groups):
+    for i, (label, soc, forecast, bright) in enumerate(groups):
         xc = lp + (i + 0.5) * gw
         fh = (forecast / 100) * ch
         bh = (bright / 100) * ch
@@ -3907,13 +3923,13 @@ def _bright_outlook_svg() -> str:
     p.append(f"<text x='{W//2}' y='{H-6}' text-anchor='middle' {mono} font-size='6' fill='#64748b' letter-spacing='1.2'>O\u2217NET SOC DATA \u00b7 SAL REGISTRY \u00b7 UNCLASSIFIED</text>")
 
     svg_str = (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}">'
         f'{"".join(p)}</svg>'
     )
     b64 = base64.b64encode(svg_str.encode("utf-8")).decode()
     return (
         f'<img src="data:image/svg+xml;base64,{b64}" '
-        f'style="display:block;width:100%;border:1px solid #b8caf8;'
+        f'style="display:block;width:100%;height:auto;border:1px solid #b8caf8;'
         f'border-radius:3px;margin-top:0.4rem" alt="Sector Performance Readout"/>'
     )
 
@@ -4190,6 +4206,24 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
     """
     st.markdown('<div class="sal-col-engine-right-anchor"></div>', unsafe_allow_html=True)
 
+    # ── Auto-scroll to top when a new role is selected ───────────────────────
+    _cur_soc  = str(st.session_state.get("active_soc") or "")
+    _prev_soc = str(st.session_state.get("_prev_active_soc") or "")
+    if _cur_soc and _cur_soc != _prev_soc:
+        st.session_state["_prev_active_soc"] = _cur_soc
+        _stc.html(
+            """<script>
+            (function() {
+                var el =
+                    window.parent.document.querySelector('[data-testid="stMain"]') ||
+                    window.parent.document.querySelector('section.main') ||
+                    window.parent.document.querySelector('.main');
+                if (el) el.scrollTo({top: 0, behavior: 'smooth'});
+            })();
+            </script>""",
+            height=0,
+        )
+
     # ── Logic Specification card ─────────────────────────────────────────────
     selected_soc = str(st.session_state.get("active_soc") or "")
     chosen_row: dict[str, Any] | None = None
@@ -4347,18 +4381,6 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                 key="sal_bundle_export",
             )
 
-    # ── Bright Outlook — Sector Performance Readout ──────────────────────────
-    st.markdown(
-        '<div class="sal-bright-outlook-wrap">'
-        '<div class="sal-bright-outlook-title" '
-        'style="font-family:\'Courier New\',monospace;letter-spacing:0.1em">'
-        '&#9632; SECTOR PERFORMANCE READOUT</div>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(_bright_outlook_svg(), unsafe_allow_html=True)
-
-
 # ── Sovereign document header ────────────────────────────────────────────────
 
 def _sovereign_header_html() -> str:
@@ -4504,6 +4526,17 @@ def main() -> None:
 
     with spec_col:
         _render_col_engine(client=client, browse_mode=browse_mode)
+
+    # ── Sector Performance Readout — full-width below both columns ────────────
+    st.markdown(
+        '<div class="sal-bright-outlook-wrap">'
+        '<div class="sal-bright-outlook-title" '
+        'style="font-family:\'Courier New\',monospace;letter-spacing:0.1em">'
+        '&#9632; SECTOR PERFORMANCE READOUT &nbsp;&#x25C6;&nbsp; ALL 22 SOC DIVISIONS</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(_bright_outlook_svg(), unsafe_allow_html=True)
 
     # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
