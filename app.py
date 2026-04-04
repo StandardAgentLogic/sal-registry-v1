@@ -4669,24 +4669,33 @@ def _render_intent_router() -> None:
         unsafe_allow_html=True,
     )
 
+    _dark = st.session_state.get("dark_mode", False)
     cols = st.columns(5, gap="small")
     for col, (key, intent) in zip(cols, _INTENTS.items()):
         is_active = active == key
         color = intent["color"]
         glow  = intent["glow"]
         with col:
-            # Styled pill via HTML — shows icon + label + desc
-            border = f"2px solid {color}" if is_active else f"1px solid {color}44"
-            bg     = f"linear-gradient(135deg,{color}22 0%,{color}0a 100%)" if is_active else "#04112e"
-            shadow = f"0 0 16px {glow}, inset 0 0 8px {color}11" if is_active else "none"
-            txt_c  = color if is_active else f"{color}99"
+            # Adapt pill styling to current theme
+            if is_active:
+                border = f"2px solid {color}"
+                bg     = f"linear-gradient(135deg,{color}22 0%,{color}0d 100%)"
+                shadow = f"0 0 16px {glow}, inset 0 0 8px {color}11"
+                lbl_c  = "#0b2a6f" if not _dark else "#f1f5f9"
+                desc_c = color
+            else:
+                border = f"1px solid {color}44"
+                bg     = f"{color}08" if not _dark else "#04112e"
+                shadow = "none"
+                lbl_c  = "#475569" if not _dark else "#94a3b8"
+                desc_c = f"{color}88" if not _dark else f"{color}77"
             st.markdown(
                 f'<div class="sal-intent-pill" style="border:{border};background:{bg};'
                 f'box-shadow:{shadow};">'
                 f'<div class="sal-intent-pill-icon" style="color:{color}">{intent["icon"]}</div>'
-                f'<div class="sal-intent-pill-label" style="color:{"#f1f5f9" if is_active else "#94a3b8"}">'
+                f'<div class="sal-intent-pill-label" style="color:{lbl_c}">'
                 f'{intent["label"]}</div>'
-                f'<div class="sal-intent-pill-desc" style="color:{txt_c}">{intent["desc"]}</div>'
+                f'<div class="sal-intent-pill-desc" style="color:{desc_c}">{intent["desc"]}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
@@ -4715,14 +4724,17 @@ def _render_intent_router() -> None:
         _ai = _INTENTS[active]
         _matched = [lbl for pfx, lbl, *_ in _AI_DISPLACEMENT if pfx in _ai["prefixes"]]
         _match_str = " · ".join(_matched[:5])
+        _banner_bg  = "#030b19" if _dark else f"{_ai['color']}08"
+        _focus_c    = "#94a3b8" if _dark else "#475569"
+        _hint_c     = "#475569" if _dark else "#94a3b8"
         st.markdown(
             f'<div class="sal-intent-banner" style="border-left:3px solid {_ai["color"]};'
-            f'color:{_ai["color"]}88;">'
+            f'background:{_banner_bg};">'
             f'<span style="color:{_ai["color"]};font-weight:900">{_ai["icon"]} &nbsp;{_ai["label"].upper()}</span>'
             f'<span class="sal-intent-banner-sep">◆</span>'
-            f'<span style="color:#94a3b8">Focused on: {_match_str}</span>'
+            f'<span style="color:{_focus_c}">Focused on: {_match_str}</span>'
             f'<span class="sal-intent-banner-sep">◆</span>'
-            f'<span style="color:#475569;font-size:0.6rem">Click active path to reset</span>'
+            f'<span style="color:{_hint_c};font-size:0.6rem">Click active path to reset</span>'
             f'</div>',
             unsafe_allow_html=True,
         )
