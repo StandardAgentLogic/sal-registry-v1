@@ -2529,8 +2529,9 @@ def _inject_studio_styles() -> None:
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 112%;
-    height: 112%;
+    width: 112% !important;
+    height: 112% !important;
+    max-width: none !important;
     object-fit: cover;
     mix-blend-mode: multiply;
     image-rendering: -webkit-optimize-contrast;
