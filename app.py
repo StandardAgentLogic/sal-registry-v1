@@ -5487,12 +5487,24 @@ def main() -> None:
     if _site_pw:
         if not st.session_state.get("site_access_granted"):
             st.set_page_config(page_title="SAL Registry — Coming Soon", layout="centered")
+            try:
+                _seal_uri = _great_seal_data_uri()
+                _seal_html = (
+                    f'<div style="width:200px;height:200px;border-radius:50%;'
+                    f'overflow:hidden;margin:0 auto 1.25rem;'
+                    f'box-shadow:0 0 40px rgba(29,78,216,0.25);">'
+                    f'<img src="{_seal_uri}" style="width:112%;height:112%;'
+                    f'margin:-6% 0 0 -6%;object-fit:cover;mix-blend-mode:multiply;" /></div>'
+                )
+            except Exception:
+                _seal_html = ""
             st.markdown(
-                '<div style="text-align:center;padding:4rem 0 1rem">'
-                '<h1 style="font-family:\'Courier New\',monospace;font-size:1.6rem;'
-                'letter-spacing:0.12em;color:#1d4ed8">STANDARD AGENT LOGIC</h1>'
-                '<p style="color:#64748b;font-size:0.9rem;letter-spacing:0.06em">'
-                'REGISTRY ACCESS — RESTRICTED PREVIEW</p></div>',
+                f'<div style="text-align:center;padding:3rem 0 1rem">'
+                f'{_seal_html}'
+                f'<h1 style="font-family:\'Courier New\',monospace;font-size:1.6rem;'
+                f'letter-spacing:0.12em;color:#1d4ed8;margin:0">STANDARD AGENT LOGIC</h1>'
+                f'<p style="color:#64748b;font-size:0.85rem;letter-spacing:0.1em;margin:0.3rem 0 0">'
+                f'REGISTRY ACCESS &mdash; RESTRICTED PREVIEW</p></div>',
                 unsafe_allow_html=True,
             )
             pw = st.text_input("Access code", type="password",
