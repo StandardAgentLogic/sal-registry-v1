@@ -5482,6 +5482,30 @@ def _sovereign_header_html() -> str:
 
 
 def main() -> None:
+    # ── COMING SOON gate — remove SITE_PASSWORD from secrets to go public ──
+    _site_pw = (_secret_get("SITE_PASSWORD") or "").strip()
+    if _site_pw:
+        if not st.session_state.get("site_access_granted"):
+            st.set_page_config(page_title="SAL Registry — Coming Soon", layout="centered")
+            st.markdown(
+                '<div style="text-align:center;padding:4rem 0 1rem">'
+                '<h1 style="font-family:\'Courier New\',monospace;font-size:1.6rem;'
+                'letter-spacing:0.12em;color:#1d4ed8">STANDARD AGENT LOGIC</h1>'
+                '<p style="color:#64748b;font-size:0.9rem;letter-spacing:0.06em">'
+                'REGISTRY ACCESS — RESTRICTED PREVIEW</p></div>',
+                unsafe_allow_html=True,
+            )
+            pw = st.text_input("Access code", type="password",
+                               placeholder="Enter access code…",
+                               label_visibility="collapsed")
+            if st.button("Enter", use_container_width=True, type="primary"):
+                if pw == _site_pw:
+                    st.session_state["site_access_granted"] = True
+                    st.rerun()
+                else:
+                    st.error("Access denied.")
+            st.stop()
+
     # ── Session state initialisation (MUST run before any widget) ──
     if "active_soc" not in st.session_state:
         st.session_state["active_soc"] = ""
