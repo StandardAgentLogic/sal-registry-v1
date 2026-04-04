@@ -3200,6 +3200,74 @@ def _inject_studio_styles() -> None:
     opacity: 0.65;
   }
 
+  /* ── Intent Router ── */
+  .sal-intent-wrap {
+    text-align: center;
+    padding: 0.6rem 0 0.5rem;
+    border-top: 1px solid #1d4ed811;
+    margin-top: 0.5rem;
+  }
+  .sal-intent-title {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: #1d4ed8;
+    text-transform: uppercase;
+    margin-bottom: 0.18rem;
+  }
+  .sal-intent-sub {
+    font-size: 0.65rem;
+    color: #475569;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.55rem;
+  }
+  .sal-intent-pill {
+    border-radius: 6px;
+    padding: 0.5rem 0.4rem 0.45rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    transition: box-shadow 0.2s, background 0.2s;
+    min-height: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.18rem;
+  }
+  .sal-intent-pill-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+    margin-bottom: 0.1rem;
+  }
+  .sal-intent-pill-label {
+    font-family: 'Arial','Helvetica Neue',sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+  }
+  .sal-intent-pill-desc {
+    font-family: 'Courier New', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+  }
+  .sal-intent-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    background: #030b19;
+    border-radius: 0 4px 4px 0;
+    padding: 0.4rem 0.85rem;
+    margin: 0.3rem 0 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+  .sal-intent-banner-sep { color: #1d4ed833; }
+
   /* ── Header ribbon: remove border box, let title float clean ── */
   .sal-ribbon-outer {
     border: none !important;
@@ -3467,6 +3535,12 @@ def _inject_studio_styles() -> None:
 
   /* Bright outlook label (dark) */
   .sal-bright-outlook-title { color: #60a5fa !important; }
+
+  /* Intent router pills — dark mode overrides */
+  .sal-intent-wrap { border-top-color: #1d4ed822 !important; }
+  .sal-intent-title { color: #1d4ed8 !important; }
+  .sal-intent-sub   { color: #334155 !important; }
+  .sal-intent-banner { background: #030b19 !important; }
 
   /* .sal-doc STAYS white — certificate on dark background = premium */
   /* All other dark custom elements already have dark bg set inline */
@@ -4415,6 +4489,122 @@ _COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
            ("23-1011.00","Lawyers","Military law and JAG corps support")],
 }
 
+# Intent routing: 5 paths → relevant SOC prefixes + display metadata
+_INTENTS: dict[str, dict] = {
+    "business": {
+        "label": "Building a Business",
+        "icon": "◈",
+        "desc": "Executives · Finance · Legal · Sales · Ops",
+        "prefixes": {"11", "13", "23", "41", "43"},
+        "color": "#f59e0b",
+        "glow":  "#f59e0b44",
+    },
+    "team": {
+        "label": "Building a Team",
+        "icon": "⬡",
+        "desc": "Computing · Engineering · Architecture · Science",
+        "prefixes": {"15", "17", "19"},
+        "color": "#3b82f6",
+        "glow":  "#3b82f644",
+    },
+    "assistant": {
+        "label": "Personal Assistant",
+        "icon": "◇",
+        "desc": "Admin Support · Healthcare · Office Ops",
+        "prefixes": {"29", "31", "43"},
+        "color": "#8b5cf6",
+        "glow":  "#8b5cf644",
+    },
+    "research": {
+        "label": "Research & Analysis",
+        "icon": "◉",
+        "desc": "Science · Social Research · Education · Data",
+        "prefixes": {"15", "19", "21", "25"},
+        "color": "#06b6d4",
+        "glow":  "#06b6d444",
+    },
+    "creative": {
+        "label": "Creative Operation",
+        "icon": "◆",
+        "desc": "Arts · Media · Entertainment · Design",
+        "prefixes": {"27"},
+        "color": "#ec4899",
+        "glow":  "#ec489944",
+    },
+}
+
+
+def _render_intent_router() -> None:
+    """5-path intent selector — contextualizes the Sales Floor and pre-navigates the tree."""
+    active = st.session_state.get("active_intent")
+
+    st.markdown(
+        '<div class="sal-intent-wrap">'
+        '<div class="sal-intent-title">◈ &nbsp;WHAT ARE YOU BUILDING?</div>'
+        '<div class="sal-intent-sub">Select a path to focus the registry on your mission</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    cols = st.columns(5, gap="small")
+    for col, (key, intent) in zip(cols, _INTENTS.items()):
+        is_active = active == key
+        color = intent["color"]
+        glow  = intent["glow"]
+        with col:
+            # Styled pill via HTML — shows icon + label + desc
+            border = f"2px solid {color}" if is_active else f"1px solid {color}44"
+            bg     = f"linear-gradient(135deg,{color}22 0%,{color}0a 100%)" if is_active else "#04112e"
+            shadow = f"0 0 16px {glow}, inset 0 0 8px {color}11" if is_active else "none"
+            txt_c  = color if is_active else f"{color}99"
+            st.markdown(
+                f'<div class="sal-intent-pill" style="border:{border};background:{bg};'
+                f'box-shadow:{shadow};">'
+                f'<div class="sal-intent-pill-icon" style="color:{color}">{intent["icon"]}</div>'
+                f'<div class="sal-intent-pill-label" style="color:{"#f1f5f9" if is_active else "#94a3b8"}">'
+                f'{intent["label"]}</div>'
+                f'<div class="sal-intent-pill-desc" style="color:{txt_c}">{intent["desc"]}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            btn_label = f"{'◉' if is_active else '○'}  {'Active' if is_active else 'Select'}"
+            if st.button(btn_label, key=f"intent_{key}", use_container_width=True,
+                         type="primary" if is_active else "secondary"):
+                if is_active:
+                    # toggle off
+                    st.session_state["active_intent"] = None
+                else:
+                    st.session_state["active_intent"] = key
+                    # navigate tree to first matching prefix
+                    first_prefix = next(iter(sorted(intent["prefixes"])))
+                    st.session_state["active_prefix"] = first_prefix
+                    _first_soc = next(
+                        (r["soc_code"] for r in _MOCK_REGISTRY
+                         if str(r.get("soc_code", "")).startswith(f"{first_prefix}-")),
+                        None,
+                    )
+                    if _first_soc:
+                        st.session_state["active_soc"] = _first_soc
+                st.rerun()
+
+    # If an intent is active, show a context banner
+    if active and active in _INTENTS:
+        _ai = _INTENTS[active]
+        _matched = [lbl for pfx, lbl, *_ in _AI_DISPLACEMENT if pfx in _ai["prefixes"]]
+        _match_str = " · ".join(_matched[:5])
+        st.markdown(
+            f'<div class="sal-intent-banner" style="border-left:3px solid {_ai["color"]};'
+            f'color:{_ai["color"]}88;">'
+            f'<span style="color:{_ai["color"]};font-weight:900">{_ai["icon"]} &nbsp;{_ai["label"].upper()}</span>'
+            f'<span class="sal-intent-banner-sep">◆</span>'
+            f'<span style="color:#94a3b8">Focused on: {_match_str}</span>'
+            f'<span class="sal-intent-banner-sep">◆</span>'
+            f'<span style="color:#475569;font-size:0.6rem">Click active path to reset</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+
 def _render_sal_seal_cta() -> None:
     """Full-width SAL Certification CTA — between command interface and sales floor."""
     st.markdown(
@@ -4456,6 +4646,13 @@ def _render_ai_sales_floor() -> None:
         for code, _lbl, bg, ring, accent in _UNIFIED_SEALS
     }
 
+    # Intent filter state
+    _active_intent = st.session_state.get("active_intent")
+    _intent_prefixes: set[str] = (
+        _INTENTS[_active_intent]["prefixes"] if _active_intent and _active_intent in _INTENTS else set()
+    )
+    _intent_color = _INTENTS[_active_intent]["color"] if _active_intent and _active_intent in _INTENTS else None
+
     st.markdown(
         '<div class="sal-sector-divider" style="margin-top:0.5rem">'
         '<span>&#9889;&nbsp;AI&nbsp;DISPLACEMENT&nbsp;SALES&nbsp;FLOOR&nbsp;&#9889;</span>'
@@ -4470,6 +4667,13 @@ def _render_ai_sales_floor() -> None:
         cols  = st.columns(len(chunk), gap="small")
         for col, (prefix, label, pct, risk, tech) in zip(cols, chunk):
             bg, txt, bar = _RISK_COLORS.get(risk, ("#071540", "#93c5fd", "#1d4ed8"))
+            # Intent highlight / dim logic
+            _in_focus  = (not _intent_prefixes) or (prefix in _intent_prefixes)
+            _dim_style = "" if _in_focus else "opacity:0.2;filter:grayscale(75%);"
+            _ring_style = (
+                f"box-shadow:0 0 0 2px {_intent_color},0 0 18px {_intent_color}55;"
+                if (_in_focus and _intent_color) else ""
+            )
             # Embed the sector seal
             s_bg, s_ring, s_acc, s_icon = _seal_lookup.get(prefix, ("#071540", "#1d4ed8", "#93c5fd", ""))
             seal_svg = _notary_seal_svg(prefix, label, s_bg, s_ring, s_acc, s_icon)
@@ -4478,7 +4682,7 @@ def _render_ai_sales_floor() -> None:
                 st.markdown(
                     f'<div style="background:{bg};border:1px solid {bar}44;border-radius:6px;'
                     f'padding:0.55rem 0.65rem 0.55rem;cursor:pointer;position:relative;overflow:hidden;'
-                    f'text-align:center;">'
+                    f'text-align:center;transition:opacity 0.25s,filter 0.25s;{_dim_style}{_ring_style}">'
                     # progress bar strip at bottom
                     f'<div style="position:absolute;bottom:0;left:0;height:3px;'
                     f'width:{pct}%;background:{bar};border-radius:0 0 0 6px;"></div>'
@@ -4603,6 +4807,9 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
 
     # ── SAL Certification CTA ─────────────────────────────────────────────────
     _render_sal_seal_cta()
+
+    # ── Intent Router ─────────────────────────────────────────────────────────
+    _render_intent_router()
 
     # ── AI Displacement Sales Floor ───────────────────────────────────────────
     _render_ai_sales_floor()
@@ -4947,6 +5154,8 @@ def main() -> None:
         st.session_state["vault_unlocked"] = False
     if "dark_mode" not in st.session_state:
         st.session_state["dark_mode"] = True
+    if "active_intent" not in st.session_state:
+        st.session_state["active_intent"] = None
 
     _inject_studio_styles()
 
