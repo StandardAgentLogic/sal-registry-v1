@@ -2632,7 +2632,7 @@ def _inject_studio_styles() -> None:
     object-fit: contain !important;
     position: relative;
     z-index: 1;
-    filter: drop-shadow(0 4px 24px rgba(29,78,216,0.18));
+    filter: none;
     mix-blend-mode: multiply;
   }
   .sal-serial {
@@ -3268,6 +3268,90 @@ def _inject_studio_styles() -> None:
   }
   .sal-intent-banner-sep { color: #1d4ed833; }
 
+  /* ── Header trio layout ── */
+  .sal-header-trio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 1rem 0.2rem;
+    gap: 0;
+  }
+  .sal-header-center {
+    flex: 0 0 auto;
+    width: clamp(240px, 32%, 380px);
+    text-align: center;
+  }
+  .sal-header-flank {
+    flex: 1 1 0%;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    overflow: hidden;
+  }
+  /* Ghosted vertical watermark word behind each flank */
+  .sal-flank-wm {
+    position: absolute;
+    font-family: 'Arial', 'Helvetica Neue', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: rgba(29, 78, 216, 0.045);
+    text-transform: uppercase;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    user-select: none;
+    pointer-events: none;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(180deg);
+  }
+  /* Vertical rule separating flank from center */
+  .sal-flank-rule {
+    position: absolute;
+    top: 15%; bottom: 15%;
+    width: 1px;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      #1d4ed855 25%,
+      #1d4ed8aa 50%,
+      #1d4ed855 75%,
+      transparent 100%
+    );
+  }
+  .sal-flank-rule-right { right: 0; }
+  .sal-flank-rule-left  { left: 0; }
+  /* Stacked credential text */
+  .sal-flank-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    position: relative;
+    z-index: 1;
+  }
+  .sal-header-flank-left  .sal-flank-text { align-items: flex-end; text-align: right; }
+  .sal-header-flank-right .sal-flank-text { align-items: flex-start; text-align: left; }
+  .sal-flank-text span {
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-size: clamp(0.42rem, 0.9vw, 0.58rem);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  /* ── Seal image — remove rectangular drop-shadow, multiply handles bg ── */
+  .sal-great-seal-img {
+    filter: none !important;
+    mix-blend-mode: multiply !important;
+  }
+
   /* ── Header ribbon: remove border box, let title float clean ── */
   .sal-ribbon-outer {
     border: none !important;
@@ -3346,8 +3430,12 @@ def _inject_studio_styles() -> None:
   /* Great seal — screen blend works on dark; multiply vanishes */
   .sal-great-seal-img {
     mix-blend-mode: screen !important;
-    filter: drop-shadow(0 4px 24px rgba(29,78,216,0.4)) brightness(1.08) !important;
+    filter: brightness(1.08) !important;
   }
+  /* Flanks — lighten text for dark mode */
+  .sal-flank-text span { color: #334155 !important; }
+  .sal-flank-wm { color: rgba(96,165,250,0.06) !important; }
+  .sal-flank-rule { background: linear-gradient(to bottom,transparent 0%,#1d4ed844 25%,#1d4ed866 50%,#1d4ed844 75%,transparent 100%) !important; }
 
   /* Native Streamlit text */
   .stMarkdown p, .stMarkdown li { color: #64748b !important; }
@@ -5101,18 +5189,34 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
 # ── Sovereign document header ────────────────────────────────────────────────
 
 def _sovereign_header_html() -> str:
-    """Great Seal image + double-bordered ribbon + serial — sovereign document header."""
+    """Great Seal centered between credential flanks — sovereign document header."""
     seal = _great_seal_data_uri()
     return (
         '<div class="sal-header-container">'
         '<div class="sal-sovereign-header">'
-        # Serial number — absolute top-right
         '<div class="sal-serial">SAL\u2011REG\u20112026\u2011X</div>'
-        # The real Great Seal image
-        '<div class="sal-eagle-wrap">'
-        f'<img src="{seal}" class="sal-great-seal-img" alt="Great Seal of the United States"/>'
+
+        # ── Three-part layout: left flank | seal | right flank ──
+        '<div class="sal-header-trio">'
+
+        # LEFT FLANK — authority + registration
+        '<div class="sal-header-flank sal-header-flank-left">'
+        '<div class="sal-flank-wm">VERIFIED</div>'
+        '<div class="sal-flank-rule sal-flank-rule-right"></div>'
+        '<div class="sal-flank-text">'
+        '<span>REGISTRY EST. 2024</span>'
+        '<span>U.S. DEPT. OF LABOR</span>'
+        '<span>O\u2217NET SOC STANDARD</span>'
+        '<span>FEDERAL AUTHORIZATION</span>'
+        '<span>PUBLIC TRUST LEVEL</span>'
         '</div>'
-        # Double-bordered ribbon title block — below the seal
+        '</div>'
+
+        # CENTER — seal + title ribbon
+        '<div class="sal-header-center">'
+        '<div class="sal-eagle-wrap">'
+        f'<img src="{seal}" class="sal-great-seal-img" alt="Great Seal of SAL"/>'
+        '</div>'
         '<div class="sal-ribbon-outer">'
         '<div class="sal-ribbon-inner">'
         '<div class="sal-ribbon-title">STANDARD AGENT LOGIC REGISTRY</div>'
@@ -5122,6 +5226,23 @@ def _sovereign_header_html() -> str:
         '</div>'
         '</div>'
         '</div>'
+
+        # RIGHT FLANK — specifications + compliance
+        '<div class="sal-header-flank sal-header-flank-right">'
+        '<div class="sal-flank-wm">AUTHORIZED</div>'
+        '<div class="sal-flank-rule sal-flank-rule-left"></div>'
+        '<div class="sal-flank-text">'
+        '<span>1,095 VERIFIED ROLES</span>'
+        '<span>22 SOC MAJOR DIVISIONS</span>'
+        '<span>MCP SPEC COMPLIANT</span>'
+        '<span>GLOBAL AI LABOR DNS</span>'
+        '<span>APRIL 2026 VERIFIED</span>'
+        '</div>'
+        '</div>'
+
+        '</div>'  # end trio
+        '</div>'  # end sovereign-header
+
         # Credibility ticker bar
         '<div class="sal-credibility-bar">'
         '<span>&#9632; POWERED BY O&#x2217;NET</span>'
