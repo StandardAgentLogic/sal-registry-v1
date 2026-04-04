@@ -3876,18 +3876,18 @@ def _render_bundle_staging_area() -> None:
                 directive = (directive_raw[:110] + "...") if len(directive_raw) > 110 else directive_raw
 
                 st.markdown(
-                    f'<div style="background:{bg_c}1a;border:1.5px solid {acc_c}44;'
-                    f'border-left:4px solid {acc_c};border-radius:6px;padding:0.8rem 0.9rem;'
+                    f'<div style="background:{bg_c};border:1.5px solid {acc_c}66;'
+                    f'border-left:5px solid {acc_c};border-radius:6px;padding:0.85rem 1rem;'
                     f'margin-bottom:0.4rem;min-height:130px">'
-                    f'<div style="font-size:0.6rem;font-weight:800;color:{acc_c};'
+                    f'<div style="font-size:0.65rem;font-weight:800;color:{acc_c};'
                     f'letter-spacing:0.1em;margin-bottom:0.35rem">'
                     f'{risk} &nbsp;&middot;&nbsp; {pct}% AI EXPOSURE</div>'
-                    f'<div style="font-weight:700;font-size:0.88rem;color:#f1f5f9;'
+                    f'<div style="font-weight:700;font-size:0.95rem;color:#f1f5f9;'
                     f'margin-bottom:0.2rem;line-height:1.3">{escape(item_title)}</div>'
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.62rem;'
-                    f'color:{txt_c};margin-bottom:0.4rem">'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.7rem;'
+                    f'color:{acc_c}cc;margin-bottom:0.4rem">'
                     f'{escape(item_soc)} &nbsp;&middot;&nbsp; {escape(lbl)}</div>'
-                    + (f'<div style="font-size:0.7rem;color:#94a3b8;font-style:italic;'
+                    + (f'<div style="font-size:0.75rem;color:#cbd5e1;font-style:italic;'
                        f'line-height:1.4">{escape(directive)}</div>' if directive else '')
                     + '</div>',
                     unsafe_allow_html=True,
@@ -3928,7 +3928,7 @@ def _render_bundle_staging_area() -> None:
 
         if suggestions:
             st.markdown(
-                '<div style="font-family:\'Courier New\',monospace;font-size:0.6rem;'
+                '<div style="font-family:\'Courier New\',monospace;font-size:0.68rem;'
                 'font-weight:800;color:#60a5fa;letter-spacing:0.12em;'
                 'padding:0.6rem 0 0.35rem;border-top:1px solid #1d4ed822;margin-top:0.4rem">'
                 '&#9670; RECOMMENDED FOR ROSTER &nbsp;&middot;&nbsp; ROLES THAT COMPLETE THIS MANIFEST'
@@ -3943,20 +3943,22 @@ def _render_bundle_staging_area() -> None:
                         next((risk for p, _l, _pct, risk, *_ in _AI_DISPLACEMENT if p == prefix), "LOW"),
                         _RISK_COLORS["LOW"],
                     )
+                    # Use CSS class approach to force dark background through Streamlit column
                     st.markdown(
-                        f'<div style="background:#071540;border:1px solid {acc_c}44;'
-                        f'border-left:3px solid {acc_c};border-radius:5px;'
-                        f'padding:0.6rem 0.7rem;margin-bottom:0.3rem">'
-                        f'<div style="font-weight:700;font-size:0.82rem;color:#e2e8f0;'
-                        f'margin-bottom:0.15rem;line-height:1.3">{escape(title)}</div>'
-                        f'<div style="font-family:\'Courier New\',monospace;font-size:0.58rem;'
-                        f'color:{acc_c};margin-bottom:0.3rem">{escape(soc_code)}</div>'
-                        f'<div style="font-size:0.68rem;color:#94a3b8;font-style:italic">'
+                        f'<div style="background:#04112e;border:1.5px solid {acc_c}55;'
+                        f'border-left:4px solid {acc_c};border-radius:6px;'
+                        f'padding:0.75rem 0.85rem;margin-bottom:0.3rem;'
+                        f'box-shadow:0 2px 8px rgba(0,0,0,0.3)">'
+                        f'<div style="font-weight:700;font-size:0.88rem;color:#f1f5f9;'
+                        f'margin-bottom:0.2rem;line-height:1.3">{escape(title)}</div>'
+                        f'<div style="font-family:\'Courier New\',monospace;font-size:0.7rem;'
+                        f'color:{acc_c};margin-bottom:0.35rem">{escape(soc_code)}</div>'
+                        f'<div style="font-size:0.75rem;color:#94a3b8;font-style:italic;line-height:1.4">'
                         f'{escape(rationale)}</div>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
-                    if st.button(f"+ Add {title.split()[0]}...", key=f"suggest_add_{soc_code}",
+                    if st.button(f"+ Commission {title.split()[0]}...", key=f"suggest_add_{soc_code}",
                                  use_container_width=True):
                         current = st.session_state.get("agent_bundle", [])
                         if not any(r.get("soc_code") == soc_code for r in current):
@@ -4529,11 +4531,11 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             c1, c2 = st.columns([5, 1])
             with c1:
                 st.markdown(
-                    f'<div style="padding:0.3rem 0;border-bottom:1px solid #1d4ed822">'
-                    f'<span style="font-weight:700;font-size:0.83rem;color:#e2e8f0">{escape(item_title)}</span><br>'
-                    f'<span style="font-family:\'Courier New\',monospace;font-size:0.65rem;color:#60a5fa">'
+                    f'<div style="padding:0.35rem 0;border-bottom:1px solid #1d4ed822">'
+                    f'<span style="font-weight:700;font-size:0.88rem;color:#0b2a6f">{escape(item_title)}</span><br>'
+                    f'<span style="font-family:\'Courier New\',monospace;font-size:0.7rem;color:#1d4ed8">'
                     f'{escape(item_soc)}</span>'
-                    f'<span style="font-size:0.72rem;color:#64748b;margin-left:0.5rem">{escape(sector_lbl)}</span>'
+                    f'<span style="font-size:0.73rem;color:#475569;margin-left:0.5rem">&middot; {escape(sector_lbl)}</span>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
