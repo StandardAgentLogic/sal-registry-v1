@@ -4,6 +4,7 @@ import base64
 import json
 import math
 import os
+import re
 import traceback
 from html import escape
 from pathlib import Path
@@ -2150,7 +2151,7 @@ def _inject_studio_styles() -> None:
     overflow: visible;
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0L0 0 0 60' fill='none' stroke='%231d4ed8' stroke-width='0.4' opacity='0.07'/%3E%3Ccircle cx='0' cy='0' r='1.5' fill='%231d4ed8' opacity='0.1'/%3E%3C/svg%3E") repeat,
-      linear-gradient(180deg,rgba(11,42,111,0.04) 0%,rgba(255,255,255,0) 70%);
+      linear-gradient(180deg,rgba(219,234,254,0.55) 0%,rgba(239,246,255,0.3) 60%,rgba(255,255,255,0) 100%);
   }
   .sal-sovereign-header::before {
     content: 'STANDARD AGENT LOGIC  ·  GLOBAL DNS FOR DIGITAL LABOR  ·  FEDERAL AUTHORIZED REGISTRY  ·  O\2217NET SOC COMPLIANT';
@@ -2183,6 +2184,7 @@ def _inject_studio_styles() -> None:
     position: relative;
     z-index: 1;
     filter: drop-shadow(0 4px 24px rgba(29,78,216,0.18));
+    mix-blend-mode: multiply;
   }
   .sal-serial {
     position: absolute; top: 0.35rem; right: 0.9rem;
@@ -2670,6 +2672,83 @@ def _inject_studio_styles() -> None:
     margin: 0.25rem 0 0 !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
+  }
+
+  /* ── Bug 1: Loaded-role feedback bar (visible at tree level) ── */
+  .sal-tree-loaded {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: linear-gradient(90deg, #f0f7ff 0%, rgba(240,247,255,0) 100%);
+    border-left: 3px solid #22c55e;
+    border-top: 1px solid #bbf7d0;
+    border-bottom: 1px solid #bbf7d044;
+    padding: 0.28rem 0.6rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+    border-radius: 0 2px 2px 0;
+    animation: sal-loaded-flash 0.5s ease-out;
+  }
+  @keyframes sal-loaded-flash {
+    0%   { background: linear-gradient(90deg,#dcfce7,rgba(220,252,231,0)); opacity: 0.6; }
+    100% { background: linear-gradient(90deg,#f0f7ff,rgba(240,247,255,0)); opacity: 1; }
+  }
+  .sal-tree-loaded-dot {
+    width: 7px; height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 5px #22c55e88;
+  }
+  .sal-tree-loaded-label {
+    color: #166534;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+  .sal-tree-loaded-title {
+    color: #0b2a6f;
+    font-weight: 700;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sal-tree-loaded-soc {
+    font-family: 'Courier New', monospace;
+    font-size: 0.55rem;
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Bug 4: Active query filter pill above tree ── */
+  .sal-tree-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-left: 3px solid #f59e0b;
+    padding: 0.25rem 0.6rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    color: #78350f;
+    border-radius: 0 2px 2px 0;
+    margin-bottom: 0.25rem;
+  }
+  .sal-tree-filter-q {
+    color: #0b2a6f;
+    font-weight: 800;
+  }
+  .sal-tree-filter-hint {
+    color: #92400e;
+    opacity: 0.65;
   }
 </style>
 """, unsafe_allow_html=True)
@@ -3606,13 +3685,22 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             st.session_state["active_soc"] = str(reply["selected_soc"])
     last = st.session_state.get("sal_hub_last_reply")
     if last:
-        from html import escape as _esc
+        # Bug 2 fix: escape raw text first, then promote **bold** and `code` to HTML
+        _raw_last = str(last)[:400]
+        _esc_last  = escape(_raw_last)
+        _esc_last  = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', _esc_last)
+        _esc_last  = re.sub(
+            r'`([^`]+)`',
+            r'<code style="font-size:0.67rem;background:#071540;color:#93c5fd;'
+            r'padding:0.1rem 0.3rem;border-radius:2px">\1</code>',
+            _esc_last,
+        )
         st.markdown(
             f'<div class="sal-cmd-transmission">'
             f'  <span class="sal-cmd-transmission-hdr">'
             f'    \u25c6 TRANSMISSION\u00a0RECEIVED\u00a0\u00b7\u00a0SAL\u00a0REGISTRY\u00a0RESPONSE'
             f'  </span>'
-            f'  {_esc(str(last)[:400])}'
+            f'  {_esc_last}'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -3626,6 +3714,36 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         '</div>',
         unsafe_allow_html=True,
     )
+
+    # Bug 1 fix: "LOADED" feedback bar — always visible at tree level
+    _active_soc_fb = str(st.session_state.get("active_soc") or "")
+    if _active_soc_fb:
+        _fb_row   = next(
+            (r for r in _MOCK_REGISTRY if str(r.get("soc_code", "")) == _active_soc_fb),
+            None,
+        )
+        _fb_title = (_fb_row or {}).get("title", _active_soc_fb)
+        st.markdown(
+            f'<div class="sal-tree-loaded">'
+            f'  <span class="sal-tree-loaded-dot"></span>'
+            f'  <span class="sal-tree-loaded-label">SPEC\u00a0LOADED</span>'
+            f'  <span class="sal-tree-loaded-title">{escape(str(_fb_title))}</span>'
+            f'  <code class="sal-tree-loaded-soc">{escape(_active_soc_fb)}</code>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Bug 4 fix: active query filter pill — reminds user what is being filtered
+    if query.strip():
+        st.markdown(
+            f'<div class="sal-tree-filter">'
+            f'  <span>\u25c8\u00a0FILTERING:</span>'
+            f'  <span class="sal-tree-filter-q">"{escape(query.strip())}"</span>'
+            f'  <span class="sal-tree-filter-hint">\u2014 clear search to show all 1,095 roles</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
     vault_only = bool(st.session_state.get("vault_only", False))
     _render_file_tree_panel(
         supabase_url=_resolve_supabase_url(),
