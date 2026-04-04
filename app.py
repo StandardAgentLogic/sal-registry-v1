@@ -1449,19 +1449,39 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     )
     tb_html = ""
     if tb is not None and tb != "":
-        if isinstance(tb, (dict, list)):
-            tb_body = escape(json.dumps(tb, indent=2, ensure_ascii=False))
-            tb_html = (
-                f"<div class='sal-section'>"
-                f"<span style='{_cap_label}'>JSON Capabilities</span>"
-                f"<div class='sal-capabilities-block' style='{_cap_style}'>{tb_body}</div></div>"
-            )
-        else:
-            tb_html = (
-                f"<div class='sal-section'>"
-                f"<span style='{_cap_label}'>JSON Capabilities</span>"
-                f"<div class='sal-capabilities-block' style='{_cap_style}'>{escape(str(tb))}</div></div>"
-            )
+        # ── Render as Toolbox Manifest — grouped capability pills ──────────────
+        def _tb_to_manifest(tb_data) -> str:
+            """Convert toolbox_requirements dict/list into a pill-based manifest."""
+            cat_rows = ""
+            if isinstance(tb_data, dict):
+                items = tb_data.items()
+            elif isinstance(tb_data, list):
+                items = [("tools", tb_data)]
+            else:
+                items = [("capabilities", [str(tb_data)])]
+            for cat, vals in items:
+                cat_label = escape(str(cat).replace("_", " ").upper())
+                if isinstance(vals, list):
+                    pills = "".join(
+                        f"<span class='sal-toolbox-pill'>{escape(str(v))}</span>"
+                        for v in vals
+                    )
+                else:
+                    pills = f"<span class='sal-toolbox-pill'>{escape(str(vals))}</span>"
+                cat_rows += (
+                    f"<div class='sal-toolbox-category'>"
+                    f"  <span class='sal-toolbox-cat-label'>\u25c8\u00a0{cat_label}</span>"
+                    f"  <div class='sal-toolbox-pills'>{pills}</div>"
+                    f"</div>"
+                )
+            return cat_rows
+
+        tb_html = (
+            f"<div class='sal-section'>"
+            f"<span style='{_cap_label}'>TOOLBOX\u00a0MANIFEST\u00a0\u25c6\u00a0REQUIRED\u00a0CAPABILITIES</span>"
+            f"<div class='sal-toolbox-manifest'>{_tb_to_manifest(tb)}</div>"
+            f"</div>"
+        )
 
     browse_note = (
         "<p style='font-family:\"Courier New\",monospace;font-size:0.72rem;color:#64748b;margin:0.6rem 0 0'>"
@@ -2119,26 +2139,50 @@ def _inject_studio_styles() -> None:
      PHASE 4: SOVEREIGN INSTITUTIONAL REFINEMENTS
      ══════════════════════════════════════════════════════════════════════════ */
 
-  /* ── HEADER: seal image sizing + ribbon alignment ── */
+  /* ── HEADER: seal image sizing + blueprint watermark ── */
   .sal-sovereign-header {
     position: relative;
     text-align: center;
-    padding: 0.15rem 0 0;
+    padding: 1.2rem 0 0.6rem;
     border-top: 3px solid #1d4ed8;
     border-bottom: 3px double #1d4ed8;
     margin-bottom: 0.6rem;
-    background: none;
-    overflow: hidden;
+    overflow: visible;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0L0 0 0 60' fill='none' stroke='%231d4ed8' stroke-width='0.4' opacity='0.07'/%3E%3Ccircle cx='0' cy='0' r='1.5' fill='%231d4ed8' opacity='0.1'/%3E%3C/svg%3E") repeat,
+      linear-gradient(180deg,rgba(11,42,111,0.04) 0%,rgba(255,255,255,0) 70%);
+  }
+  .sal-sovereign-header::before {
+    content: 'STANDARD AGENT LOGIC  ·  GLOBAL DNS FOR DIGITAL LABOR  ·  FEDERAL AUTHORIZED REGISTRY  ·  O\2217NET SOC COMPLIANT';
+    position: absolute;
+    bottom: 0.3rem; left: 0; right: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.18em;
+    color: #1d4ed8;
+    opacity: 0.18;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+  }
+  .sal-sovereign-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(29,78,216,0.05) 0%, transparent 70%);
+    pointer-events: none;
   }
   .sal-great-seal-img {
     display: block !important;
-    margin: -2rem auto -1.8rem auto !important;
+    margin: 0 auto !important;
     width: auto !important;
-    max-width: 340px !important;
-    max-height: 280px !important;
+    max-width: 400px !important;
+    max-height: 360px !important;
     height: auto !important;
     object-fit: contain !important;
-    object-position: center 30% !important;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 24px rgba(29,78,216,0.18));
   }
   .sal-serial {
     position: absolute; top: 0.35rem; right: 0.9rem;
@@ -2410,7 +2454,209 @@ def _inject_studio_styles() -> None:
     50%       { opacity: 0.55; box-shadow: 0 0 2px #22c55e; }
   }
 
-  /* ── Capabilities JSON block: dark terminal ── */
+  /* ── Capabilities: Toolbox Manifest ── */
+  .sal-toolbox-manifest {
+    background: #04091a;
+    border: 1px solid #1d4ed833;
+    border-left: 3px solid #f59e0b;
+    border-radius: 4px;
+    padding: 0.6rem 0.75rem;
+    margin: 0.3rem 0 0;
+  }
+  .sal-toolbox-category {
+    margin: 0.35rem 0 0.2rem;
+  }
+  .sal-toolbox-cat-label {
+    font-family: 'Courier New', monospace;
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: #f59e0b;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .sal-toolbox-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .sal-toolbox-pill {
+    background: #071540;
+    border: 1px solid #1d4ed844;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    color: #93c5fd;
+    padding: 0.18rem 0.45rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── SAL Command Interface ── */
+  .sal-cmd-hdr {
+    background: linear-gradient(90deg, #020c1b 0%, #0b2a6f 40%, #071540 70%, #020c1b 100%);
+    border: 1px solid #1d4ed8;
+    border-bottom: 1px solid #1d4ed844;
+    border-radius: 6px 6px 0 0;
+    padding: 0.42rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.59rem;
+    color: #60a5fa;
+    letter-spacing: 0.09em;
+    position: relative;
+    overflow: hidden;
+  }
+  .sal-cmd-hdr::after {
+    content: '';
+    position: absolute; top: 0; left: -80%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(56,189,248,0.07), transparent);
+    animation: sal-scan-line 5s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes sal-scan-line {
+    0%   { left: -60%; }
+    100% { left: 110%; }
+  }
+  .sal-cmd-live-dot {
+    width: 7px; height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+    animation: sal-live-blink 1.6s ease-in-out infinite;
+    box-shadow: 0 0 6px #22c55eaa;
+  }
+  @keyframes sal-live-blink {
+    0%, 100% { opacity: 1; box-shadow: 0 0 7px #22c55e; }
+    50%       { opacity: 0.25; box-shadow: none; }
+  }
+  .sal-cmd-live-txt  { color: #22c55e; font-weight: 900; letter-spacing: 0.12em; }
+  .sal-cmd-sep       { color: #1d4ed8; opacity: 0.5; }
+  .sal-cmd-title     { color: #e2e8f0; font-weight: 800; letter-spacing: 0.15em; }
+  .sal-cmd-stat      { color: #93c5fd; }
+  .sal-cmd-prompt {
+    background: #030b19;
+    border-left: 1px solid #1d4ed8;
+    border-right: 1px solid #1d4ed8;
+    padding: 0.3rem 0.85rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.62rem;
+    color: #334155;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .sal-cmd-caret {
+    color: #38bdf8;
+    animation: sal-caret-blink 1.1s step-end infinite;
+    font-size: 0.8rem;
+  }
+  @keyframes sal-caret-blink {
+    0%, 100% { opacity: 1; } 50% { opacity: 0; }
+  }
+  /* Style the Streamlit text input inside the command interface zone */
+  .sal-search-anchor ~ div div[data-testid="stTextInput"] > div {
+    border: none !important;
+    border-bottom: 1px solid #1d4ed855 !important;
+    border-radius: 0 !important;
+    background: #030b19 !important;
+    padding: 0 !important;
+  }
+  .sal-search-anchor ~ div div[data-testid="stTextInput"] input {
+    background: #030b19 !important;
+    color: #e2e8f0 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.88rem !important;
+    caret-color: #38bdf8 !important;
+    border: none !important;
+    border-bottom: 1px solid transparent !important;
+    border-radius: 0 !important;
+    padding: 0.65rem 1rem !important;
+    letter-spacing: 0.02em !important;
+    transition: border-color 0.2s !important;
+  }
+  .sal-search-anchor ~ div div[data-testid="stTextInput"] input:focus {
+    border-bottom-color: #38bdf8 !important;
+    box-shadow: 0 1px 0 #38bdf855 !important;
+    outline: none !important;
+  }
+  .sal-search-anchor ~ div div[data-testid="stTextInput"] input::placeholder {
+    color: #1e3a5f !important;
+    font-style: italic;
+  }
+  /* Dispatch button */
+  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"] {
+    background: linear-gradient(135deg,#1d4ed8 0%,#3730a3 100%) !important;
+    border: 1px solid #3b82f655 !important;
+    border-top: 1px solid #60a5fa33 !important;
+    color: #fff !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.18em !important;
+    border-radius: 0 !important;
+    padding: 0.55rem 1rem !important;
+    transition: all 0.25s !important;
+    position: relative !important;
+    overflow: hidden !important;
+    text-shadow: 0 0 12px rgba(96,165,250,0.6) !important;
+  }
+  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"]:hover {
+    background: linear-gradient(135deg,#2563eb 0%,#4338ca 100%) !important;
+    box-shadow: 0 0 18px rgba(59,130,246,0.45) !important;
+    transform: none !important;
+  }
+  .sal-cmd-chips {
+    background: #020c1b;
+    border: 1px solid #1d4ed8;
+    border-top: 1px solid #1d4ed822;
+    border-radius: 0 0 6px 6px;
+    padding: 0.45rem 0.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .sal-chip {
+    background: #071540;
+    border: 1px solid #1d4ed844;
+    color: #60a5fa;
+    font-family: 'Courier New', monospace;
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    padding: 0.22rem 0.5rem;
+    border-radius: 2px;
+    cursor: default;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .sal-chip-bright  { border-color: #92400e44; color: #fbbf24; background: #120800; }
+  .sal-chip-vault   { border-color: #5b21b644; color: #c4b5fd; background: #0d0720; }
+  .sal-cmd-transmission {
+    background: #020c1b;
+    border: 1px solid #1d4ed844;
+    border-left: 3px solid #38bdf8;
+    border-radius: 0 4px 4px 0;
+    padding: 0.5rem 0.85rem;
+    margin: 0.3rem 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: #93c5fd;
+    line-height: 1.55;
+  }
+  .sal-cmd-transmission-hdr {
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    color: #38bdf8;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
   .sal-capabilities-block {
     font-family: 'Courier New','Lucida Console',monospace !important;
     font-size: 0.74rem !important;
@@ -3249,8 +3495,8 @@ def render_unified_seals() -> None:
             is_active = st.session_state.get("active_prefix") == code
             icon = _SEAL_ICONS.get(code, "")
             svg  = _notary_seal_svg(code, label, bg, ring, accent, icon)
-            # Scale seal to 72px — 6-per-row needs to be a touch smaller
-            svg_sm = svg.replace('width="190" height="190"', 'width="72" height="72"')
+            # Scale seal to 105px — detailed enough to appreciate the inner icons
+            svg_sm = svg.replace('width="190" height="190"', 'width="105" height="105"')
             # Active glow ring
             ring_style = (
                 f"box-shadow:0 0 0 2px {accent},0 0 8px {accent}55;"
@@ -3300,22 +3546,54 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
     )
     render_unified_seals()
 
-    # ── Unified Search — filters tree live, AI-resolves on submit ───────────
+    # ── SAL Command Interface — revolutionary unified search + dispatch ───────
+    _vault_active = bool(st.session_state.get("vault_only", False))
+    _scope_label  = "PRIVATE VAULT \u25c6 RESTRICTED" if _vault_active else "GLOBAL REGISTRY \u25c6 1,095 ROLES"
+    _scope_color  = "#c4b5fd" if _vault_active else "#93c5fd"
     st.markdown(
-        '<div class="sal-search-anchor"><p>SEARCH THE REGISTRY</p></div>',
+        f'<div class="sal-search-anchor"></div>'
+        f'<div class="sal-cmd-hdr">'
+        f'  <span class="sal-cmd-live-dot"></span>'
+        f'  <span class="sal-cmd-live-txt">LIVE</span>'
+        f'  <span class="sal-cmd-sep">\u00b7</span>'
+        f'  <span class="sal-cmd-title">SAL\u00a0COMMAND\u00a0INTERFACE</span>'
+        f'  <span class="sal-cmd-sep">\u00b7</span>'
+        f'  <span class="sal-cmd-stat">22\u00a0DIVISIONS</span>'
+        f'  <span class="sal-cmd-sep">\u25c6</span>'
+        f'  <span style="color:{_scope_color};font-weight:700">{_scope_label}</span>'
+        f'  <span class="sal-cmd-sep">\u25c6</span>'
+        f'  <span class="sal-cmd-stat">O\u2217NET\u00a0FEDERAL\u00a0REGISTRY</span>'
+        f'</div>'
+        f'<div class="sal-cmd-prompt">'
+        f'  <span class="sal-cmd-caret">\u25b8</span>'
+        f'  <span>ENTER QUERY \u2014 job\u00a0title\u00a0\u00b7\u00a0SOC\u00a0code\u00a0\u00b7\u00a0skill\u00a0\u00b7\u00a0natural\u00a0language\u00a0\u00b7\u00a0capability</span>'
+        f'</div>',
         unsafe_allow_html=True,
     )
     query = st.text_input(
-        "Search registry",
+        "SAL Command Interface",
         key="sal_unified_query",
-        placeholder="Job title, description, or SOC code\u2026",
+        placeholder="e.g. \u201cFind me a data scientist with ML skills\u201d or \u201c15-1252\u201d or \u201cBright Outlook roles in healthcare\u201d\u2026",
         label_visibility="collapsed",
     )
     search_btn = st.button(
-        "\u25ba  Search Global Registry",
+        "\u26a1\u00a0\u00a0DISPATCH\u00a0TO\u00a0REGISTRY",
         type="primary",
         use_container_width=True,
         key="sal_search_btn",
+    )
+    # Quick-action chip bar
+    st.markdown(
+        '<div class="sal-cmd-chips">'
+        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0TITLE</span>'
+        '  <span class="sal-chip">\u25c8\u00a0SOC\u00a0CODE</span>'
+        '  <span class="sal-chip sal-chip-bright">\u2605\u00a0BRIGHT\u00a0OUTLOOK</span>'
+        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0SKILL</span>'
+        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0SECTOR</span>'
+        '  <span class="sal-chip">\u25c8\u00a0BUNDLE\u00a0EXPORT</span>'
+        '  <span class="sal-chip sal-chip-vault">\u25c8\u00a0VAULT\u00a0ACCESS</span>'
+        '</div>',
+        unsafe_allow_html=True,
     )
     if search_btn and query.strip():
         vault_only = bool(st.session_state.get("vault_only", False))
@@ -3330,9 +3608,12 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
     if last:
         from html import escape as _esc
         st.markdown(
-            f'<p style="font-size:0.72rem;color:#0b2a6f;margin:0.3rem 0 0.1rem;'
-            f'font-family:\'Courier New\',monospace;">'
-            f'\u25c6 {_esc(str(last)[:300])}</p>',
+            f'<div class="sal-cmd-transmission">'
+            f'  <span class="sal-cmd-transmission-hdr">'
+            f'    \u25c6 TRANSMISSION\u00a0RECEIVED\u00a0\u00b7\u00a0SAL\u00a0REGISTRY\u00a0RESPONSE'
+            f'  </span>'
+            f'  {_esc(str(last)[:400])}'
+            f'</div>',
             unsafe_allow_html=True,
         )
 
