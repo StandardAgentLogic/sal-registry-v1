@@ -3752,125 +3752,83 @@ def _great_seal_data_uri() -> str:
     return f"data:image/png;base64,{b64}"
 
 
-def _bright_outlook_svg() -> str:
-    """Official agency-readout bar chart — all 22 SOC divisions, full-width, dark header."""
-    groups = [
-        ("MGMT",  "11", 72, 58),
-        ("FIN",   "13", 80, 64),
-        ("TECH",  "15", 88, 76),
-        ("ENG",   "17", 70, 55),
-        ("SCI",   "19", 74, 61),
-        ("COMM",  "21", 58, 44),
-        ("LEGAL", "23", 78, 62),
-        ("EDU",   "25", 62, 49),
-        ("ARTS",  "27", 55, 38),
-        ("HLTH",  "29", 82, 70),
-        ("SUPP",  "31", 68, 52),
-        ("PROT",  "33", 65, 48),
-        ("FOOD",  "35", 48, 32),
-        ("GRND",  "37", 42, 28),
-        ("CARE",  "39", 52, 38),
-        ("SALE",  "41", 60, 42),
-        ("ADMN",  "43", 65, 45),
-        ("FARM",  "45", 45, 31),
-        ("CNST",  "47", 56, 40),
-        ("MECH",  "49", 61, 44),
-        ("PROD",  "51", 52, 36),
-        ("TRAN",  "53", 55, 38),
-    ]
-    W, H = 1100, 270
-    lp, rp, tp, bp = 38, 12, 72, 46   # chart margins
-    cw = W - lp - rp
-    ch = H - tp - bp
-    mono = "font-family='Courier New,Lucida Console,monospace'"
-    sans = "font-family='Arial,sans-serif'"
-    p: list[str] = []
+def _render_bundle_staging_area() -> None:
+    """Full-width Agent Bundle staging area — visual card grid of all queued roles."""
+    bundle: list = st.session_state.get("agent_bundle", [])
+    _risk_lookup = {p: (lbl, pct, risk) for p, lbl, pct, risk, *_ in _AI_DISPLACEMENT}
 
-    # ── Background & outer border ──────────────────────────────────────────
-    p.append(f"<rect width='{W}' height='{H}' fill='#f4f7ff' rx='2'/>")
-    p.append(f"<rect width='{W}' height='{H}' fill='none' stroke='#b8caf8' stroke-width='1' rx='2'/>")
-
-    # ── Dark header bar ────────────────────────────────────────────────────
-    p.append(f"<rect x='0' y='0' width='{W}' height='30' fill='#071540' rx='2'/>")
-    p.append(f"<rect x='0' y='27' width='{W}' height='3' fill='#1d4ed8'/>")
-    p.append(f"<text x='8' y='18' {mono} font-size='8' font-weight='700' fill='#93c5fd' letter-spacing='1'>DOL/O\u2217NET</text>")
-    p.append(f"<text x='{W//2}' y='18' text-anchor='middle' {mono} font-size='9' font-weight='700' fill='#ffffff' letter-spacing='2'>BRIGHT OUTLOOK INDEX</text>")
-    p.append(f"<text x='{W-8}' y='18' text-anchor='end' {mono} font-size='7.5' fill='#60a5fa'>FY2026</text>")
-
-    # ── Stat pills row (between header bar and chart) ──────────────────────
-    pill_y = 34
-    pills = [
-        ("1,095", "VERIFIED ROLES",  W * 0.18),
-        ("88%",   "TOP SECTOR · TECH", W * 0.50),
-        ("847",   "BRIGHT OUTLOOK ROLES", W * 0.82),
-    ]
-    for val, label, px in pills:
-        p.append(f"<rect x='{px-38:.0f}' y='{pill_y}' width='76' height='28' rx='2' fill='rgba(11,42,111,0.06)' stroke='#c7d7fd' stroke-width='0.8'/>")
-        p.append(f"<text x='{px:.0f}' y='{pill_y+13}' text-anchor='middle' {mono} font-size='11' font-weight='900' fill='#0b2a6f'>{val}</text>")
-        p.append(f"<text x='{px:.0f}' y='{pill_y+24}' text-anchor='middle' {mono} font-size='5.5' fill='#64748b' letter-spacing='0.8'>{label}</text>")
-
-    # ── Y-axis grid lines + percentage labels ──────────────────────────────
-    for pct in [0, 25, 50, 75, 100]:
-        y = tp + ch - (pct / 100) * ch
-        dash = "stroke-dasharray='4 3'" if pct > 0 else ""
-        clr  = "#c7d7fd" if pct > 0 else "#0b2a6f"
-        sw   = "0.8"     if pct > 0 else "1.3"
-        p.append(f"<line x1='{lp}' y1='{y:.1f}' x2='{W-rp}' y2='{y:.1f}' stroke='{clr}' stroke-width='{sw}' {dash}/>")
-        p.append(f"<text x='{lp-4}' y='{y+3:.1f}' text-anchor='end' {mono} font-size='7' fill='#475569'>{pct}%</text>")
-
-    # ── Y-axis spine ───────────────────────────────────────────────────────
-    p.append(f"<line x1='{lp}' y1='{tp}' x2='{lp}' y2='{tp+ch}' stroke='#0b2a6f' stroke-width='1.4'/>")
-
-    # ── Bars + value labels + X-axis labels ───────────────────────────────
-    n   = len(groups)
-    gw  = cw / n
-    bw  = gw * 0.28
-
-    for i, (label, soc, forecast, bright) in enumerate(groups):
-        xc = lp + (i + 0.5) * gw
-        fh = (forecast / 100) * ch
-        bh = (bright / 100) * ch
-
-        # Forecast bar (navy)
-        fx = xc - bw - 1.5
-        fy = tp + ch - fh
-        p.append(f"<rect x='{fx:.1f}' y='{fy:.1f}' width='{bw:.1f}' height='{fh:.1f}' fill='#1d4ed8' opacity='0.9' rx='1'/>")
-        p.append(f"<text x='{fx + bw/2:.1f}' y='{fy - 4:.1f}' text-anchor='middle' {mono} font-size='7.5' font-weight='700' fill='#1d4ed8'>{forecast}</text>")
-
-        # Bright Outlook bar (sky)
-        bx = xc + 1.5
-        by = tp + ch - bh
-        p.append(f"<rect x='{bx:.1f}' y='{by:.1f}' width='{bw:.1f}' height='{bh:.1f}' fill='#38bdf8' opacity='0.78' rx='1'/>")
-        p.append(f"<text x='{bx + bw/2:.1f}' y='{by - 4:.1f}' text-anchor='middle' {mono} font-size='7.5' font-weight='700' fill='#0ea5e9'>{bright}</text>")
-
-        # Tick mark on X-axis
-        p.append(f"<line x1='{xc:.1f}' y1='{tp+ch}' x2='{xc:.1f}' y2='{tp+ch+3}' stroke='#0b2a6f' stroke-width='0.9'/>")
-        # Sector short code
-        p.append(f"<text x='{xc:.1f}' y='{tp+ch+13}' text-anchor='middle' {mono} font-size='7.5' font-weight='800' fill='#0b2a6f'>{label}</text>")
-        # SOC prefix
-        p.append(f"<text x='{xc:.1f}' y='{tp+ch+24}' text-anchor='middle' {mono} font-size='6' fill='#64748b'>{soc}</text>")
-
-    # ── Legend ─────────────────────────────────────────────────────────────
-    lx, ly = lp + 2, tp + 8
-    p.append(f"<rect x='{lx}' y='{ly}' width='10' height='7' fill='#1d4ed8' opacity='0.9' rx='1'/>")
-    p.append(f"<text x='{lx+14}' y='{ly+6.5}' {mono} font-size='7' fill='#334155'>FORECAST</text>")
-    p.append(f"<rect x='{lx+82}' y='{ly}' width='10' height='7' fill='#38bdf8' opacity='0.78' rx='1'/>")
-    p.append(f"<text x='{lx+96}' y='{ly+6.5}' {mono} font-size='7' fill='#334155'>BRIGHT OUTLOOK</text>")
-
-    # ── Classification footer ──────────────────────────────────────────────
-    p.append(f"<rect x='0' y='{H-18}' width='{W}' height='18' fill='rgba(7,21,64,0.07)'/>")
-    p.append(f"<text x='{W//2}' y='{H-6}' text-anchor='middle' {mono} font-size='6' fill='#64748b' letter-spacing='1.2'>O\u2217NET SOC DATA \u00b7 SAL REGISTRY \u00b7 UNCLASSIFIED</text>")
-
-    svg_str = (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}">'
-        f'{"".join(p)}</svg>'
+    # ── Section header (always visible) ──────────────────────────────────
+    count_label = f"{len(bundle)} ROLE{'S' if len(bundle) != 1 else ''} QUEUED" if bundle else "EMPTY"
+    st.markdown(
+        f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;font-weight:800;'
+        f'color:#93c5fd;letter-spacing:0.14em;padding:0.6rem 0 0.4rem;'
+        f'border-top:1px solid #1d4ed844;border-bottom:1px solid #1d4ed844;margin-bottom:0.75rem">'
+        f'&#9632; AGENT BUNDLE &nbsp;&#9670;&nbsp; STAGING AREA &nbsp;&#9670;&nbsp; {count_label}'
+        f'</div>',
+        unsafe_allow_html=True,
     )
-    b64 = base64.b64encode(svg_str.encode("utf-8")).decode()
-    return (
-        f'<img src="data:image/svg+xml;base64,{b64}" '
-        f'style="display:block;width:100%;height:auto;border:1px solid #b8caf8;'
-        f'border-radius:3px;margin-top:0.4rem" alt="Sector Performance Readout"/>'
-    )
+
+    # ── Empty state ───────────────────────────────────────────────────────
+    if not bundle:
+        st.markdown(
+            '<div style="background:#04112e;border:1.5px solid #1d4ed822;border-radius:6px;'
+            'padding:2rem;text-align:center;color:#334155;font-size:0.85rem">'
+            'No roles queued &mdash; browse the registry above and add roles to your bundle.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    # ── Role cards — 3-column grid ────────────────────────────────────────
+    _COLS = 3
+    for i in range(0, len(bundle), _COLS):
+        chunk = bundle[i : i + _COLS]
+        cols  = st.columns(_COLS)
+        for col, item in zip(cols, chunk):
+            with col:
+                item_soc   = str(item.get("soc_code", ""))
+                item_title = str(item.get("title", item_soc))
+                prefix     = item_soc.split("-")[0] if "-" in item_soc else "??"
+                lbl, pct, risk = _risk_lookup.get(prefix, ("Unknown", 0, "LOW"))
+                bg_c, txt_c, acc_c = _RISK_COLORS.get(risk, _RISK_COLORS["LOW"])
+
+                # Pull primary directive if available
+                directive_raw = str(_MOCK_LOGIC.get(item_soc, {}).get("primary_directive", ""))
+                directive = (directive_raw[:110] + "...") if len(directive_raw) > 110 else directive_raw
+
+                st.markdown(
+                    f'<div style="background:{bg_c}1a;border:1.5px solid {acc_c}44;'
+                    f'border-left:4px solid {acc_c};border-radius:6px;padding:0.8rem 0.9rem;'
+                    f'margin-bottom:0.4rem;min-height:130px">'
+                    f'<div style="font-size:0.6rem;font-weight:800;color:{acc_c};'
+                    f'letter-spacing:0.1em;margin-bottom:0.35rem">'
+                    f'{risk} &nbsp;&middot;&nbsp; {pct}% AI EXPOSURE</div>'
+                    f'<div style="font-weight:700;font-size:0.88rem;color:#f1f5f9;'
+                    f'margin-bottom:0.2rem;line-height:1.3">{escape(item_title)}</div>'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.62rem;'
+                    f'color:{txt_c};margin-bottom:0.4rem">'
+                    f'{escape(item_soc)} &nbsp;&middot;&nbsp; {escape(lbl)}</div>'
+                    + (f'<div style="font-size:0.7rem;color:#94a3b8;font-style:italic;'
+                       f'line-height:1.4">{escape(directive)}</div>' if directive else '')
+                    + '</div>',
+                    unsafe_allow_html=True,
+                )
+                if st.button("Remove", key=f"staging_rm_{item_soc}",
+                             use_container_width=True):
+                    st.session_state["agent_bundle"] = [
+                        r for r in st.session_state["agent_bundle"]
+                        if r.get("soc_code") != item_soc
+                    ]
+                    st.rerun()
+
+    # ── Actions row ───────────────────────────────────────────────────────
+    if bundle:
+        act_a, act_b, _ = st.columns([1, 1, 3])
+        with act_a:
+            if st.button("Clear All", key="staging_clear_all",
+                         use_container_width=True, type="secondary"):
+                st.session_state["agent_bundle"] = []
+                st.rerun()
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
@@ -4575,16 +4533,8 @@ def main() -> None:
     _render_col_authority(client=client, browse_mode=browse_mode)
     _render_col_engine(client=client, browse_mode=browse_mode)
 
-    # ── Sector Performance Readout — full-width below both columns ────────────
-    st.markdown(
-        '<div class="sal-bright-outlook-wrap">'
-        '<div class="sal-bright-outlook-title" '
-        'style="font-family:\'Courier New\',monospace;letter-spacing:0.1em">'
-        '&#9632; SECTOR PERFORMANCE READOUT &nbsp;&#x25C6;&nbsp; ALL 22 SOC DIVISIONS</div>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(_bright_outlook_svg(), unsafe_allow_html=True)
+    # ── Agent Bundle Staging Area — full-width below both columns ────────────
+    _render_bundle_staging_area()
 
     # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
