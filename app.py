@@ -1188,6 +1188,9 @@ def _demo_fetch_registry_by_prefix(*, prefix2: str, query: str, private_vault_on
     rows = [r for r in _MOCK_REGISTRY if str(r.get("soc_code") or "").startswith(f"{prefix2}-")]
     if private_vault_only:
         rows = [r for r in rows if r.get("is_custom") is True]
+    else:
+        # Global Registry — never expose proprietary Vault IP roles publicly
+        rows = [r for r in rows if not r.get("is_custom")]
     t = query.strip().lower()
     if t:
         rows = [r for r in rows if t in str(r.get("title") or "").lower() or t in str(r.get("outlook") or "").lower()]
@@ -1209,6 +1212,9 @@ def fetch_registry_by_prefix(supabase_url: str, supabase_key: str, *, prefix2: s
     q = client.table("registry_metadata").select("soc_code,title,is_custom,outlook").ilike("soc_code", f"{prefix2}-%")
     if private_vault_only:
         q = q.eq("is_custom", True)
+    else:
+        # Global Registry — never expose proprietary Vault IP roles publicly
+        q = q.eq("is_custom", False)
     t = query.strip()
     if t:
         q = q.or_(f"title.ilike.%{t}%,outlook.ilike.%{t}%")
@@ -2050,14 +2056,38 @@ def _inject_studio_styles() -> None:
 
   /* Search anchor box */
   .sal-search-anchor {
-    border: 2px dashed #a8b8e8;
-    border-radius: 4px;
-    padding: 0.75rem 0.6rem 0.4rem;
+    border: none;
+    border-top: 2px solid #dde4f4;
+    border-radius: 0;
+    padding: 0.65rem 0 0.25rem;
     text-align: center;
-    background: rgba(240,244,255,0.9);
-    margin: 0.45rem 0 0.4rem;
+    background: transparent;
+    margin: 0.45rem 0 0.25rem;
   }
-  .sal-search-anchor p { font-size: 0.95rem; font-weight: 900; color: #0b2a6f; letter-spacing: 0.06em; margin: 0 0 0.5rem; line-height: 1.25; }
+  .sal-search-anchor p { font-size: 0.72rem; font-weight: 900; color: #1d4ed8; letter-spacing: 0.14em; margin: 0 0 0.35rem; line-height: 1.3; font-family: 'Courier New', monospace; }
+
+  /* Directory rule — replaces heavy navy filing cabinet header */
+  .sal-dir-rule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1.5px solid #b8caf8;
+    border-bottom: 1px solid #dde4f4;
+    padding: 0.3rem 0.1rem;
+    margin: 0.5rem 0 0.3rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #1d4ed8;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, rgba(219,234,254,0.5) 0%, transparent 100%);
+  }
+  .sal-dir-count {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+  }
 
   /* Latest Verified Logic table */
   .sal-lvl-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; margin-top: 0.35rem; }
@@ -2093,20 +2123,22 @@ def _inject_studio_styles() -> None:
   .sal-sovereign-header {
     position: relative;
     text-align: center;
-    padding: 0.5rem 0 0;
+    padding: 0.15rem 0 0;
     border-top: 3px solid #1d4ed8;
     border-bottom: 3px double #1d4ed8;
-    margin-bottom: 0.9rem;
-    background: linear-gradient(180deg, rgba(11,42,111,0.04) 0%, transparent 60%);
+    margin-bottom: 0.6rem;
+    background: none;
+    overflow: hidden;
   }
   .sal-great-seal-img {
     display: block !important;
-    margin: 0.2rem auto 0.5rem auto !important;
+    margin: -2rem auto -1.8rem auto !important;
     width: auto !important;
-    max-width: 420px !important;
-    max-height: 400px !important;
+    max-width: 340px !important;
+    max-height: 280px !important;
     height: auto !important;
     object-fit: contain !important;
+    object-position: center 30% !important;
   }
   .sal-serial {
     position: absolute; top: 0.35rem; right: 0.9rem;
@@ -2213,17 +2245,25 @@ def _inject_studio_styles() -> None:
     color: #1d4ed8; letter-spacing: 0.14em; white-space: nowrap;
   }
 
-  /* ── CENTER COLUMN BUTTONS: uniform width, official form style ── */
+  /* ── NAV COLUMN BUTTONS: readable directory-list style ── */
   div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) .stButton > button {
     font-family: 'Courier New','Lucida Console',monospace !important;
-    font-size: 0.58rem !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.1em !important;
-    text-transform: uppercase !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+    text-align: left !important;
     border-radius: 2px !important;
     width: 100% !important;
-    padding: 0.2rem 0.3rem !important;
+    padding: 0.18rem 0.55rem !important;
     min-height: 1.6rem !important;
+  }
+  /* Sector seal selector buttons — keep centered since they're under seals */
+  div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) div[data-testid="stColumns"] .stButton > button {
+    text-align: center !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
   }
 
   /* ── THREE-COLUMN TOP OFFSET LOCK ── */
@@ -2482,20 +2522,23 @@ def _render_bureau(*, client, browse_mode: bool) -> None:
 
 
 def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, icon_svg: str) -> str:
-    """Build a 200x200 SVG federal-grade notary seal with gear teeth and arc text."""
+    """Build a 200x200 SVG federal-grade notary seal — gold outer rim, gear teeth, arc text."""
+    # Gold colour shared with main SAL seal for visual continuity
+    GOLD = "#c9a227"
+    GOLD_LIGHT = "#f0d060"
     teeth: list[str] = []
-    n_teeth = 48
+    n_teeth = 52
     for i in range(n_teeth):
-        a1 = ((i * 360 / n_teeth) - 2.6) * math.pi / 180
-        a2 = ((i * 360 / n_teeth) + 2.6) * math.pi / 180
-        ri, ro = 90, 99
+        a1 = ((i * 360 / n_teeth) - 2.4) * math.pi / 180
+        a2 = ((i * 360 / n_teeth) + 2.4) * math.pi / 180
+        ri, ro = 91, 101
         pts = (
             f"{100 + ri * math.cos(a1):.2f},{100 + ri * math.sin(a1):.2f} "
             f"{100 + ri * math.cos(a2):.2f},{100 + ri * math.sin(a2):.2f} "
             f"{100 + ro * math.cos(a2):.2f},{100 + ro * math.sin(a2):.2f} "
             f"{100 + ro * math.cos(a1):.2f},{100 + ro * math.sin(a1):.2f}"
         )
-        teeth.append(f'<polygon points="{pts}" fill="{ring}" opacity="0.88"/>')
+        teeth.append(f'<polygon points="{pts}" fill="{GOLD}" opacity="0.92"/>')
     teeth_html = "\n  ".join(teeth)
     cid = f"s{code.replace('-','')}"
     return (
@@ -2503,34 +2546,49 @@ def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, ico
         f' width="190" height="190" style="display:block;margin:0 auto;overflow:visible">\n'
         f'  <defs>\n'
         f'    <radialGradient id="bg{cid}" cx="34%" cy="28%" r="70%">\n'
-        f'      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10"/>\n'
+        f'      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>\n'
         f'      <stop offset="100%" stop-color="#000000" stop-opacity="0.0"/>\n'
         f'    </radialGradient>\n'
+        f'    <linearGradient id="goldrim{cid}" x1="0%" y1="0%" x2="100%" y2="100%">\n'
+        f'      <stop offset="0%" stop-color="{GOLD_LIGHT}"/>\n'
+        f'      <stop offset="50%" stop-color="{GOLD}"/>\n'
+        f'      <stop offset="100%" stop-color="#8a6a10"/>\n'
+        f'    </linearGradient>\n'
         f'    <path id="topA{cid}" d="M100,100 m-66,0 a66,66 0 1,1 132,0"/>\n'
         f'    <path id="botA{cid}" d="M100,100 m-61,0 a61,61 0 0,0 122,0"/>\n'
         f'    <filter id="glo{cid}">\n'
-        f'      <feGaussianBlur stdDeviation="1.4" result="b"/>\n'
+        f'      <feGaussianBlur stdDeviation="1.6" result="b"/>\n'
         f'      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>\n'
         f'    </filter>\n'
+        f'    <filter id="shadow{cid}" x="-10%" y="-10%" width="120%" height="120%">\n'
+        f'      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>\n'
+        f'    </filter>\n'
         f'  </defs>\n'
+        # Outer gold medal rim (behind teeth)
+        f'  <circle cx="100" cy="100" r="103" fill="url(#goldrim{cid})" opacity="0.35"/>\n'
         f'  {teeth_html}\n'
-        f'  <circle cx="100" cy="100" r="89" fill="{bg}"/>\n'
+        # Gold ring just inside teeth
+        f'  <circle cx="100" cy="100" r="90" fill="none" stroke="{GOLD}" stroke-width="1.8" opacity="0.7"/>\n'
+        f'  <circle cx="100" cy="100" r="89" fill="{bg}" filter="url(#shadow{cid})"/>\n'
         f'  <circle cx="100" cy="100" r="89" fill="url(#bg{cid})"/>\n'
-        f'  <circle cx="100" cy="100" r="89" fill="none" stroke="{ring}" stroke-width="2.8"/>\n'
-        f'  <circle cx="100" cy="100" r="83" fill="none" stroke="{accent}" stroke-width="0.9"'
-        f'          stroke-dasharray="3.5 2"/>\n'
-        f'  <circle cx="100" cy="100" r="77" fill="none" stroke="{ring}" stroke-width="1.3"/>\n'
+        # Ring details — sector colour + gold accents
+        f'  <circle cx="100" cy="100" r="86" fill="none" stroke="{ring}" stroke-width="2.2"/>\n'
+        f'  <circle cx="100" cy="100" r="81" fill="none" stroke="{GOLD}" stroke-width="0.8"'
+        f'          stroke-dasharray="4 2.5" opacity="0.6"/>\n'
+        f'  <circle cx="100" cy="100" r="76" fill="none" stroke="{ring}" stroke-width="1.1"/>\n'
+        f'  <circle cx="100" cy="100" r="72" fill="none" stroke="{accent}" stroke-width="0.5"'
+        f'          opacity="0.4"/>\n'
         f'  <g filter="url(#glo{cid})">{icon_svg}</g>\n'
         f'  <text font-family="\'Arial Narrow\',Arial,sans-serif" font-size="10" font-weight="900"'
         f'        letter-spacing="3" fill="{accent}" text-anchor="middle">\n'
         f'    <textPath href="#topA{cid}" startOffset="50%">{title.upper()}</textPath>\n'
         f'  </text>\n'
         f'  <text font-family="Arial,sans-serif" font-size="7.5" font-weight="700"'
-        f'        letter-spacing="2.2" fill="{accent}" text-anchor="middle" opacity="0.88">\n'
-        f'    <textPath href="#botA{cid}" startOffset="50%">SOC {code} \u00b7 O*NET</textPath>\n'
+        f'        letter-spacing="2.2" fill="{GOLD}" text-anchor="middle" opacity="0.9">\n'
+        f'    <textPath href="#botA{cid}" startOffset="50%">SOC {code} \u00b7 O\u2217NET</textPath>\n'
         f'  </text>\n'
-        f'  <text x="56"  y="160" text-anchor="middle" font-size="8" fill="{accent}" opacity="0.72">&#9733;</text>\n'
-        f'  <text x="144" y="160" text-anchor="middle" font-size="8" fill="{accent}" opacity="0.72">&#9733;</text>\n'
+        f'  <text x="56"  y="160" text-anchor="middle" font-size="9" fill="{GOLD}" opacity="0.85">&#9733;</text>\n'
+        f'  <text x="144" y="160" text-anchor="middle" font-size="9" fill="{GOLD}" opacity="0.85">&#9733;</text>\n'
         f'</svg>'
     )
 
@@ -2772,16 +2830,18 @@ def _great_seal_data_uri() -> str:
 
 
 def _bright_outlook_svg() -> str:
-    """Official agency-readout bar chart — dark header, Y-axis grid, monospaced labels, value callouts."""
+    """Official agency-readout bar chart — full-width, stat pills, dark header, Y-axis grid."""
     groups = [
-        ("MGMT",  "11-19", 72, 58),
-        ("TECH",  "15-19", 88, 76),
-        ("ENG",   "17-19", 70, 55),
-        ("HLTH",  "29-31", 82, 70),
-        ("ADMIN", "43-43", 65, 45),
+        ("MGMT",  "11-19", 72, 58,  "Management"),
+        ("TECH",  "15-19", 88, 76,  "Technology"),
+        ("ENG",   "17-19", 70, 55,  "Engineering"),
+        ("HLTH",  "29-31", 82, 70,  "Healthcare"),
+        ("LEGAL", "23-23", 78, 62,  "Legal"),
+        ("ADMIN", "43-43", 65, 45,  "Admin/Office"),
+        ("SALES", "41-41", 60, 42,  "Sales"),
     ]
-    W, H = 295, 188
-    lp, rp, tp, bp = 36, 8, 50, 40   # chart margins
+    W, H = 580, 260
+    lp, rp, tp, bp = 40, 14, 72, 48   # chart margins
     cw = W - lp - rp
     ch = H - tp - bp
     mono = "font-family='Courier New,Lucida Console,monospace'"
@@ -2793,20 +2853,32 @@ def _bright_outlook_svg() -> str:
     p.append(f"<rect width='{W}' height='{H}' fill='none' stroke='#b8caf8' stroke-width='1' rx='2'/>")
 
     # ── Dark header bar ────────────────────────────────────────────────────
-    p.append(f"<rect x='0' y='0' width='{W}' height='26' fill='#071540' rx='2'/>")
-    p.append(f"<rect x='0' y='23' width='{W}' height='3' fill='#1d4ed8'/>")
-    p.append(f"<text x='6' y='16' {mono} font-size='7.5' font-weight='700' fill='#93c5fd' letter-spacing='1'>DOL/O*NET</text>")
-    p.append(f"<text x='{W//2}' y='16' text-anchor='middle' {mono} font-size='8' font-weight='700' fill='#ffffff' letter-spacing='1.5'>BRIGHT OUTLOOK INDEX</text>")
-    p.append(f"<text x='{W-6}' y='16' text-anchor='end' {mono} font-size='7' fill='#60a5fa'>FY2026</text>")
+    p.append(f"<rect x='0' y='0' width='{W}' height='30' fill='#071540' rx='2'/>")
+    p.append(f"<rect x='0' y='27' width='{W}' height='3' fill='#1d4ed8'/>")
+    p.append(f"<text x='8' y='18' {mono} font-size='8' font-weight='700' fill='#93c5fd' letter-spacing='1'>DOL/O\u2217NET</text>")
+    p.append(f"<text x='{W//2}' y='18' text-anchor='middle' {mono} font-size='9' font-weight='700' fill='#ffffff' letter-spacing='2'>BRIGHT OUTLOOK INDEX</text>")
+    p.append(f"<text x='{W-8}' y='18' text-anchor='end' {mono} font-size='7.5' fill='#60a5fa'>FY2026</text>")
+
+    # ── Stat pills row (between header bar and chart) ──────────────────────
+    pill_y = 34
+    pills = [
+        ("1,095", "VERIFIED ROLES",  W * 0.18),
+        ("88%",   "TOP SECTOR · TECH", W * 0.50),
+        ("847",   "BRIGHT OUTLOOK ROLES", W * 0.82),
+    ]
+    for val, label, px in pills:
+        p.append(f"<rect x='{px-38:.0f}' y='{pill_y}' width='76' height='28' rx='2' fill='rgba(11,42,111,0.06)' stroke='#c7d7fd' stroke-width='0.8'/>")
+        p.append(f"<text x='{px:.0f}' y='{pill_y+13}' text-anchor='middle' {mono} font-size='11' font-weight='900' fill='#0b2a6f'>{val}</text>")
+        p.append(f"<text x='{px:.0f}' y='{pill_y+24}' text-anchor='middle' {mono} font-size='5.5' fill='#64748b' letter-spacing='0.8'>{label}</text>")
 
     # ── Y-axis grid lines + percentage labels ──────────────────────────────
     for pct in [0, 25, 50, 75, 100]:
         y = tp + ch - (pct / 100) * ch
         dash = "stroke-dasharray='4 3'" if pct > 0 else ""
         clr  = "#c7d7fd" if pct > 0 else "#0b2a6f"
-        sw   = "0.9"     if pct > 0 else "1.3"
+        sw   = "0.8"     if pct > 0 else "1.3"
         p.append(f"<line x1='{lp}' y1='{y:.1f}' x2='{W-rp}' y2='{y:.1f}' stroke='{clr}' stroke-width='{sw}' {dash}/>")
-        p.append(f"<text x='{lp-4}' y='{y+3:.1f}' text-anchor='end' {mono} font-size='6.5' fill='#475569'>{pct}%</text>")
+        p.append(f"<text x='{lp-4}' y='{y+3:.1f}' text-anchor='end' {mono} font-size='7' fill='#475569'>{pct}%</text>")
 
     # ── Y-axis spine ───────────────────────────────────────────────────────
     p.append(f"<line x1='{lp}' y1='{tp}' x2='{lp}' y2='{tp+ch}' stroke='#0b2a6f' stroke-width='1.4'/>")
@@ -2814,242 +2886,63 @@ def _bright_outlook_svg() -> str:
     # ── Bars + value labels + X-axis labels ───────────────────────────────
     n   = len(groups)
     gw  = cw / n
-    bw  = gw * 0.31
+    bw  = gw * 0.28
 
-    for i, (label, soc, forecast, bright) in enumerate(groups):
+    for i, (label, soc, forecast, bright, _name) in enumerate(groups):
         xc = lp + (i + 0.5) * gw
         fh = (forecast / 100) * ch
         bh = (bright / 100) * ch
 
         # Forecast bar (navy)
-        fx = xc - bw - 1
+        fx = xc - bw - 1.5
         fy = tp + ch - fh
-        p.append(f"<rect x='{fx:.1f}' y='{fy:.1f}' width='{bw:.1f}' height='{fh:.1f}' fill='#1d4ed8' opacity='0.88'/>")
-        # Value callout
-        p.append(f"<text x='{fx + bw/2:.1f}' y='{fy - 3:.1f}' text-anchor='middle' {mono} font-size='6.5' font-weight='700' fill='#1d4ed8'>{forecast}</text>")
+        p.append(f"<rect x='{fx:.1f}' y='{fy:.1f}' width='{bw:.1f}' height='{fh:.1f}' fill='#1d4ed8' opacity='0.9' rx='1'/>")
+        p.append(f"<text x='{fx + bw/2:.1f}' y='{fy - 4:.1f}' text-anchor='middle' {mono} font-size='7.5' font-weight='700' fill='#1d4ed8'>{forecast}</text>")
 
         # Bright Outlook bar (sky)
-        bx = xc + 1
+        bx = xc + 1.5
         by = tp + ch - bh
-        p.append(f"<rect x='{bx:.1f}' y='{by:.1f}' width='{bw:.1f}' height='{bh:.1f}' fill='#3b82f6' opacity='0.72'/>")
-        p.append(f"<text x='{bx + bw/2:.1f}' y='{by - 3:.1f}' text-anchor='middle' {mono} font-size='6.5' font-weight='700' fill='#3b82f6'>{bright}</text>")
+        p.append(f"<rect x='{bx:.1f}' y='{by:.1f}' width='{bw:.1f}' height='{bh:.1f}' fill='#38bdf8' opacity='0.78' rx='1'/>")
+        p.append(f"<text x='{bx + bw/2:.1f}' y='{by - 4:.1f}' text-anchor='middle' {mono} font-size='7.5' font-weight='700' fill='#0ea5e9'>{bright}</text>")
 
         # Tick mark on X-axis
         p.append(f"<line x1='{xc:.1f}' y1='{tp+ch}' x2='{xc:.1f}' y2='{tp+ch+3}' stroke='#0b2a6f' stroke-width='0.9'/>")
         # Sector short code
-        p.append(f"<text x='{xc:.1f}' y='{tp+ch+12}' text-anchor='middle' {mono} font-size='7' font-weight='700' fill='#0b2a6f'>{label}</text>")
+        p.append(f"<text x='{xc:.1f}' y='{tp+ch+13}' text-anchor='middle' {mono} font-size='7.5' font-weight='800' fill='#0b2a6f'>{label}</text>")
         # SOC prefix
-        p.append(f"<text x='{xc:.1f}' y='{tp+ch+22}' text-anchor='middle' {mono} font-size='5.8' fill='#64748b'>{soc}</text>")
+        p.append(f"<text x='{xc:.1f}' y='{tp+ch+24}' text-anchor='middle' {mono} font-size='6' fill='#64748b'>{soc}</text>")
 
     # ── Legend ─────────────────────────────────────────────────────────────
-    lx, ly = lp + 2, tp + 6
-    p.append(f"<rect x='{lx}' y='{ly}' width='9' height='6' fill='#1d4ed8' opacity='0.88'/>")
-    p.append(f"<text x='{lx+12}' y='{ly+5.5}' {mono} font-size='6.5' fill='#334155'>FORECAST</text>")
-    p.append(f"<rect x='{lx+72}' y='{ly}' width='9' height='6' fill='#3b82f6' opacity='0.72'/>")
-    p.append(f"<text x='{lx+84}' y='{ly+5.5}' {mono} font-size='6.5' fill='#334155'>BRIGHT OUT.</text>")
+    lx, ly = lp + 2, tp + 8
+    p.append(f"<rect x='{lx}' y='{ly}' width='10' height='7' fill='#1d4ed8' opacity='0.9' rx='1'/>")
+    p.append(f"<text x='{lx+14}' y='{ly+6.5}' {mono} font-size='7' fill='#334155'>FORECAST</text>")
+    p.append(f"<rect x='{lx+82}' y='{ly}' width='10' height='7' fill='#38bdf8' opacity='0.78' rx='1'/>")
+    p.append(f"<text x='{lx+96}' y='{ly+6.5}' {mono} font-size='7' fill='#334155'>BRIGHT OUTLOOK</text>")
 
     # ── Classification footer ──────────────────────────────────────────────
-    p.append(f"<rect x='0' y='{H-16}' width='{W}' height='16' fill='rgba(7,21,64,0.08)'/>")
-    p.append(f"<text x='{W//2}' y='{H-5}' text-anchor='middle' {mono} font-size='5.8' fill='#64748b' letter-spacing='1.2'>O*NET SOC DATA \u00b7 SAL REGISTRY \u00b7 UNCLASSIFIED</text>")
+    p.append(f"<rect x='0' y='{H-18}' width='{W}' height='18' fill='rgba(7,21,64,0.07)'/>")
+    p.append(f"<text x='{W//2}' y='{H-6}' text-anchor='middle' {mono} font-size='6' fill='#64748b' letter-spacing='1.2'>O\u2217NET SOC DATA \u00b7 SAL REGISTRY \u00b7 UNCLASSIFIED</text>")
 
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="100%"'
-        f' style="display:block;border:1px solid #b8caf8;border-radius:3px;margin-top:0.4rem">'
+    svg_str = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">'
         f'{"".join(p)}</svg>'
+    )
+    b64 = base64.b64encode(svg_str.encode("utf-8")).decode()
+    return (
+        f'<img src="data:image/svg+xml;base64,{b64}" '
+        f'style="display:block;width:100%;border:1px solid #b8caf8;'
+        f'border-radius:3px;margin-top:0.4rem" alt="Sector Performance Readout"/>'
     )
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
-    """Left column (1.1): Federal Ledger — clickable role rows → drives active_soc + active_prefix."""
-    # bureau-anchor → ledger row styles + green-glow ACTIVE button target this column
-    st.markdown('<div class="sal-col-bureau-anchor"></div>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="sal-stack-label">Federal Ledger &nbsp;&mdash;&nbsp; Verified Roles</p>',
-        unsafe_allow_html=True,
-    )
+    """Left column (1.0): O*NET SOC Folder Tree — 22 divisions, collapsible.
+    Federal Ledger removed. Tree is the primary role-selection interface.
+    """
+    # engine-anchor → tree expander + folder row CSS targets this column
+    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
 
-    latest = fetch_latest_verified_logic(client, demo_mode=browse_mode, limit=10)
-    count_display = counts.get("agent_logic", 1095)
-
-    # ── Table header (static HTML) ──────────────────────────────────────────
-    st.markdown(
-        '<table class="sal-lvl-table"><thead><tr>'
-        '<th>SOC code</th><th>Job Title</th><th>Salary</th><th>Status</th>'
-        '</tr></thead></table>',
-        unsafe_allow_html=True,
-    )
-
-    # ── Clickable ledger rows — each row sets active_soc + active_prefix ───
-    active_soc = str(st.session_state.get("active_soc") or "")
-    for item in latest[:10]:
-        soc   = str(item.get("soc_code") or "")
-        title = str(item.get("title") or soc)
-        if not soc:
-            continue
-        prefix    = soc[:2]
-        is_active = soc == active_soc
-        row_bg    = (
-            "background:rgba(11,42,111,0.08);border-left:3px solid #1d4ed8"
-            if is_active else
-            "background:transparent;border-left:3px solid transparent"
-        )
-        c1, c2, c3, c4 = st.columns([1.1, 2.4, 0.7, 1.0])
-        c1.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<code class="sal-ledger-soc">{escape(soc)}</code></div>',
-            unsafe_allow_html=True,
-        )
-        c2.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<span class="sal-ledger-title">{escape(title[:24])}</span></div>',
-            unsafe_allow_html=True,
-        )
-        c3.markdown(
-            f'<div class="sal-ledger-cell" style="{row_bg}">'
-            f'<span class="sal-ledger-salary">$10,000</span></div>',
-            unsafe_allow_html=True,
-        )
-        with c4:
-            btn_label = "\u25c9 ACTIVE" if is_active else "VERIFIED"
-            if st.button(
-                btn_label,
-                key=f"ledger_row_{soc}",
-                use_container_width=True,
-                type="primary" if is_active else "secondary",
-            ):
-                st.session_state["active_soc"]    = soc
-                st.session_state["active_prefix"] = prefix
-
-    # ── Footer count ────────────────────────────────────────────────────────
-    st.markdown(
-        f'<div style="display:flex;justify-content:space-between;align-items:center;'
-        f'border-top:2px double #1d4ed8;margin-top:0.25rem;padding-top:0.22rem">'
-        f'<span style="font-family:\'Courier New\',monospace;font-size:0.6rem;color:#64748b;'
-        f'font-weight:700;letter-spacing:0.08em">FEDERAL REGISTRY LEDGER &nbsp;\u00b7&nbsp; SAL V1.0.0</span>'
-        f'<span style="font-size:0.86rem;font-weight:900;color:#0b2a6f;letter-spacing:0.02em">'
-        f'{count_display:,} Verified Roles</span>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
-_SECTOR_TILES_AUTH = [
-    ("13", "Finance", "📊", "#1d4ed8"),
-    ("15", "Technology", "💻", "#7c3aed"),
-    ("29", "Healthcare", "🏥", "#0d9488"),
-    ("17", "Engineering", "⚙️", "#b45309"),
-]
-
-_SEAL_SECTORS_AUTH = [
-    ("11", "Management", "#0b1120", "#7c3aed", "#c4b5fd"),
-    ("17", "Architecture", "#120b08", "#b45309", "#fbbf24"),
-    ("15", "Computer", "#060f36", "#3b5bdb", "#bfdbfe"),
-    ("29", "Healthcare", "#07211e", "#0d9488", "#5ee8c8"),
-]
-
-
-def render_sector_tiles() -> None:
-    """ROW 2 — Four sector tiles; st.columns(4) spans full width of center column."""
-    sc1, sc2, sc3, sc4 = st.columns(4, gap="small")
-    for col, (code, label, icon, accent) in zip([sc1, sc2, sc3, sc4], _SECTOR_TILES_AUTH):
-        is_active = st.session_state.get("active_prefix") == code
-        border = f"2.5px solid {accent}" if is_active else "1px solid #dde4f4"
-        bg_col = "rgba(11,42,111,0.07)" if is_active else "rgba(255,255,255,0.5)"
-        with col:
-            st.markdown(
-                f'<div style="text-align:center;padding:0.28rem 0.08rem;border:{border};'
-                f'border-radius:3px;background:{bg_col};margin-bottom:0.18rem">'
-                f'<div style="font-size:1.05rem;line-height:1">{icon}</div>'
-                f'<div style="font-size:0.52rem;font-weight:900;color:#0b2a6f;'
-                f'letter-spacing:0.05em;margin-top:0.08rem">{label.upper()}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            if st.button(f"[{code}]", key=f"auth_sector_{code}", use_container_width=True):
-                st.session_state["active_prefix"] = code
-                first = next(
-                    (r["soc_code"] for r in _MOCK_REGISTRY
-                     if str(r.get("soc_code", "")).startswith(f"{code}-")),
-                    None,
-                )
-                if first:
-                    st.session_state["active_soc"] = first
-
-
-def render_notary_seals() -> None:
-    """ROW 3 — Four notary seals; st.columns(4) spans full width of center column."""
-    seal_cols = st.columns(4, gap="small")
-    for col, (code, title, bg, ring, accent) in zip(seal_cols, _SEAL_SECTORS_AUTH):
-        with col:
-            icon = _SEAL_ICONS.get(code, "")
-            svg = _notary_seal_svg(code, title, bg, ring, accent, icon)
-            svg_sm = svg.replace('width="190" height="190"', 'width="76" height="76"')
-            st.markdown(
-                f'<div style="text-align:center">{svg_sm}'
-                f'<div style="font-size:0.54rem;color:#475569;margin-top:0.1rem;'
-                f'font-weight:700;letter-spacing:0.06em">{title.upper()}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            if st.button(title[:6], key=f"auth_seal_{code}", use_container_width=True):
-                st.session_state["active_prefix"] = code
-
-
-def _render_col_authority(*, client, browse_mode: bool) -> None:
-    """Middle column (1.0): Sector Quick Access + Notary Seals + Search + SOC Folder Tree."""
-    st.markdown(
-        '<div class="sal-col-authority-anchor"></div>'
-        '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── ROW 1 — Sector Quick Access tiles ───────────────────────────────────
-    st.markdown(
-        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_sector_tiles()
-
-    # ── ROW 2 — High-Resolution Notary Seals ─────────────────────────────────
-    st.markdown(
-        '<p class="sal-center-section-label">High-Resolution Digital Notary Seals</p>',
-        unsafe_allow_html=True,
-    )
-    render_notary_seals()
-
-    # ── ROW 3 — Search bar ───────────────────────────────────────────────────
-    st.markdown(
-        '<div class="sal-search-anchor"><p>ENTER JOB TITLE<br>OR<br>DESCRIBE JOB</p></div>',
-        unsafe_allow_html=True,
-    )
-    with st.form("sal_center_search", clear_on_submit=False):
-        intent    = st.text_input("Search", label_visibility="collapsed",
-                                  placeholder="Enter job title or describe the job\u2026",
-                                  key="sal_center_intent")
-        submitted = st.form_submit_button("Search Global Registry", type="primary",
-                                          use_container_width=True)
-    if submitted and intent.strip():
-        vault_only = bool(st.session_state.get("vault_only", False))
-        reply = sal_intent_hub_reply(client=client, user_request=intent.strip(),
-                                     vault_only=vault_only, demo_mode=browse_mode)
-        st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
-        if reply.get("selected_soc"):
-            st.session_state["active_soc"] = str(reply["selected_soc"])
-    last = st.session_state.get("sal_hub_last_reply")
-    if last:
-        from html import escape as _esc
-        st.markdown(
-            f'<p style="font-size:0.72rem;color:#0b2a6f;margin:0.35rem 0">'
-            f'{_esc(str(last)[:300])}</p>',
-            unsafe_allow_html=True,
-        )
-
-    # ── ROW 4 — O*NET SOC Folder Tree ───────────────────────────────────────
-    # engine-anchor placed here so tree expander + folder CSS targets middle column
-    st.markdown(
-        '<div class="sal-col-engine-anchor"></div>',
-        unsafe_allow_html=True,
-    )
+    # Filing-cabinet manifest header
     st.markdown(
         '<div class="sal-filing-hdr">'
         '<span class="sal-filing-hdr-code">DOL/O\u2217NET \u00b7 SAL</span>'
@@ -3059,7 +2952,7 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         unsafe_allow_html=True,
     )
     query = st.text_input(
-        "Filter records", key="sal_engine_filter",
+        "Filter records", key="sal_bureau_filter",
         placeholder="\u25b6 FILTER RECORDS\u2026",
         label_visibility="collapsed",
     )
@@ -3074,8 +2967,129 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             query=query,
             vault_only=vault_only,
             demo_mode=browse_mode,
-            button_key_prefix="engine_",
+            button_key_prefix="bureau_",
         )
+
+
+# Unified sector seals — single source of truth for all sector access
+# Each entry: (soc_prefix, label, seal_bg, ring_color, accent_color)
+_UNIFIED_SEALS = [
+    ("13", "Finance",     "#060e1d", "#1d4ed8", "#93c5fd"),
+    ("15", "Technology",  "#060f36", "#7c3aed", "#c4b5fd"),
+    ("29", "Healthcare",  "#07211e", "#0d9488", "#5ee8c8"),
+    ("17", "Engineering", "#120b08", "#b45309", "#fbbf24"),
+]
+
+
+def render_unified_seals() -> None:
+    """Single merged row: high-resolution notary seals with sector number badges.
+    Replaces both render_sector_tiles() + render_notary_seals() — no duplicate rows.
+    Clicking sets active_prefix + jumps active_soc to first matching role.
+    """
+    cols = st.columns(4, gap="small")
+    for col, (code, label, bg, ring, accent) in zip(cols, _UNIFIED_SEALS):
+        is_active = st.session_state.get("active_prefix") == code
+        icon = _SEAL_ICONS.get(code, "")
+        svg  = _notary_seal_svg(code, label, bg, ring, accent, icon)
+        # Scale seal to 88px — large enough to read, compact enough to fit 4 across
+        svg_sm = svg.replace('width="190" height="190"', 'width="88" height="88"')
+        # Active glow ring around the seal
+        ring_style = (
+            f"box-shadow:0 0 0 2.5px {accent},0 0 10px {accent}44;"
+            f"border-radius:50%;display:inline-block;"
+        ) if is_active else "border-radius:50%;display:inline-block;"
+        with col:
+            st.markdown(
+                f'<div style="text-align:center;padding:0.15rem 0">'
+                f'<span style="{ring_style}">{svg_sm}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                f"{'▶ ' if is_active else ''}{label}",
+                key=f"unified_seal_{code}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state["active_prefix"] = code
+                first = next(
+                    (r["soc_code"] for r in _MOCK_REGISTRY
+                     if str(r.get("soc_code", "")).startswith(f"{code}-")),
+                    None,
+                )
+                if first:
+                    st.session_state["active_soc"] = first
+
+
+def _render_col_authority(*, client, browse_mode: bool) -> None:
+    """Middle column (1.0): Sector Quick Access + Notary Seals + Search + SOC Folder Tree."""
+    st.markdown(
+        '<div class="sal-col-authority-anchor"></div>'
+        '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── ROW 1 — Unified Sector Seals (tiles + notary seals merged) ───────────
+    st.markdown(
+        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
+        unsafe_allow_html=True,
+    )
+    render_unified_seals()
+
+    # ── Unified Search — filters tree live, AI-resolves on submit ───────────
+    st.markdown(
+        '<div class="sal-search-anchor"><p>SEARCH THE REGISTRY</p></div>',
+        unsafe_allow_html=True,
+    )
+    query = st.text_input(
+        "Search registry",
+        key="sal_unified_query",
+        placeholder="Job title, description, or SOC code\u2026",
+        label_visibility="collapsed",
+    )
+    search_btn = st.button(
+        "\u25ba  Search Global Registry",
+        type="primary",
+        use_container_width=True,
+        key="sal_search_btn",
+    )
+    if search_btn and query.strip():
+        vault_only = bool(st.session_state.get("vault_only", False))
+        reply = sal_intent_hub_reply(
+            client=client, user_request=query.strip(),
+            vault_only=vault_only, demo_mode=browse_mode,
+        )
+        st.session_state["sal_hub_last_reply"] = str(reply.get("message") or "")
+        if reply.get("selected_soc"):
+            st.session_state["active_soc"] = str(reply["selected_soc"])
+    last = st.session_state.get("sal_hub_last_reply")
+    if last:
+        from html import escape as _esc
+        st.markdown(
+            f'<p style="font-size:0.72rem;color:#0b2a6f;margin:0.3rem 0 0.1rem;'
+            f'font-family:\'Courier New\',monospace;">'
+            f'\u25c6 {_esc(str(last)[:300])}</p>',
+            unsafe_allow_html=True,
+        )
+
+    # ── O*NET SOC Directory — engine anchor for CSS ───────────────────────
+    st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sal-dir-rule">'
+        '<span>O\u2217NET SOC DIRECTORY</span>'
+        '<span class="sal-dir-count">22 DIVISIONS \u00b7 1,095 ROLES</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    vault_only = bool(st.session_state.get("vault_only", False))
+    _render_file_tree_panel(
+        supabase_url=_resolve_supabase_url(),
+        supabase_key=_resolve_supabase_key(),
+        query=query,
+        vault_only=vault_only,
+        demo_mode=browse_mode,
+        button_key_prefix="engine_",
+    )
 
 def _render_col_engine(*, client, browse_mode: bool) -> None:
     """Right column (1.2): Logic Specification card — reserved for active role details.
@@ -3122,6 +3136,68 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         logic=logic,
         browse_mode=browse_mode,
     )
+
+    # ── Agent Bundle CTA ─────────────────────────────────────────────────────
+    if selected_soc and chosen_row:
+        bundle: list = st.session_state.get("agent_bundle", [])
+        already_in = any(r.get("soc_code") == selected_soc for r in bundle)
+        role_title = str(chosen_row.get("title") or selected_soc)
+
+        bcol1, bcol2 = st.columns([2, 1], gap="small")
+        with bcol1:
+            if already_in:
+                if st.button(
+                    f"\u2716  Remove from Bundle",
+                    key="sal_bundle_remove",
+                    use_container_width=True,
+                    type="secondary",
+                ):
+                    st.session_state["agent_bundle"] = [
+                        r for r in bundle if r.get("soc_code") != selected_soc
+                    ]
+                    st.rerun()
+            else:
+                if st.button(
+                    f"\u002b  Add to Agent Bundle",
+                    key="sal_bundle_add",
+                    use_container_width=True,
+                    type="primary",
+                ):
+                    st.session_state["agent_bundle"] = bundle + [
+                        {"soc_code": selected_soc, "title": role_title}
+                    ]
+                    st.rerun()
+        with bcol2:
+            count = len(st.session_state.get("agent_bundle", []))
+            st.markdown(
+                f'<div style="text-align:center;padding:0.45rem 0.2rem;'
+                f'background:{"#f0fdf4" if count else "#f8faff"};'
+                f'border:1.5px solid {"#16a34a" if count else "#b8caf8"};'
+                f'border-radius:3px;">'
+                f'<div style="font-family:\'Courier New\',monospace;font-size:1.1rem;'
+                f'font-weight:900;color:{"#166534" if count else "#94a3b8"}">{count}</div>'
+                f'<div style="font-size:0.55rem;font-weight:700;color:{"#166534" if count else "#94a3b8"};'
+                f'letter-spacing:0.08em">BUNDLE</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+        # Export bundle
+        if st.session_state.get("agent_bundle"):
+            bundle_data = st.session_state["agent_bundle"]
+            import json as _json
+            bundle_json = _json.dumps(
+                {"sal_agent_bundle": bundle_data, "format": "MCP/SAL-v1", "exported": "2026"},
+                indent=2,
+            )
+            st.download_button(
+                label=f"\u21e9  Export Bundle ({len(bundle_data)} roles)",
+                data=bundle_json,
+                file_name="sal_agent_bundle.json",
+                mime="application/json",
+                use_container_width=True,
+                key="sal_bundle_export",
+            )
 
     # ── Bright Outlook — Sector Performance Readout ──────────────────────────
     st.markdown(
@@ -3171,6 +3247,8 @@ def main() -> None:
         st.session_state["active_prefix"] = "15"
     if "vault_only" not in st.session_state:
         st.session_state["vault_only"] = False
+    if "agent_bundle" not in st.session_state:
+        st.session_state["agent_bundle"] = []  # list of dicts: {soc_code, title}
 
     _inject_studio_styles()
 
@@ -3230,16 +3308,13 @@ def main() -> None:
     # ── Sovereign document header ──
     st.markdown(_sovereign_header_html(), unsafe_allow_html=True)
 
-    # ── Three-column Vertical Hub ──
-    left_col, center_col, right_col = st.columns([1.1, 1, 1.2], gap="medium")
+    # ── Two-column Hub: Navigation left, Logic Spec right ──
+    nav_col, spec_col = st.columns([1.6, 1.4], gap="medium")
 
-    with left_col:
-        _render_col_bureau(client=client, browse_mode=browse_mode, counts=counts)
-
-    with center_col:
+    with nav_col:
         _render_col_authority(client=client, browse_mode=browse_mode)
 
-    with right_col:
+    with spec_col:
         _render_col_engine(client=client, browse_mode=browse_mode)
 
     # ── Footer ──
