@@ -1727,24 +1727,37 @@ def _sync_active_role(rows: list[dict[str, Any]]) -> None:
 
 
 def _render_sidebar_registry_directory(rows: list[dict[str, Any]], *, button_key_prefix: str = "") -> None:
-    for r in rows:
-        soc = str(r.get("soc_code") or "")
+    valid = [r for r in rows if str(r.get("soc_code") or "")]
+    vault_rows   = [r for r in valid if str(r.get("soc_code", "")) == "15-1299.08"]
+    regular_rows = [r for r in valid if str(r.get("soc_code", "")) != "15-1299.08"]
+
+    # Vault entry: full-width priority row
+    for r in vault_rows:
+        soc   = str(r.get("soc_code", ""))
         title = str(r.get("title") or "(untitled)")
-        if not soc:
-            continue
-        is_vault = soc == "15-1299.08"
         is_active = str(st.session_state.get("active_soc") or "") == soc
-        if is_vault:
-            # Render a PRIORITY badge above the vault button
-            st.markdown(
-                '<div class="sal-priority-badge">&#9733; PRIORITY &nbsp;&middot;&nbsp; VAULT IP &nbsp;&middot;&nbsp; 15-1299.08</div>',
-                unsafe_allow_html=True,
-            )
-            label = f"⬛ {title}"
-        else:
-            label = title
-        if st.button(label, key=f"{button_key_prefix}sal_dir_{soc}", use_container_width=True, type="primary" if is_active else "secondary"):
+        st.markdown(
+            '<div class="sal-priority-badge">&#9733; PRIORITY &nbsp;&middot;&nbsp; VAULT IP &nbsp;&middot;&nbsp; 15-1299.08</div>',
+            unsafe_allow_html=True,
+        )
+        if st.button(f"⬛ {title}", key=f"{button_key_prefix}sal_dir_{soc}",
+                     use_container_width=True, type="primary" if is_active else "secondary"):
             st.session_state["active_soc"] = soc
+
+    # Regular roles: 3-column grid across full page width
+    _COLS = 3
+    for i in range(0, len(regular_rows), _COLS):
+        chunk = regular_rows[i : i + _COLS]
+        cols  = st.columns(_COLS)
+        for col, r in zip(cols, chunk):
+            soc   = str(r.get("soc_code") or "")
+            title = str(r.get("title") or "(untitled)")
+            is_active = str(st.session_state.get("active_soc") or "") == soc
+            with col:
+                if st.button(title, key=f"{button_key_prefix}sal_dir_{soc}",
+                             use_container_width=True,
+                             type="primary" if is_active else "secondary"):
+                    st.session_state["active_soc"] = soc
 
 
 def _render_file_tree_panel(*, supabase_url: str, supabase_key: str, query: str, vault_only: bool, demo_mode: bool, button_key_prefix: str = "") -> None:
@@ -1922,44 +1935,13 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     )
     rendered_ts = escape(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
+    _seal_stamp_uri = _great_seal_data_uri()
     st.markdown(f"""
 <div class="{doc_class}">
   <div class="sal-watermark-layer" aria-hidden="true"><span>SAL: OFFICIAL SOURCE OF TRUTH</span></div>
   <div class="sal-doc-content">
     {clearance_badge}
-    <svg class="sal-notary-seal" role="img" aria-label="Official SAL Verified Logic Seal"
-         viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="sgBg" cx="35%" cy="30%" r="65%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="50%" stop-color="#edf2ff"/>
-          <stop offset="100%" stop-color="#c7d7fd"/>
-        </radialGradient>
-        <path id="sgArc" d="M48,14 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0"/>
-      </defs>
-      <!-- Outer gear ring -->
-      <circle cx="48" cy="48" r="46" fill="none" stroke="#1d4ed8" stroke-width="1.4" stroke-dasharray="4 2.5"/>
-      <!-- Fill disc -->
-      <circle cx="48" cy="48" r="40" fill="url(#sgBg)"/>
-      <!-- Double border ring -->
-      <circle cx="48" cy="48" r="40" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
-      <circle cx="48" cy="48" r="36" fill="none" stroke="#93c5fd" stroke-width="0.9"/>
-      <!-- Curved top text -->
-      <text font-family="system-ui,sans-serif" font-size="7" font-weight="800" letter-spacing="2.2"
-            fill="#1d4ed8" text-anchor="middle">
-        <textPath href="#sgArc" startOffset="50%">STANDARD AGENT LOGIC</textPath>
-      </text>
-      <!-- Centre monogram -->
-      <text x="48" y="44" text-anchor="middle" font-family="system-ui,sans-serif"
-            font-size="13" font-weight="900" fill="#0b2a6f" letter-spacing="0.5">SAL</text>
-      <text x="48" y="55" text-anchor="middle" font-family="system-ui,sans-serif"
-            font-size="6.5" font-weight="700" fill="#1d4ed8" letter-spacing="1.8">VERIFIED</text>
-      <!-- Star dividers -->
-      <text x="22" y="64" text-anchor="middle" font-size="5" fill="#93c5fd">&#9733;</text>
-      <text x="74" y="64" text-anchor="middle" font-size="5" fill="#93c5fd">&#9733;</text>
-      <text x="48" y="64" text-anchor="middle" font-family="system-ui,sans-serif"
-            font-size="5.5" font-weight="600" fill="#475569" letter-spacing="1.2">REGISTRY</text>
-    </svg>
+    <img src="{_seal_stamp_uri}" class="sal-notary-seal" alt="Official Seal of SAL"/>
     <h4 style="margin-top:0;padding-right:7.5rem;padding-top:0.1rem;color:#0b2a6f">Logic Specification</h4>
     <p style="margin:0.2rem 0 0.4rem"><strong>{escape(display_title)}</strong><br>
     <code style="font-size:0.9rem">{escape(selected_soc or "\u2014")}</code></p>
@@ -2107,14 +2089,17 @@ def _inject_studio_styles() -> None:
   /* ── SVG Official SAL Seal (top-right of logic card) ── */
   .sal-notary-seal {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 96px;
-    height: 96px;
+    top: 6px;
+    right: 10px;
+    width: 110px;
+    height: 110px;
     z-index: 3;
     pointer-events: none;
-    transform: rotate(-6deg);
-    filter: blur(0.2px) drop-shadow(0 4px 10px rgba(29,78,216,0.28));
+    transform: rotate(-8deg);
+    opacity: 0.88;
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 3px 10px rgba(29,78,216,0.35));
+    border-radius: 50%;
   }
 
   /* ── Outlook pill ── */
@@ -4010,22 +3995,96 @@ def render_unified_seals() -> None:
             )
 
 
+# ── AI Displacement Sales Floor ─────────────────────────────────────────────
+_AI_DISPLACEMENT = [
+    # (soc_prefix, label, pct_automatable, risk_tier, key_technologies)
+    ("43", "Admin & Office",   73, "CRITICAL", "NLP · RPA · Document AI"),
+    ("53", "Transport",        70, "CRITICAL", "Autonomous Vehicles · Route AI"),
+    ("51", "Production",       67, "CRITICAL", "Robotics · Computer Vision"),
+    ("35", "Food Service",     61, "HIGH",     "Automation · AI Kiosks"),
+    ("41", "Sales",            59, "HIGH",     "Conversational AI · CRM AI"),
+    ("37", "Grounds",          54, "HIGH",     "Autonomous Equipment"),
+    ("45", "Farming",          52, "HIGH",     "Precision Ag · Drone AI"),
+    ("47", "Construction",     48, "HIGH",     "BIM AI · Autonomous Machinery"),
+    ("23", "Legal",            44, "MEDIUM",   "LLM · Contract AI · eDiscovery"),
+    ("49", "Maintenance",      44, "MEDIUM",   "Predictive AI · IoT Sensors"),
+    ("25", "Education",        36, "MEDIUM",   "Adaptive Learning · AI Tutors"),
+    ("13", "Finance",          35, "MEDIUM",   "Quant Models · Robo-Advisors"),
+    ("31", "Hlth Support",     34, "MEDIUM",   "Care Robots · EHR AI"),
+    ("39", "Personal Care",    32, "MEDIUM",   "Social Robots · Wearable AI"),
+    ("27", "Arts & Media",     31, "MEDIUM",   "GenAI · Image Synthesis"),
+    ("33", "Protective",       28, "LOW",      "Surveillance AI · Predictive Policing"),
+    ("21", "Community",        22, "LOW",      "Mental Health AI · Case Mgmt AI"),
+    ("17", "Engineering",      21, "LOW",      "Generative Design · CAE AI"),
+    ("19", "Science",          21, "LOW",      "Lab Automation · ML Models"),
+    ("29", "Healthcare",       18, "LOW",      "Diagnostic AI · Medical Imaging"),
+    ("15", "Technology",       16, "LOW",      "AI Co-pilot (augment, not replace)"),
+    ("11", "Management",       12, "MINIMAL",  "Decision Support AI · Analytics"),
+]
+
+_RISK_COLORS = {
+    "CRITICAL": ("#7f1d1d", "#fca5a5", "#dc2626"),  # bg, text, bar
+    "HIGH":     ("#78350f", "#fcd34d", "#d97706"),
+    "MEDIUM":   ("#1e3a5f", "#93c5fd", "#3b82f6"),
+    "LOW":      ("#14532d", "#86efac", "#16a34a"),
+    "MINIMAL":  ("#1e1b4b", "#c4b5fd", "#7c3aed"),
+}
+
+def _render_ai_sales_floor() -> None:
+    """AI Displacement Sales Floor — full-width sector cards sorted by automation risk."""
+    st.markdown(
+        '<div class="sal-sector-divider" style="margin-top:0.5rem">'
+        '<span>&#9889;&nbsp;AI&nbsp;DISPLACEMENT&nbsp;SALES&nbsp;FLOOR&nbsp;&#9889;</span>'
+        '<span style="font-size:0.6rem;opacity:0.7;margin-left:1rem">'
+        'SECTORS RANKED BY AUTOMATION EXPOSURE &nbsp;&#9670;&nbsp; CLICK TO BROWSE</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    cols_per_row = 4
+    for row_start in range(0, len(_AI_DISPLACEMENT), cols_per_row):
+        chunk = _AI_DISPLACEMENT[row_start : row_start + cols_per_row]
+        cols  = st.columns(len(chunk), gap="small")
+        for col, (prefix, label, pct, risk, tech) in zip(cols, chunk):
+            bg, txt, bar = _RISK_COLORS.get(risk, ("#071540", "#93c5fd", "#1d4ed8"))
+            bar_w = pct  # percentage width
+            with col:
+                st.markdown(
+                    f'<div style="background:{bg};border:1px solid {bar}44;border-radius:6px;'
+                    f'padding:0.7rem 0.75rem 0.6rem;cursor:pointer;position:relative;overflow:hidden;">'
+                    # progress bar strip at bottom
+                    f'<div style="position:absolute;bottom:0;left:0;height:3px;'
+                    f'width:{bar_w}%;background:{bar};border-radius:0 0 0 6px;"></div>'
+                    # risk badge
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.52rem;'
+                    f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.25rem">'
+                    f'{risk}</div>'
+                    # sector label
+                    f'<div style="font-weight:800;font-size:0.82rem;color:{txt};'
+                    f'line-height:1.2;margin-bottom:0.2rem">{escape(label)}</div>'
+                    # big pct
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.6rem;'
+                    f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.2rem">'
+                    f'{pct}<span style="font-size:0.7rem;font-weight:600">%</span></div>'
+                    f'<div style="font-size:0.55rem;color:{txt}99;line-height:1.3">'
+                    f'{escape(tech)}</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+                # Invisible Streamlit button to open the sector in the tree
+                if st.button(f"Browse {label}", key=f"ai_floor_{prefix}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state["active_sector_filter"] = prefix
+
+
 def _render_col_authority(*, client, browse_mode: bool) -> None:
-    """Middle column (1.0): Sector Quick Access + Notary Seals + Search + SOC Folder Tree."""
+    """Full-width: Search (greeting) → AI Sales Floor → Sector Seals → SOC Tree."""
     st.markdown(
         '<div class="sal-col-authority-anchor"></div>'
         '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
         unsafe_allow_html=True,
     )
 
-    # ── ROW 1 — Unified Sector Seals (tiles + notary seals merged) ───────────
-    st.markdown(
-        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_unified_seals()
-
-    # ── SAL Command Interface — revolutionary unified search + dispatch ───────
+    # ── SAL Command Interface — greeting at the top ───────────────────────────
     _vault_active = bool(st.session_state.get("vault_only", False))
     _scope_label  = "PRIVATE VAULT \u25c6 RESTRICTED" if _vault_active else "GLOBAL REGISTRY \u25c6 1,095 ROLES"
     _scope_color  = "#c4b5fd" if _vault_active else "#93c5fd"
@@ -4104,6 +4163,16 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             f'</div>',
             unsafe_allow_html=True,
         )
+
+    # ── AI Displacement Sales Floor ───────────────────────────────────────────
+    _render_ai_sales_floor()
+
+    # ── Sector Quick Access Seals ─────────────────────────────────────────────
+    st.markdown(
+        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
+        unsafe_allow_html=True,
+    )
+    render_unified_seals()
 
     # ── O*NET SOC Directory — engine anchor for CSS ───────────────────────
     st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
@@ -4233,50 +4302,65 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         browse_mode=browse_mode,
     )
 
-    # ── Agent Bundle CTA ─────────────────────────────────────────────────────
+    # ── Agent Bundle — Shopping Cart ─────────────────────────────────────────
+    bundle: list = st.session_state.get("agent_bundle", [])
     if selected_soc and chosen_row:
-        bundle: list = st.session_state.get("agent_bundle", [])
         already_in = any(r.get("soc_code") == selected_soc for r in bundle)
         role_title = str(chosen_row.get("title") or selected_soc)
+        if already_in:
+            if st.button("✖  Remove from Bundle", key="sal_bundle_remove",
+                         use_container_width=True, type="secondary"):
+                st.session_state["agent_bundle"] = [
+                    r for r in bundle if r.get("soc_code") != selected_soc
+                ]
+                st.rerun()
+        else:
+            if st.button("＋  Add to Agent Bundle", key="sal_bundle_add",
+                         use_container_width=True, type="primary"):
+                st.session_state["agent_bundle"] = bundle + [
+                    {"soc_code": selected_soc, "title": role_title}
+                ]
+                st.rerun()
 
-        bcol1, bcol2 = st.columns([2, 1], gap="small")
-        with bcol1:
-            if already_in:
-                if st.button(
-                    f"\u2716  Remove from Bundle",
-                    key="sal_bundle_remove",
-                    use_container_width=True,
-                    type="secondary",
-                ):
-                    st.session_state["agent_bundle"] = [
-                        r for r in bundle if r.get("soc_code") != selected_soc
-                    ]
-                    st.rerun()
-            else:
-                if st.button(
-                    f"\u002b  Add to Agent Bundle",
-                    key="sal_bundle_add",
-                    use_container_width=True,
-                    type="primary",
-                ):
-                    st.session_state["agent_bundle"] = bundle + [
-                        {"soc_code": selected_soc, "title": role_title}
-                    ]
-                    st.rerun()
-        with bcol2:
-            count = len(st.session_state.get("agent_bundle", []))
-            st.markdown(
-                f'<div style="text-align:center;padding:0.45rem 0.2rem;'
-                f'background:{"#f0fdf4" if count else "#f8faff"};'
-                f'border:1.5px solid {"#16a34a" if count else "#b8caf8"};'
-                f'border-radius:3px;">'
-                f'<div style="font-family:\'Courier New\',monospace;font-size:1.1rem;'
-                f'font-weight:900;color:{"#166534" if count else "#94a3b8"}">{count}</div>'
-                f'<div style="font-size:0.55rem;font-weight:700;color:{"#166534" if count else "#94a3b8"};'
-                f'letter-spacing:0.08em">BUNDLE</div>'
-                f'</div>',
-                unsafe_allow_html=True,
+    # ── Cart display ─────────────────────────────────────────────────────────
+    bundle = st.session_state.get("agent_bundle", [])
+    if bundle:
+        st.markdown(
+            f'<div style="background:#071540;border:1.5px solid #1d4ed8;border-radius:6px;'
+            f'padding:0.75rem 0.85rem 0.5rem;margin-top:0.6rem">'
+            f'<div style="font-family:\'Courier New\',monospace;font-size:0.62rem;'
+            f'font-weight:800;color:#93c5fd;letter-spacing:0.14em;border-bottom:1px solid #1d4ed855;'
+            f'padding-bottom:0.35rem;margin-bottom:0.5rem">'
+            f'&#9632; AGENT BUNDLE &nbsp;&#9670;&nbsp; {len(bundle)} ROLE{"S" if len(bundle)!=1 else ""} QUEUED</div>',
+            unsafe_allow_html=True,
+        )
+        for item in bundle:
+            item_soc   = str(item.get("soc_code", ""))
+            item_title = str(item.get("title", item_soc))
+            prefix     = item_soc.split("-")[0] if "-" in item_soc else "??"
+            # look up sector label
+            sector_lbl = next(
+                (lbl for p, lbl, *_ in _AI_DISPLACEMENT if p == prefix), prefix
             )
+            c1, c2 = st.columns([5, 1])
+            with c1:
+                st.markdown(
+                    f'<div style="padding:0.3rem 0;border-bottom:1px solid #1d4ed822">'
+                    f'<span style="font-weight:700;font-size:0.83rem;color:#e2e8f0">{escape(item_title)}</span><br>'
+                    f'<span style="font-family:\'Courier New\',monospace;font-size:0.65rem;color:#60a5fa">'
+                    f'{escape(item_soc)}</span>'
+                    f'<span style="font-size:0.62rem;color:#64748b;margin-left:0.5rem">{escape(sector_lbl)}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with c2:
+                if st.button("✕", key=f"cart_rm_{item_soc}",
+                             help=f"Remove {item_title}"):
+                    st.session_state["agent_bundle"] = [
+                        r for r in bundle if r.get("soc_code") != item_soc
+                    ]
+                    st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
         # Export bundle
         if st.session_state.get("agent_bundle"):
