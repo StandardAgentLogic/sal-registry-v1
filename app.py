@@ -3955,60 +3955,6 @@ _UNIFIED_SEALS = [
 ]
 
 
-def render_unified_seals() -> None:
-    """All 22 SOC division seals — rendered in 4 rows (6 · 6 · 6 · 4).
-    Replaces both render_sector_tiles() + render_notary_seals() — no duplicate rows.
-    Clicking sets active_prefix + jumps active_soc to first matching role.
-    """
-    # Pre-chunked rows matching _UNIFIED_SEALS comment structure
-    row_sizes = [6, 6, 6, 4]
-    idx = 0
-    for row_n, rsize in enumerate(row_sizes):
-        row_seals = _UNIFIED_SEALS[idx: idx + rsize]
-        idx += rsize
-        if not row_seals:
-            break
-        cols = st.columns(len(row_seals), gap="small")
-        for col, (code, label, bg, ring, accent) in zip(cols, row_seals):
-            is_active = st.session_state.get("active_prefix") == code
-            icon = _SEAL_ICONS.get(code, "")
-            svg  = _notary_seal_svg(code, label, bg, ring, accent, icon)
-            # Scale seal to 105px — detailed enough to appreciate the inner icons
-            svg_sm = svg.replace('width="190" height="190"', 'width="105" height="105"')
-            # Active glow ring
-            ring_style = (
-                f"box-shadow:0 0 0 2px {accent},0 0 8px {accent}55;"
-                f"border-radius:50%;display:inline-block;"
-            ) if is_active else "border-radius:50%;display:inline-block;"
-            with col:
-                st.markdown(
-                    f'<div style="text-align:center;padding:0.1rem 0">'
-                    f'<span style="{ring_style}">{svg_sm}</span>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-                if st.button(
-                    f"{'▶ ' if is_active else ''}{label}",
-                    key=f"unified_seal_{code}",
-                    use_container_width=True,
-                    type="primary" if is_active else "secondary",
-                ):
-                    st.session_state["active_prefix"] = code
-                    first = next(
-                        (r["soc_code"] for r in _MOCK_REGISTRY
-                         if str(r.get("soc_code", "")).startswith(f"{code}-")),
-                        None,
-                    )
-                    if first:
-                        st.session_state["active_soc"] = first
-        # thin rule between rows for breathing room
-        if row_n < len(row_sizes) - 1:
-            st.markdown(
-                '<hr style="margin:0.25rem 0;border:none;border-top:1px solid #dde4f444"/>',
-                unsafe_allow_html=True,
-            )
-
-
 # ── AI Displacement Sales Floor ─────────────────────────────────────────────
 _AI_DISPLACEMENT = [
     # (soc_prefix, label, pct_automatable, risk_tier, key_technologies)
@@ -4118,7 +4064,13 @@ _COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
 }
 
 def _render_ai_sales_floor() -> None:
-    """AI Displacement Sales Floor — full-width sector cards sorted by automation risk."""
+    """AI Displacement Sales Floor — full-width sector cards with embedded seals, sorted by automation risk."""
+    # Build seal param lookup: prefix → (bg, ring, accent, icon_svg)
+    _seal_lookup: dict[str, tuple[str, str, str, str]] = {
+        code: (bg, ring, accent, _SEAL_ICONS.get(code, ""))
+        for code, _lbl, bg, ring, accent in _UNIFIED_SEALS
+    }
+
     st.markdown(
         '<div class="sal-sector-divider" style="margin-top:0.5rem">'
         '<span>&#9889;&nbsp;AI&nbsp;DISPLACEMENT&nbsp;SALES&nbsp;FLOOR&nbsp;&#9889;</span>'
@@ -4133,31 +4085,37 @@ def _render_ai_sales_floor() -> None:
         cols  = st.columns(len(chunk), gap="small")
         for col, (prefix, label, pct, risk, tech) in zip(cols, chunk):
             bg, txt, bar = _RISK_COLORS.get(risk, ("#071540", "#93c5fd", "#1d4ed8"))
-            bar_w = pct  # percentage width
+            # Embed the sector seal
+            s_bg, s_ring, s_acc, s_icon = _seal_lookup.get(prefix, ("#071540", "#1d4ed8", "#93c5fd", ""))
+            seal_svg = _notary_seal_svg(prefix, label, s_bg, s_ring, s_acc, s_icon)
+            seal_sm  = seal_svg.replace('width="190" height="190"', 'width="72" height="72"')
             with col:
                 st.markdown(
                     f'<div style="background:{bg};border:1px solid {bar}44;border-radius:6px;'
-                    f'padding:0.7rem 0.75rem 0.6rem;cursor:pointer;position:relative;overflow:hidden;">'
+                    f'padding:0.55rem 0.65rem 0.55rem;cursor:pointer;position:relative;overflow:hidden;'
+                    f'text-align:center;">'
                     # progress bar strip at bottom
                     f'<div style="position:absolute;bottom:0;left:0;height:3px;'
-                    f'width:{bar_w}%;background:{bar};border-radius:0 0 0 6px;"></div>'
+                    f'width:{pct}%;background:{bar};border-radius:0 0 0 6px;"></div>'
+                    # seal centered at top
+                    f'<div style="display:flex;justify-content:center;margin-bottom:0.3rem">'
+                    f'{seal_sm}</div>'
                     # risk badge
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.52rem;'
-                    f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.25rem">'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.5rem;'
+                    f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.18rem">'
                     f'{risk}</div>'
                     # sector label
-                    f'<div style="font-weight:800;font-size:0.82rem;color:{txt};'
-                    f'line-height:1.2;margin-bottom:0.2rem">{escape(label)}</div>'
+                    f'<div style="font-weight:800;font-size:0.78rem;color:{txt};'
+                    f'line-height:1.2;margin-bottom:0.12rem">{escape(label)}</div>'
                     # big pct
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.6rem;'
-                    f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.2rem">'
-                    f'{pct}<span style="font-size:0.7rem;font-weight:600">%</span></div>'
-                    f'<div style="font-size:0.55rem;color:{txt}99;line-height:1.3">'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.45rem;'
+                    f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.12rem">'
+                    f'{pct}<span style="font-size:0.65rem;font-weight:600">%</span></div>'
+                    f'<div style="font-size:0.5rem;color:{txt}99;line-height:1.3">'
                     f'{escape(tech)}</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
-                # Button opens the matching sector folder in the O*NET tree
                 if st.button(f"Browse {label}", key=f"ai_floor_{prefix}",
                              use_container_width=True, type="secondary"):
                     st.session_state["active_prefix"] = prefix
@@ -4253,13 +4211,6 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
 
     # ── AI Displacement Sales Floor ───────────────────────────────────────────
     _render_ai_sales_floor()
-
-    # ── Sector Quick Access Seals ─────────────────────────────────────────────
-    st.markdown(
-        '<div class="sal-sector-divider"><span>SECTOR&nbsp;QUICK&nbsp;ACCESS</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_unified_seals()
 
     # ── Auto-scroll to tree when active_prefix changes ────────────────────
     _cur_prefix  = str(st.session_state.get("active_prefix") or "")
