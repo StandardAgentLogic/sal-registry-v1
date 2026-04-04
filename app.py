@@ -3210,7 +3210,7 @@ def main() -> None:
     st.markdown(_sovereign_header_html(), unsafe_allow_html=True)
 
     # ── Three-column Vertical Hub ──
-    left_col, center_col, right_col = st.columns([1.2, 1, 1.2], gap="medium")
+    left_col, center_col, right_col = st.columns([1.1, 1, 1.2], gap="medium")
 
     with left_col:
         _render_col_bureau(client=client, browse_mode=browse_mode, counts=counts)
