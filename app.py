@@ -5266,18 +5266,10 @@ def _sovereign_header_html() -> str:
         '</div>'
         '</div>'
 
-        # CENTER — seal + title ribbon
+        # CENTER — seal only (ribbon moved below trio)
         '<div class="sal-header-center">'
         '<div class="sal-eagle-wrap">'
         f'<img src="{seal}" class="sal-great-seal-img" alt="Great Seal of SAL"/>'
-        '</div>'
-        '<div class="sal-ribbon-outer">'
-        '<div class="sal-ribbon-inner">'
-        '<div class="sal-ribbon-title">STANDARD AGENT LOGIC REGISTRY</div>'
-        '<div class="sal-ribbon-sub">'
-        'FEDERAL\u2011GRADE PRECISION &nbsp;\u00b7&nbsp; AUTHENTICATED AI AGENT REGISTRY'
-        '</div>'
-        '</div>'
         '</div>'
         '</div>'
 
@@ -5295,6 +5287,17 @@ def _sovereign_header_html() -> str:
         '</div>'
 
         '</div>'  # end trio
+
+        # Ribbon title — full-width below the trio so it never gets clipped
+        '<div class="sal-ribbon-outer">'
+        '<div class="sal-ribbon-inner">'
+        '<div class="sal-ribbon-title">STANDARD AGENT LOGIC REGISTRY</div>'
+        '<div class="sal-ribbon-sub">'
+        'FEDERAL\u2011GRADE PRECISION &nbsp;\u00b7&nbsp; AUTHENTICATED AI AGENT REGISTRY'
+        '</div>'
+        '</div>'
+        '</div>'
+
         '</div>'  # end sovereign-header
 
         # Credibility ticker bar
