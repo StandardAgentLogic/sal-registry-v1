@@ -17,7 +17,7 @@ import streamlit.components.v1 as _stc
 # ── Page config — MUST be the first st.* call in the module ─────────────────
 st.set_page_config(
     page_title="SAL Registry | Federal-Grade Precision",
-    page_icon="SAL",
+    page_icon="🦅",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -2515,26 +2515,26 @@ def _inject_studio_styles() -> None:
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
+    background: transparent;
     flex-shrink: 0;
     position: relative;
+    box-shadow: none;
   }
   .sal-eagle-wrap::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, transparent 78%, rgba(255,255,255,0.7) 88%, white 97%);
-    pointer-events: none;
-    z-index: 10;
+    display: none;
   }
   .sal-great-seal-img {
     display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 112%;
     height: 112%;
     object-fit: cover;
     mix-blend-mode: multiply;
     image-rendering: -webkit-optimize-contrast;
+    clip-path: circle(47% at 50% 50%);
   }
   .sal-eagle-wrap svg {
     max-width: 100%;
@@ -2763,7 +2763,10 @@ def _inject_studio_styles() -> None:
     pointer-events: none;
   }
   .sal-great-seal-img {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 1;
   }
   .sal-serial {
@@ -3523,7 +3526,7 @@ def _inject_studio_styles() -> None:
 """, unsafe_allow_html=True)
 
     # ── QUANTUM DARK MODE ─────────────────────────────────────────────────────
-    if st.session_state.get("dark_mode", True):
+    if st.session_state.get("dark_mode", False):
       st.markdown("""
 <style>
   /* ══════════════════════════════════════════════════════════════════════════
@@ -5344,7 +5347,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             bundle_json = _json.dumps(
                 {
                     "format":          "MCP/SAL-v1.2",
-                    "exported":        "2026-04-04",
+                    "exported":        datetime.now(timezone.utc).strftime("%Y-%m-%d"),
                     "total_roles":     len(full_roles),
                     "sal_agent_bundle": full_roles,
                 },
@@ -5482,19 +5485,24 @@ def _sovereign_header_html() -> str:
 
 
 def main() -> None:
-    # ── COMING SOON gate — remove SITE_PASSWORD from secrets to go public ──
+    # ── Access gate — public sees password prompt; bookmark ?access=PW to bypass ──
     _site_pw = (_secret_get("SITE_PASSWORD") or "").strip()
     if _site_pw:
+        # URL token: ?access=PASSWORD grants entry without the prompt
+        _url_token = (st.query_params.get("access") or "").strip()
+        if _url_token == _site_pw:
+            st.session_state["site_access_granted"] = True
+
         if not st.session_state.get("site_access_granted"):
-            st.set_page_config(page_title="SAL Registry — Coming Soon", layout="centered")
             try:
                 _seal_uri = _great_seal_data_uri()
                 _seal_html = (
                     f'<div style="width:200px;height:200px;border-radius:50%;'
-                    f'overflow:hidden;margin:0 auto 1.25rem;'
-                    f'box-shadow:0 0 40px rgba(29,78,216,0.25);">'
-                    f'<img src="{_seal_uri}" style="width:112%;height:112%;'
-                    f'margin:-6% 0 0 -6%;object-fit:cover;mix-blend-mode:multiply;" /></div>'
+                    f'overflow:hidden;margin:0 auto 1.25rem;position:relative;">'
+                    f'<img src="{_seal_uri}" style="position:absolute;top:50%;left:50%;'
+                    f'transform:translate(-50%,-50%);width:112%;height:112%;'
+                    f'object-fit:cover;mix-blend-mode:multiply;'
+                    f'clip-path:circle(47% at 50% 50%);" /></div>'
                 )
             except Exception:
                 _seal_html = ""
@@ -5697,7 +5705,7 @@ def main() -> None:
                     st.error("Access denied.")
 
         st.markdown("---")
-        _dm = st.session_state.get("dark_mode", True)
+        _dm = st.session_state.get("dark_mode", False)
         _dm_label = "☀ Light Mode" if _dm else "◼ Dark Mode"
         if st.button(_dm_label, use_container_width=True, key="sal_theme_toggle"):
             st.session_state["dark_mode"] = not _dm
