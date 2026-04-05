@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import json
@@ -3852,7 +3852,7 @@ def _render_bureau(*, client, browse_mode: bool) -> None:
     st.markdown("#### The Bureau \u2014 Standardized Logic Library navigator")
     st.caption("O\u2217NET major-group folder tree (left) \u00b7 Logic specification document (right)")
 
-    col_left, col_right = st.columns([0.38, 0.62], gap="large")
+    col_left, col_right = st.columns([0.28, 0.72], gap="large")
 
     with col_left:
         st.markdown('<div class="sal-bureau-anchor"></div>', unsafe_allow_html=True)
