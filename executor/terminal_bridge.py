@@ -21,10 +21,9 @@ def _run_command(command: Sequence[str], *, skill_name: str | None = None) -> in
     cmd_list = list(command)
     try:
         process = subprocess.run(
-            " ".join(cmd_list),
+            cmd_list,
             text=True,
             capture_output=True,
-            shell=True,
         )
     except FileNotFoundError:
         # Windows-specific resolution failure (e.g., psql not in PATH)

@@ -2117,7 +2117,7 @@ def _inject_studio_styles() -> None:
     background-position: center center, 0 0;
   }}
   .sal-header-flank-right {{
-    background-image: url("{stamp_r}"), url("{wm_light}");
+        '<div class="sal-flank-wm">AUTHORIZED</div>'
     background-size: 88% auto, auto;
     background-repeat: no-repeat, repeat;
     background-position: center center, 0 0;
@@ -3068,20 +3068,21 @@ def _inject_studio_styles() -> None:
 
   /* ── SAL Command Interface ── */
   .sal-cmd-hdr {
-    background: linear-gradient(90deg, #020c1b 0%, #0b2a6f 40%, #071540 70%, #020c1b 100%);
-    border: 1px solid #1d4ed8;
-    border-bottom: 1px solid #1d4ed844;
-    border-radius: 6px 6px 0 0;
-    padding: 0.42rem 0.85rem;
+    background: linear-gradient(90deg, #031124 0%, #0b2a6f 34%, #0a1f55 58%, #031124 100%);
+    border: 1px solid #2563eb;
+    border-bottom: 1px solid #60a5fa33;
+    border-radius: 12px 12px 0 0;
+    padding: 0.52rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.55rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.59rem;
+    font-size: 0.62rem;
     color: #60a5fa;
     letter-spacing: 0.09em;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 14px 32px rgba(2, 12, 27, 0.22);
   }
   .sal-cmd-hdr::after {
     content: '';
@@ -3113,17 +3114,35 @@ def _inject_studio_styles() -> None:
   .sal-cmd-title     { color: #e2e8f0; font-weight: 800; letter-spacing: 0.15em; }
   .sal-cmd-stat      { color: #93c5fd; }
   .sal-cmd-prompt {
-    background: #030b19;
-    border-left: 1px solid #1d4ed8;
-    border-right: 1px solid #1d4ed8;
-    padding: 0.3rem 0.85rem;
+    background: linear-gradient(180deg, #081224 0%, #040b18 100%);
+    border-left: 1px solid #2563eb;
+    border-right: 1px solid #2563eb;
+    padding: 0.42rem 1rem 0.38rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.62rem;
-    color: #334155;
-    letter-spacing: 0.05em;
+    font-size: 0.66rem;
+    color: #64748b;
+    letter-spacing: 0.06em;
     display: flex;
     align-items: center;
     gap: 0.4rem;
+  }
+  .sal-cmd-subnote {
+    background: linear-gradient(180deg, #081224 0%, #050d1c 100%);
+    border-left: 1px solid #2563eb;
+    border-right: 1px solid #2563eb;
+    color: #93c5fd;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.8rem;
+    justify-content: space-between;
+    padding: 0.35rem 1rem 0.48rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+  }
+  .sal-cmd-subnote strong {
+    color: #dbeafe;
+    font-weight: 800;
   }
   .sal-cmd-caret {
     color: #38bdf8;
@@ -3135,82 +3154,92 @@ def _inject_studio_styles() -> None:
   }
   /* Style the Streamlit text input inside the command interface zone */
   .sal-search-anchor ~ div div[data-testid="stTextInput"] > div {
-    border: 1px solid #1d4ed855 !important;
-    border-radius: 4px !important;
-    background: #030b19 !important;
+    border: 1px solid #2563eb66 !important;
+    border-top: 1px solid #60a5fa30 !important;
+    border-radius: 0 !important;
+    background: linear-gradient(180deg, rgba(14, 24, 45, 0.98) 0%, rgba(3, 11, 25, 0.98) 100%) !important;
     padding: 0 !important;
-    transition: border-color 0.2s, box-shadow 0.2s !important;
+    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.08), 0 12px 28px rgba(2, 12, 27, 0.14) !important;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input {
-    background: #030b19 !important;
-    color: #e2e8f0 !important;
+    background: transparent !important;
+    color: #f8fafc !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 1rem !important;
+    font-size: 1.02rem !important;
     caret-color: #38bdf8 !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 0.85rem 1.2rem !important;
+    border-radius: 0 !important;
+    padding: 1rem 1.2rem !important;
     letter-spacing: 0.03em !important;
     transition: border-color 0.2s !important;
-    height: 3rem !important;
+    height: 3.35rem !important;
+    line-height: 1.3 !important;
+  }
+  .sal-search-anchor ~ div div[data-testid="stTextInput"] > div:hover {
+    border-color: #3b82f688 !important;
+    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.11), 0 16px 34px rgba(2, 12, 27, 0.18) !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input:focus {
     outline: none !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"]:focus-within > div {
     border-color: #38bdf8 !important;
-    box-shadow: 0 0 0 3px #38bdf822, 0 0 18px #1d4ed822 !important;
+    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.14), 0 0 0 3px #38bdf822, 0 0 24px #1d4ed833 !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input::placeholder {
-    color: #60a5fa !important;
-    font-style: italic;
-    opacity: 0.75;
+    color: #93c5fd !important;
+    font-style: normal;
+    opacity: 0.88;
   }
   /* Dispatch button */
   .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"] {
-    background: linear-gradient(135deg,#1d4ed8 0%,#3730a3 100%) !important;
-    border: 1px solid #3b82f655 !important;
-    border-top: 1px solid #60a5fa33 !important;
+    background: linear-gradient(135deg,#2563eb 0%,#1d4ed8 52%,#3730a3 100%) !important;
+    border: 1px solid #60a5fa55 !important;
+    border-top: 1px solid #bfdbfe44 !important;
     color: #fff !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 0.72rem !important;
+    font-size: 0.74rem !important;
     font-weight: 900 !important;
-    letter-spacing: 0.18em !important;
-    border-radius: 0 !important;
-    padding: 0.55rem 1rem !important;
+    letter-spacing: 0.16em !important;
+    border-radius: 0 0 12px 12px !important;
+    padding: 0.78rem 1rem !important;
     transition: all 0.25s !important;
     position: relative !important;
     overflow: hidden !important;
     text-shadow: 0 0 12px rgba(96,165,250,0.6) !important;
+    box-shadow: 0 14px 24px rgba(37, 99, 235, 0.18) !important;
   }
   .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"]:hover {
-    background: linear-gradient(135deg,#2563eb 0%,#4338ca 100%) !important;
-    box-shadow: 0 0 18px rgba(59,130,246,0.45) !important;
-    transform: none !important;
+    background: linear-gradient(135deg,#3b82f6 0%,#2563eb 52%,#4338ca 100%) !important;
+    box-shadow: 0 0 22px rgba(59,130,246,0.34), 0 14px 30px rgba(37,99,235,0.22) !important;
+    transform: translateY(-1px) !important;
   }
   .sal-cmd-chips {
-    background: #020c1b;
+    background: linear-gradient(180deg, #02101f 0%, #020c1b 100%);
     border: 1px solid #1d4ed8;
     border-top: 1px solid #1d4ed822;
-    border-radius: 0 0 6px 6px;
-    padding: 0.45rem 0.7rem;
+    border-radius: 12px;
+    padding: 0.6rem 0.8rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-bottom: 0.5rem;
+    gap: 0.38rem;
+    margin: 0.42rem 0 0.65rem;
+    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.05);
   }
   .sal-chip {
-    background: #071540;
-    border: 1px solid #1d4ed844;
-    color: #60a5fa;
+    background: linear-gradient(180deg, #0a173e 0%, #071540 100%);
+    border: 1px solid #2563eb33;
+    color: #bfdbfe;
     font-family: 'Courier New', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    padding: 0.22rem 0.5rem;
-    border-radius: 2px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    padding: 0.28rem 0.58rem;
+    border-radius: 999px;
     cursor: default;
     white-space: nowrap;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
   .sal-chip-bright  { border-color: #92400e44; color: #fbbf24; background: #120800; }
   .sal-chip-vault   { border-color: #5b21b644; color: #c4b5fd; background: #0d0720; }
@@ -3569,7 +3598,7 @@ def _inject_studio_styles() -> None:
   .sal-ribbon-sub   { color: #60a5fa !important; }
   .sal-serial, .sal-seal-emblem-wrap .sal-serial-pin {
     background: rgba(2,11,30,0.88) !important;
-    color: #60a5fa !important;
+    color: #93c5fd !important;
     border-color: #1d4ed844 !important;
   }
   /* Great seal — screen blend works on dark; multiply vanishes */
@@ -3663,7 +3692,7 @@ def _inject_studio_styles() -> None:
   div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) .stButton > button {
     background: #030b19 !important;
     border-color: #1d4ed833 !important;
-    color: #60a5fa !important;
+    color: #93c5fd !important;
   }
   div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) .stButton > button:hover {
     background: #071540 !important;
@@ -3710,7 +3739,7 @@ def _inject_studio_styles() -> None:
   .sal-sector-divider::before, .sal-sector-divider::after { background: #1d4ed822 !important; }
   .sal-sector-divider span { color: #1d4ed8 !important; }
   .sal-center-section-label {
-    color: #60a5fa !important;
+    color: #93c5fd !important;
     border-top-color: #1d4ed833 !important;
     border-bottom-color: #1d4ed811 !important;
   }
@@ -3722,7 +3751,7 @@ def _inject_studio_styles() -> None:
   .sal-dir-rule {
     border-top-color: #1d4ed833 !important;
     border-bottom-color: #1d4ed811 !important;
-    color: #60a5fa !important;
+    color: #93c5fd !important;
     background: linear-gradient(90deg, rgba(11,42,111,0.2) 0%, transparent 100%) !important;
   }
   .sal-dir-count { color: #334155 !important; }
@@ -4982,19 +5011,23 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         f'<div class="sal-cmd-hdr">'
         f'  <span class="sal-cmd-live-dot"></span>'
         f'  <span class="sal-cmd-live-txt">LIVE</span>'
-        f'  <span class="sal-cmd-sep">\u00b7</span>'
-        f'  <span class="sal-cmd-title">SAL\u00a0COMMAND\u00a0INTERFACE</span>'
-        f'  <span class="sal-cmd-sep">\u00b7</span>'
-        f'  <span class="sal-cmd-stat">22\u00a0DIVISIONS</span>'
-        f'  <span class="sal-cmd-sep">\u25c6</span>'
+        f'  <span class="sal-cmd-sep">·</span>'
+        f'  <span class="sal-cmd-title">SAL COMMAND INTERFACE</span>'
+        f'  <span class="sal-cmd-sep">·</span>'
+        f'  <span class="sal-cmd-stat">22 DIVISIONS</span>'
+        f'  <span class="sal-cmd-sep">◆</span>'
         f'  <span style="color:{_scope_color};font-weight:700">{_scope_label}</span>'
-        f'  <span class="sal-cmd-sep">\u25c6</span>'
-        f'  <span class="sal-cmd-stat">O\u2217NET\u00a0FEDERAL\u00a0REGISTRY</span>'
+        f'  <span class="sal-cmd-sep">◆</span>'
+        f'  <span class="sal-cmd-stat">O∗NET FEDERAL REGISTRY</span>'
         f'</div>'
-        f'<div class="sal-cmd-prompt">'
-        f'  <span class="sal-cmd-caret">\u25b8</span>'
-        f'  <span>ENTER QUERY \u2014 job\u00a0title\u00a0\u00b7\u00a0SOC\u00a0code\u00a0\u00b7\u00a0skill\u00a0\u00b7\u00a0natural\u00a0language\u00a0\u00b7\u00a0capability</span>'
-        f'</div>',
+        '<div class="sal-cmd-prompt">'
+        '  <span class="sal-cmd-caret">▸</span>'
+        '  <span>ENTER QUERY — job title · SOC code · skill · natural language · capability</span>'
+        '</div>'
+        '<div class="sal-cmd-subnote">'
+        '  <span><strong>SEARCH READY</strong> · Ask in plain English or use an SOC code for exact routing</span>'
+        '  <span><strong>CURRENT SCOPE</strong> · Results honor your active registry access mode</span>'
+        '</div>',
         unsafe_allow_html=True,
     )
     query = st.text_input(
@@ -5731,6 +5764,12 @@ def main() -> None:
 
 
 main()
+
+
+
+
+
+
 
 
 
