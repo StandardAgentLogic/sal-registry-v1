@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import json
@@ -14,15 +14,15 @@ from datetime import datetime, timezone
 import streamlit as st
 import streamlit.components.v1 as _stc
 
-# â”€â”€ Page config â€” MUST be the first st.* call in the module â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Page config — MUST be the first st.* call in the module ─────────────────
 st.set_page_config(
     page_title="SAL Registry | Federal-Grade Precision",
-    page_icon="ðŸ¦…",
+    page_icon="🦅",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# â”€â”€ Optional heavy dependencies (graceful degradation) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Optional heavy dependencies (graceful degradation) ──────────────────────
 try:
     from dotenv import load_dotenv as _ld
     _ld()
@@ -37,13 +37,13 @@ except ImportError:
     class Client:  # type: ignore
         pass
     def _make_client(url: str, key: str):
-        raise RuntimeError("supabase package not installed â€“ browse mode active.")
+        raise RuntimeError("supabase package not installed – browse mode active.")
 
 _REPO_ROOT = Path(__file__).resolve().parent
 _CONNECTION_LOG = _REPO_ROOT / "logs" / "connection_audit.log"
 
 
-# â”€â”€ Supabase helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Supabase helpers ─────────────────────────────────────────────────────────
 
 def _audit_connection_failure(exc: BaseException, context: str) -> None:
     try:
@@ -266,7 +266,7 @@ def _normalize_steps(raw: Any) -> list[Any]:
     return [raw]
 
 
-# â”€â”€ SOC major group folder map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── SOC major group folder map ───────────────────────────────────────────────
 SOC_MAJOR_GROUPS: dict[str, str] = {
     "11": "Management",
     "13": "Finance",
@@ -293,7 +293,7 @@ SOC_MAJOR_GROUPS: dict[str, str] = {
 }
 
 
-# â”€â”€ Mock / browse-mode data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Mock / browse-mode data ──────────────────────────────────────────────────
 def _auto_reg(code: str, title: str, key: str = "A") -> "dict[str, Any]":
     major = code[:2]
     mv = {
@@ -305,12 +305,12 @@ def _auto_reg(code: str, title: str, key: str = "A") -> "dict[str, Any]":
         "51": "Stable",    "53": "Stable",  "55": "Government",
     }.get(major, "Stable")
     out = {
-        "B": "Bright â€” high demand growth",
-        "A": "Average â€” stable demand",
+        "B": "Bright — high demand growth",
+        "A": "Average — stable demand",
         "F": "Faster than average",
         "M": "Much faster than average",
-        "L": "Below average â€” declining",
-    }.get(key, "Average â€” stable demand")
+        "L": "Below average — declining",
+    }.get(key, "Average — stable demand")
     return {
         "soc_code": code, "title": title, "market_value": mv,
         "outlook": out, "is_custom": (code == "15-1299.08"),
@@ -318,7 +318,7 @@ def _auto_reg(code: str, title: str, key: str = "A") -> "dict[str, Any]":
     }
 
 _RAW_ONET: list[tuple[str, str, str]] = [
-    # â”€â”€ 11 Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 11 Management ────────────────────────────────────────────────────────
     ("11-1011.00","Chief Executives","B"),
     ("11-1021.00","General and Operations Managers","A"),
     ("11-2011.00","Advertising and Promotions Managers","A"),
@@ -355,7 +355,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("11-9171.00","Spa Managers","A"),
     ("11-9198.00","Compliance Managers","B"),
     ("11-9199.00","Managers, All Other","A"),
-    # â”€â”€ 13 Business and Financial Operations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 13 Business and Financial Operations ─────────────────────────────────
     ("13-1011.00","Agents and Business Managers of Artists and Athletes","A"),
     ("13-1021.00","Buyers and Purchasing Agents, Farm Products","A"),
     ("13-1022.00","Wholesale and Retail Buyers, Except Farm Products","A"),
@@ -390,7 +390,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("13-2081.00","Tax Examiners and Collectors, and Revenue Agents","A"),
     ("13-2082.00","Tax Preparers","A"),
     ("13-2099.00","Financial Specialists, All Other","A"),
-    # â”€â”€ 15 Computer and Mathematical â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 15 Computer and Mathematical ─────────────────────────────────────────
     ("15-1211.00","Computer Systems Analysts","B"),
     ("15-1212.00","Information Security Analysts","M"),
     ("15-1221.00","Computer and Information Research Scientists","B"),
@@ -419,7 +419,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("15-2041.00","Statisticians","B"),
     ("15-2051.00","Data Scientists and Mathematical Science Occupations, All Other","M"),
     ("15-2099.00","Mathematical Science Occupations, All Other","A"),
-    # â”€â”€ 17 Architecture and Engineering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 17 Architecture and Engineering ──────────────────────────────────────
     ("17-1011.00","Architects, Except Landscape and Naval","B"),
     ("17-1012.00","Landscape Architects","A"),
     ("17-1021.00","Cartographers and Photogrammetrists","A"),
@@ -456,7 +456,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("17-3028.00","Calibration Technologists and Technicians","A"),
     ("17-3029.00","Engineering Technologists and Technicians, All Other","A"),
     ("17-3031.00","Surveying and Mapping Technicians","A"),
-    # â”€â”€ 19 Life, Physical, and Social Science â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 19 Life, Physical, and Social Science ────────────────────────────────
     ("19-1011.00","Animal Scientists","A"),
     ("19-1012.00","Food Scientists and Technologists","B"),
     ("19-1013.00","Soil and Plant Scientists","A"),
@@ -499,7 +499,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("19-4071.00","Forest and Conservation Technicians","A"),
     ("19-4092.00","Forensic Science Technicians","B"),
     ("19-4099.00","Life, Physical, and Social Science Technicians, All Other","A"),
-    # â”€â”€ 21 Community and Social Service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 21 Community and Social Service ──────────────────────────────────────
     ("21-1011.00","Substance Abuse and Behavioral Disorder Counselors","B"),
     ("21-1012.00","Educational, Guidance, and Career Counselors and Advisors","B"),
     ("21-1013.00","Marriage and Family Therapists","B"),
@@ -518,7 +518,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("21-2011.00","Clergy","A"),
     ("21-2021.00","Directors, Religious Activities and Education","A"),
     ("21-2099.00","Religious Workers, All Other","A"),
-    # â”€â”€ 23 Legal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 23 Legal ─────────────────────────────────────────────────────────────
     ("23-1011.00","Lawyers","B"),
     ("23-1012.00","Judicial Law Clerks","A"),
     ("23-1021.00","Administrative Law Judges, Adjudicators, and Hearing Officers","A"),
@@ -529,7 +529,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("23-2091.00","Court Reporters and Simultaneous Captioners","A"),
     ("23-2093.00","Title Examiners, Abstractors, and Searchers","A"),
     ("23-2099.00","Legal Support Workers, All Other","A"),
-    # â”€â”€ 25 Educational Instruction and Library â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 25 Educational Instruction and Library ────────────────────────────────
     ("25-1011.00","Business Teachers, Postsecondary","A"),
     ("25-1012.00","Computer Science Teachers, Postsecondary","B"),
     ("25-1022.00","Mathematical Science Teachers, Postsecondary","A"),
@@ -579,7 +579,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("25-9031.00","Instructional Coordinators","B"),
     ("25-9041.00","Teacher Assistants","B"),
     ("25-9099.00","Educational Instruction and Library Workers, All Other","A"),
-    # â”€â”€ 27 Arts, Design, Entertainment, Sports, and Media â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 27 Arts, Design, Entertainment, Sports, and Media ────────────────────
     ("27-1011.00","Art Directors","B"),
     ("27-1012.00","Craft Artists","A"),
     ("27-1013.00","Fine Artists, Including Painters, Sculptors, and Illustrators","A"),
@@ -619,7 +619,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("27-4031.00","Camera Operators, Television, Video, and Film","A"),
     ("27-4032.00","Film and Video Editors","B"),
     ("27-4099.00","Media and Communication Equipment Workers, All Other","A"),
-    # â”€â”€ 29 Healthcare Practitioners and Technical â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 29 Healthcare Practitioners and Technical ─────────────────────────────
     ("29-1011.00","Chiropractors","A"),
     ("29-1021.00","Dentists, General","A"),
     ("29-1022.00","Oral and Maxillofacial Surgeons","A"),
@@ -696,7 +696,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("29-9092.00","Genetic Counselors","M"),
     ("29-9093.00","Surgical Assistants","A"),
     ("29-9099.00","Healthcare Practitioners and Technical Workers, All Other","A"),
-    # â”€â”€ 31 Healthcare Support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 31 Healthcare Support ─────────────────────────────────────────────────
     ("31-1121.00","Home Health Aides","M"),
     ("31-1122.00","Personal Care Aides","M"),
     ("31-1131.00","Nursing Assistants","B"),
@@ -715,7 +715,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("31-9096.00","Veterinary Assistants and Laboratory Animal Caretakers","A"),
     ("31-9097.00","Phlebotomists","B"),
     ("31-9099.00","Healthcare Support Workers, All Other","A"),
-    # â”€â”€ 33 Protective Service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 33 Protective Service ─────────────────────────────────────────────────
     ("33-1011.00","First-Line Supervisors of Correctional Officers","A"),
     ("33-1012.00","First-Line Supervisors of Police and Detectives","A"),
     ("33-1021.00","First-Line Supervisors of Firefighting and Prevention Workers","A"),
@@ -740,7 +740,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("33-9092.00","Lifeguards, Ski Patrol, and Other Recreational Protective Service Workers","A"),
     ("33-9093.00","Transportation Security Screeners","A"),
     ("33-9099.00","Protective Service Workers, All Other","A"),
-    # â”€â”€ 35 Food Preparation and Serving â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 35 Food Preparation and Serving ──────────────────────────────────────
     ("35-1011.00","Chefs and Head Cooks","A"),
     ("35-1012.00","First-Line Supervisors of Food Preparation and Serving Workers","A"),
     ("35-2011.00","Cooks, Fast Food","A"),
@@ -758,7 +758,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("35-9021.00","Dishwashers","L"),
     ("35-9031.00","Hosts and Hostesses, Restaurant, Lounge, and Coffee Shop","A"),
     ("35-9099.00","Food Preparation and Serving Related Workers, All Other","A"),
-    # â”€â”€ 37 Building and Grounds Cleaning and Maintenance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 37 Building and Grounds Cleaning and Maintenance ─────────────────────
     ("37-1011.00","First-Line Supervisors of Housekeeping and Janitorial Workers","A"),
     ("37-1012.00","First-Line Supervisors of Landscaping, Lawn Service, and Groundskeeping Workers","A"),
     ("37-2011.00","Janitors and Cleaners, Except Maids and Housekeeping Cleaners","A"),
@@ -769,7 +769,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("37-3012.00","Pesticide Handlers, Sprayers, and Applicators, Vegetation","A"),
     ("37-3013.00","Tree Trimmers and Pruners","A"),
     ("37-3019.00","Grounds Maintenance Workers, All Other","A"),
-    # â”€â”€ 39 Personal Care and Service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 39 Personal Care and Service ─────────────────────────────────────────
     ("39-1013.00","First-Line Supervisors of Gambling Services Workers","A"),
     ("39-1014.00","First-Line Supervisors of Entertainment and Recreation Workers, Except Gambling","A"),
     ("39-1031.00","First-Line Supervisors of Personal Service Workers","A"),
@@ -800,7 +800,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("39-9031.00","Recreation Workers","A"),
     ("39-9032.00","Residential Advisors","A"),
     ("39-9099.00","Personal Care and Service Workers, All Other","A"),
-    # â”€â”€ 41 Sales and Related â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 41 Sales and Related ──────────────────────────────────────────────────
     ("41-1011.00","First-Line Supervisors of Retail Sales Workers","A"),
     ("41-1012.00","First-Line Supervisors of Non-Retail Sales Workers","A"),
     ("41-2011.00","Cashiers","A"),
@@ -823,7 +823,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("41-9041.00","Telemarketers","L"),
     ("41-9091.00","Door-to-Door Sales Workers, News and Street Vendors, and Related Workers","L"),
     ("41-9099.00","Sales and Related Workers, All Other","A"),
-    # â”€â”€ 43 Office and Administrative Support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 43 Office and Administrative Support ─────────────────────────────────
     ("43-1011.00","First-Line Supervisors of Office and Administrative Support Workers","A"),
     ("43-2011.00","Switchboard Operators, Including Answering Service","L"),
     ("43-2021.00","Telephone Operators","L"),
@@ -878,7 +878,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("43-9081.00","Proofreaders and Copy Markers","A"),
     ("43-9111.00","Statistical Assistants","A"),
     ("43-9199.00","Office and Administrative Support Workers, All Other","A"),
-    # â”€â”€ 45 Farming, Fishing, and Forestry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 45 Farming, Fishing, and Forestry ────────────────────────────────────
     ("45-1011.00","First-Line Supervisors of Farming, Fishing, and Forestry Workers","A"),
     ("45-2011.00","Agricultural Inspectors","A"),
     ("45-2021.00","Animal Breeders","A"),
@@ -893,7 +893,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("45-4022.00","Logging Equipment Operators","A"),
     ("45-4023.00","Log Graders and Scalers","A"),
     ("45-4029.00","Logging Workers, All Other","A"),
-    # â”€â”€ 47 Construction and Extraction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 47 Construction and Extraction ───────────────────────────────────────
     ("47-1011.00","First-Line Supervisors of Construction Trades and Extraction Workers","A"),
     ("47-2011.00","Boilermakers","A"),
     ("47-2021.00","Brickmasons and Blockmasons","A"),
@@ -927,12 +927,12 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("47-2231.00","Solar Photovoltaic Installers","M"),
     ("47-2251.00","Telecommunications Equipment Installers and Repairers, Except Line Installers","A"),
     ("47-2261.00","Elevator and Escalator Installers and Repairers","B"),
-    ("47-3011.00","Helpersâ€”Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters","A"),
-    ("47-3012.00","Helpersâ€”Carpenters","A"),
-    ("47-3013.00","Helpersâ€”Electricians","A"),
-    ("47-3014.00","Helpersâ€”Painters, Paperhangers, Plasterers, and Stucco Masons","A"),
-    ("47-3015.00","Helpersâ€”Pipelayers, Plumbers, Pipefitters, and Steamfitters","A"),
-    ("47-3016.00","Helpersâ€”Roofers","A"),
+    ("47-3011.00","Helpers—Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters","A"),
+    ("47-3012.00","Helpers—Carpenters","A"),
+    ("47-3013.00","Helpers—Electricians","A"),
+    ("47-3014.00","Helpers—Painters, Paperhangers, Plasterers, and Stucco Masons","A"),
+    ("47-3015.00","Helpers—Pipelayers, Plumbers, Pipefitters, and Steamfitters","A"),
+    ("47-3016.00","Helpers—Roofers","A"),
     ("47-3019.00","Helpers, Construction Trades, All Other","A"),
     ("47-4011.00","Construction and Building Inspectors","A"),
     ("47-4031.00","Fence Erectors","A"),
@@ -950,8 +950,8 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("47-5051.00","Rock Splitters, Quarry","A"),
     ("47-5061.00","Roof Bolters, Mining","A"),
     ("47-5071.00","Roustabouts, Oil and Gas","A"),
-    ("47-5081.00","Helpersâ€”Extraction Workers","A"),
-    # â”€â”€ 49 Installation, Maintenance, and Repair â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    ("47-5081.00","Helpers—Extraction Workers","A"),
+    # ── 49 Installation, Maintenance, and Repair ──────────────────────────────
     ("49-1011.00","First-Line Supervisors of Mechanics, Installers, and Repairers","A"),
     ("49-2011.00","Computer, Automated Teller, and Office Machine Repairers","A"),
     ("49-2021.00","Radio, Cellular, and Tower Equipment Installers and Repairers","A"),
@@ -1002,7 +1002,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("49-9096.00","Riggers","A"),
     ("49-9097.00","Signal and Track Switch Repairers","A"),
     ("49-9099.00","Installation, Maintenance, and Repair Workers, All Other","A"),
-    # â”€â”€ 51 Production â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 51 Production ─────────────────────────────────────────────────────────
     ("51-1011.00","First-Line Supervisors of Production and Operating Workers","A"),
     ("51-2011.00","Aircraft Structure, Surfaces, Rigging, and Systems Assemblers","A"),
     ("51-2021.00","Coil Winders, Tapers, and Finishers","A"),
@@ -1108,9 +1108,9 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("51-9195.00","Molders, Shapers, and Casters, Except Metal and Plastic","A"),
     ("51-9196.00","Paper Goods Machine Setters, Operators, and Tenders","A"),
     ("51-9197.00","Tire Builders","A"),
-    ("51-9198.00","Helpersâ€”Production Workers","A"),
+    ("51-9198.00","Helpers—Production Workers","A"),
     ("51-9199.00","Production Workers, All Other","A"),
-    # â”€â”€ 53 Transportation and Material Moving â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 53 Transportation and Material Moving ─────────────────────────────────
     ("53-1047.00","First-Line Supervisors of Transportation and Material-Moving Workers","A"),
     ("53-2011.00","Airline Pilots, Copilots, and Flight Engineers","A"),
     ("53-2012.00","Commercial Pilots","B"),
@@ -1156,7 +1156,7 @@ _RAW_ONET: list[tuple[str, str, str]] = [
     ("53-7065.00","Stockers and Order Fillers","B"),
     ("53-7069.00","Material Moving Workers, All Other","A"),
     ("53-7081.00","Refuse and Recyclable Material Collectors","A"),
-    # â”€â”€ 55 Military Specific â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 55 Military Specific ──────────────────────────────────────────────────
     ("55-1011.00","Air Crew Officers","A"),
     ("55-1012.00","Aircraft Launch and Recovery Officers","A"),
     ("55-1013.00","Armored Assault Vehicle Officers","A"),
@@ -1183,7 +1183,7 @@ for _r in _MOCK_REGISTRY:
     if _r["soc_code"] == "15-1299.08":
         _r["title"] = "SAL Systems Integrator (Vault IP) \U0001f3c6"
         _r["market_value"] = "Proprietary"
-        _r["outlook"] = "Institutional â€” vault-tier registry logic"
+        _r["outlook"] = "Institutional — vault-tier registry logic"
         _r["description"] = "Proprietary SAL agent-logic blueprint for orchestration and registry-grade exports."
         break
 
@@ -1197,7 +1197,7 @@ _MOCK_STEP_TEMPLATE: list[dict[str, str]] = [
 
 _MOCK_LOGIC: dict[str, dict[str, Any]] = {
 
-    # â”€â”€ 11 MANAGEMENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 11 MANAGEMENT ──────────────────────────────────────────────────────────
     "11-1011.00": {
         "soc_code": "11-1011.00",
         "primary_directive": "Establish enterprise direction, allocate capital, and align operating units to regulatory and stakeholder outcomes.",
@@ -1216,14 +1216,14 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "step_by_step_json": [
             {"step": "Assess tech landscape",  "detail": "Inventory systems, vendors, technical debt, and capability gaps vs. roadmap."},
             {"step": "Define architecture",     "detail": "Publish target-state diagrams, ADRs, and platform engineering standards."},
-            {"step": "Secure the perimeter",    "detail": "Commission pen-test, remediate CVSS â‰¥7 findings, enforce MFA and RBAC."},
+            {"step": "Secure the perimeter",    "detail": "Commission pen-test, remediate CVSS ≥7 findings, enforce MFA and RBAC."},
             {"step": "Govern delivery",         "detail": "Run sprint reviews, incident reviews, and change-advisory meetings on cadence."},
             {"step": "Report to executive",     "detail": "Produce monthly IT scorecard: uptime, cost/unit, backlog health, risk register delta."},
         ],
         "toolbox_requirements": {"itsm": ["ServiceNow", "Jira Service Mgmt"], "monitoring": ["Datadog", "PagerDuty"], "security": ["SIEM", "Vulnerability scanner"]},
     },
 
-    # â”€â”€ 13 FINANCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 13 FINANCE ─────────────────────────────────────────────────────────────
     "13-2051.00": {
         "soc_code": "13-2051.00",
         "primary_directive": "Translate financial data into investment intelligence: model valuation, stress-test assumptions, and deliver decision-grade research with defensible methodology.",
@@ -1249,14 +1249,14 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"analytics": ["Power BI", "Tableau", "SQL"], "frameworks": ["McKinsey 7S", "MECE canvas"], "collab": ["Miro", "Confluence"]},
     },
 
-    # â”€â”€ 15 TECHNOLOGY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 15 TECHNOLOGY ──────────────────────────────────────────────────────────
     "15-1245.00": {
         "soc_code": "15-1245.00",
         "primary_directive": "Extract predictive signal from complex, high-dimensional data sets; deploy production-grade ML systems that drive measurable business outcomes.",
         "step_by_step_json": [
             {"step": "Frame the problem",      "detail": "Translate business question to ML task type (classification, regression, forecasting, NLP)."},
             {"step": "Engineer features",      "detail": "Ingest raw data pipelines, handle missingness, encode categoricals, and version feature store."},
-            {"step": "Train & tune models",    "detail": "Baseline â†’ hyperparameter search â†’ ensemble; track experiments in MLflow or W&B."},
+            {"step": "Train & tune models",    "detail": "Baseline → hyperparameter search → ensemble; track experiments in MLflow or W&B."},
             {"step": "Validate rigorously",    "detail": "Evaluate on holdout, slice by subgroups, run bias/fairness audit and SHAP explainability."},
             {"step": "Deploy & monitor",       "detail": "Ship via CI/CD to serving layer; instrument data drift, model decay, and alert thresholds."},
         ],
@@ -1264,11 +1264,11 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "15-1252.00": {
         "soc_code": "15-1252.00",
-        "primary_directive": "Architect, build, and ship reliable software systems at scale â€” writing clean code, preventing regressions, and continuously improving system quality.",
+        "primary_directive": "Architect, build, and ship reliable software systems at scale — writing clean code, preventing regressions, and continuously improving system quality.",
         "step_by_step_json": [
             {"step": "Clarify requirements",   "detail": "Break down epic into user stories; define acceptance criteria and edge cases."},
             {"step": "Design system",          "detail": "Produce ADR covering data model, API contracts, dependencies, and scale assumptions."},
-            {"step": "Implement & test",       "detail": "Write production code + unit/integration tests; enforce â‰¥80% coverage gate in CI."},
+            {"step": "Implement & test",       "detail": "Write production code + unit/integration tests; enforce ≥80% coverage gate in CI."},
             {"step": "Code review & security", "detail": "Peer review for correctness, OWASP top-10 scan, and dependency CVE check."},
             {"step": "Deploy & observe",       "detail": "Canary deploy with feature flag; monitor latency P99, error rate, and rollback trigger."},
         ],
@@ -1276,7 +1276,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "15-1211.00": {
         "soc_code": "15-1211.00",
-        "primary_directive": "Bridge business needs and IT capabilities â€” designing systems that are cost-efficient, secure, interoperable, and aligned to enterprise architecture standards.",
+        "primary_directive": "Bridge business needs and IT capabilities — designing systems that are cost-efficient, secure, interoperable, and aligned to enterprise architecture standards.",
         "step_by_step_json": [
             {"step": "Elicit requirements",    "detail": "Run structured workshops to capture functional, non-functional, and integration needs."},
             {"step": "Map current state",       "detail": "Document AS-IS data flows, integrations, and pain points using BPMN or ArchiMate."},
@@ -1287,7 +1287,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"modeling": ["Lucidchart", "Sparx EA", "ArchiMate"], "analysis": ["JIRA", "Confluence", "Draw.io"], "testing": ["Postman", "SoapUI", "JMeter"]},
     },
 
-    # â”€â”€ 17 ENGINEERING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 17 ENGINEERING ─────────────────────────────────────────────────────────
     "17-2141.00": {
         "soc_code": "17-2141.00",
         "primary_directive": "Design, analyze, and validate mechanical systems that meet performance specs, manufacturing tolerances, and safety codes across the full product lifecycle.",
@@ -1302,7 +1302,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "17-2051.00": {
         "soc_code": "17-2051.00",
-        "primary_directive": "Plan, design, and oversee construction of civil infrastructure â€” ensuring structural integrity, code compliance, environmental sustainability, and on-budget delivery.",
+        "primary_directive": "Plan, design, and oversee construction of civil infrastructure — ensuring structural integrity, code compliance, environmental sustainability, and on-budget delivery.",
         "step_by_step_json": [
             {"step": "Site & needs assessment", "detail": "Survey site conditions, geotechnical data, hydrology, and regulatory constraints."},
             {"step": "Preliminary design",      "detail": "Develop schematic design, feasibility cost estimate, and permitting strategy."},
@@ -1313,7 +1313,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"design": ["AutoCAD Civil 3D", "Revit", "Bentley OpenRoads"], "analysis": ["STAAD.Pro", "SAP2000"], "project": ["Primavera P6", "Procore"]},
     },
 
-    # â”€â”€ 19 SCIENCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 19 SCIENCE ─────────────────────────────────────────────────────────────
     "19-1042.00": {
         "soc_code": "19-1042.00",
         "primary_directive": "Design and execute rigorous biomedical research protocols that advance disease understanding, validate therapeutic targets, and generate publication-grade evidence.",
@@ -1328,7 +1328,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "19-2031.00": {
         "soc_code": "19-2031.00",
-        "primary_directive": "Develop and characterize chemical compounds, materials, and processes â€” from molecular design through safety validation and scale-up documentation.",
+        "primary_directive": "Develop and characterize chemical compounds, materials, and processes — from molecular design through safety validation and scale-up documentation.",
         "step_by_step_json": [
             {"step": "Literature & IP scan",    "detail": "Review prior art, patent landscape, and safety data sheets for target chemistry."},
             {"step": "Synthesize & characterize","detail": "Execute synthesis route; confirm structure via NMR, MS, IR; measure physical properties."},
@@ -1339,7 +1339,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"instrumentation": ["NMR spectrometer", "HPLC-MS", "FTIR"], "informatics": ["ChemDraw", "SciFinder / Reaxys", "ELN platform"], "safety": ["SDS management system", "COSHH assessment"]},
     },
 
-    # â”€â”€ 21 COMMUNITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 21 COMMUNITY ───────────────────────────────────────────────────────────
     "21-1023.00": {
         "soc_code": "21-1023.00",
         "primary_directive": "Deliver trauma-informed, evidence-based behavioral health interventions that support recovery, community reintegration, and sustained wellness outcomes.",
@@ -1353,10 +1353,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"ehr": ["Epic", "Cerner", "Credible"], "clinical": ["PHQ-9", "AUDIT-C", "Columbia Suicide Scale"], "resources": ["SAMHSA locator", "211 referral network"]},
     },
 
-    # â”€â”€ 23 LEGAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 23 LEGAL ───────────────────────────────────────────────────────────────
     "23-1011.00": {
         "soc_code": "23-1011.00",
-        "primary_directive": "Represent client interests with precision legal analysis, strategic advocacy, and risk-calibrated counsel â€” from intake through resolution or trial.",
+        "primary_directive": "Represent client interests with precision legal analysis, strategic advocacy, and risk-calibrated counsel — from intake through resolution or trial.",
         "step_by_step_json": [
             {"step": "Conflict check & intake",  "detail": "Run conflict-of-interest screen; execute engagement letter and retainer."},
             {"step": "Research & discovery",     "detail": "Survey case law, statutes, and regulations; issue discovery, manage document review via TAR."},
@@ -1367,10 +1367,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"research": ["Westlaw", "LexisNexis", "Fastcase"], "ediscovery": ["Relativity", "Everlaw"], "practice_mgmt": ["Clio", "iManage", "NetDocuments"]},
     },
 
-    # â”€â”€ 25 EDUCATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 25 EDUCATION ───────────────────────────────────────────────────────────
     "25-2021.00": {
         "soc_code": "25-2021.00",
-        "primary_directive": "Foster foundational literacy, numeracy, and social-emotional learning in every student â€” using differentiated instruction and data-driven intervention cycles.",
+        "primary_directive": "Foster foundational literacy, numeracy, and social-emotional learning in every student — using differentiated instruction and data-driven intervention cycles.",
         "step_by_step_json": [
             {"step": "Assess baseline",         "detail": "Administer diagnostic assessments (reading levels, math fluency); map IEPs and 504 plans."},
             {"step": "Plan curriculum unit",    "detail": "Align lessons to state standards; design gradual-release sequence with formative checkpoints."},
@@ -1381,10 +1381,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"learning": ["Google Classroom", "Seesaw", "IXL"], "assessment": ["NWEA MAP", "DIBELS", "Renaissance Star"], "ell_support": ["Amplify CKLA", "Rosetta Stone"]},
     },
 
-    # â”€â”€ 27 ARTS & MEDIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 27 ARTS & MEDIA ────────────────────────────────────────────────────────
     "27-3042.00": {
         "soc_code": "27-3042.00",
-        "primary_directive": "Transform complex technical concepts into precise, accessible documentation â€” reducing support burden, accelerating onboarding, and satisfying compliance requirements.",
+        "primary_directive": "Transform complex technical concepts into precise, accessible documentation — reducing support burden, accelerating onboarding, and satisfying compliance requirements.",
         "step_by_step_json": [
             {"step": "Needs analysis",          "detail": "Interview SMEs and end-users; identify gaps in existing docs; define audience and output formats."},
             {"step": "Information architecture","detail": "Design topic hierarchy using DITA or docs-as-code structure; establish style guide and templates."},
@@ -1396,7 +1396,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "27-1024.00": {
         "soc_code": "27-1024.00",
-        "primary_directive": "Create visual communications that solve business problems â€” balancing brand integrity, user psychology, and aesthetic excellence across digital and print channels.",
+        "primary_directive": "Create visual communications that solve business problems — balancing brand integrity, user psychology, and aesthetic excellence across digital and print channels.",
         "step_by_step_json": [
             {"step": "Brief & research",        "detail": "Absorb creative brief, audience personas, competitive landscape, and brand standards."},
             {"step": "Concept development",     "detail": "Sketch multiple directions; present mood boards and rationale to stakeholders."},
@@ -1407,10 +1407,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"design": ["Figma", "Adobe CC (Illustrator, Photoshop, InDesign)"], "prototyping": ["Figma Interactive", "InVision"], "assets": ["DAM platform", "Stock library"]},
     },
 
-    # â”€â”€ 29 HEALTHCARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 29 HEALTHCARE ──────────────────────────────────────────────────────────
     "29-1215.00": {
         "soc_code": "29-1215.00",
-        "primary_directive": "Deliver comprehensive, evidence-based primary care â€” managing acute illness, chronic disease, preventive services, and care coordination across the patient lifespan.",
+        "primary_directive": "Deliver comprehensive, evidence-based primary care — managing acute illness, chronic disease, preventive services, and care coordination across the patient lifespan.",
         "step_by_step_json": [
             {"step": "Patient encounter",       "detail": "Take history, perform physical exam; review HPI, medications, allergies, and SDOH factors."},
             {"step": "Clinical reasoning",      "detail": "Form differential, order targeted diagnostics, and apply clinical decision support tools."},
@@ -1422,7 +1422,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "29-1141.00": {
         "soc_code": "29-1141.00",
-        "primary_directive": "Deliver safe, patient-centered nursing care â€” assessing clinical status, executing physician orders, advocating for patients, and preventing adverse events.",
+        "primary_directive": "Deliver safe, patient-centered nursing care — assessing clinical status, executing physician orders, advocating for patients, and preventing adverse events.",
         "step_by_step_json": [
             {"step": "Shift assessment",        "detail": "Complete head-to-toe assessment; review chart, vitals trend, and handoff from prior nurse."},
             {"step": "Plan & prioritize",       "detail": "Apply nursing diagnosis framework (NANDA); prioritize by acuity using SBAR and ISBAR."},
@@ -1433,7 +1433,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"ehr": ["Epic", "Cerner", "Meditech"], "monitoring": ["Cardiac telemetry", "SpO2 / EtCO2 monitoring"], "safety": ["Pyxis / Omnicell dispensing", "Bar-code MAR"]},
     },
 
-    # â”€â”€ 31 HEALTH SUPPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 31 HEALTH SUPPORT ──────────────────────────────────────────────────────
     "31-1131.00": {
         "soc_code": "31-1131.00",
         "primary_directive": "Provide compassionate, dignity-preserving personal care that supports resident or patient activities of daily living while maintaining infection control and safety standards.",
@@ -1447,7 +1447,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"ehr": ["PointClickCare", "MatrixCare"], "safety": ["Gait belt", "Hoyer lift protocol"], "infection_control": ["PPE bundle", "Hand hygiene audit tool"]},
     },
 
-    # â”€â”€ 33 PROTECTIVE SERVICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 33 PROTECTIVE SERVICES ─────────────────────────────────────────────────
     "33-3051.00": {
         "soc_code": "33-3051.00",
         "primary_directive": "Maintain public safety through visible patrol, rapid incident response, evidence-based policing strategies, and constitutional, community-centered law enforcement.",
@@ -1462,7 +1462,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "33-1011.00": {
         "soc_code": "33-1011.00",
-        "primary_directive": "Lead correctional officer teams to maintain secure, humane, and rehabilitative facility operations â€” enforcing policy, managing incidents, and developing staff.",
+        "primary_directive": "Lead correctional officer teams to maintain secure, humane, and rehabilitative facility operations — enforcing policy, managing incidents, and developing staff.",
         "step_by_step_json": [
             {"step": "Shift briefing",          "detail": "Review inmate population changes, incident log, and post assignments before shift."},
             {"step": "Security audits",         "detail": "Conduct head counts, contraband searches, and perimeter checks per post orders."},
@@ -1473,10 +1473,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"systems": ["Offender management system", "Incident command radio"], "compliance": ["ACA standards checklist", "PREA audit tool"], "training": ["CJTC curriculum", "De-escalation simulator"]},
     },
 
-    # â”€â”€ 35 FOOD SERVICE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 35 FOOD SERVICE ────────────────────────────────────────────────────────
     "35-1011.00": {
         "soc_code": "35-1011.00",
-        "primary_directive": "Conceive, execute, and quality-control restaurant cuisine â€” from menu engineering and cost control through brigade leadership and plate-perfect service delivery.",
+        "primary_directive": "Conceive, execute, and quality-control restaurant cuisine — from menu engineering and cost control through brigade leadership and plate-perfect service delivery.",
         "step_by_step_json": [
             {"step": "Menu engineering",        "detail": "Design seasonal menu balancing food cost %, margin, dietary trends, and kitchen throughput."},
             {"step": "Procurement & prep",      "detail": "Source vendors, set par levels, write production sheets, and oversee mise en place."},
@@ -1487,7 +1487,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"operations": ["POS system", "Recipe costing software (e.g., MarketMan)"], "safety": ["HACCP log", "ServSafe certification"], "sourcing": ["Sysco / US Foods portal", "Local farm CSA"]},
     },
 
-    # â”€â”€ 37 GROUNDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 37 GROUNDS ─────────────────────────────────────────────────────────────
     "37-1011.00": {
         "soc_code": "37-1011.00",
         "primary_directive": "Maintain pristine indoor and outdoor environments by directing janitorial and grounds crews, enforcing cleaning standards, and managing supply and equipment budgets.",
@@ -1501,7 +1501,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"operations": ["CMMS (e.g., Hippo, Dude Solutions)", "Cleaning schedule app"], "safety": ["SDS binder", "OSHA 300 log"], "equipment": ["Auto-scrubber", "Backpack vacuum"]},
     },
 
-    # â”€â”€ 39 PERSONAL CARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 39 PERSONAL CARE ───────────────────────────────────────────────────────
     "39-9021.00": {
         "soc_code": "39-9021.00",
         "primary_directive": "Design and deliver results-driven fitness programming that safely progresses clients toward evidence-based health outcomes with exceptional motivation and accountability.",
@@ -1515,10 +1515,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"platforms": ["Trainerize", "TrueCoach", "Mindbody"], "assessment": ["InBody or DEXA scan", "VO2 max protocol"], "certifications": ["NASM CPT", "ACE", "ACSM"]},
     },
 
-    # â”€â”€ 41 SALES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 41 SALES ───────────────────────────────────────────────────────────────
     "41-4011.00": {
         "soc_code": "41-4011.00",
-        "primary_directive": "Drive B2B revenue through consultative technical sales â€” educating buyers, navigating complex buying committees, and closing deals that deliver measurable ROI for customers.",
+        "primary_directive": "Drive B2B revenue through consultative technical sales — educating buyers, navigating complex buying committees, and closing deals that deliver measurable ROI for customers.",
         "step_by_step_json": [
             {"step": "Prospect & qualify",      "detail": "Build ICP-matched target list; qualify via BANT/MEDDIC; score against quota pipeline model."},
             {"step": "Discovery call",          "detail": "Uncover technical requirements, current-state pain, decision process, and economic buyer."},
@@ -1530,7 +1530,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "41-3021.00": {
         "soc_code": "41-3021.00",
-        "primary_directive": "Match clients to optimal insurance solutions through needs analysis, risk assessment, and compliant advisory practice â€” building a referral-driven book of business.",
+        "primary_directive": "Match clients to optimal insurance solutions through needs analysis, risk assessment, and compliant advisory practice — building a referral-driven book of business.",
         "step_by_step_json": [
             {"step": "Needs analysis",          "detail": "Conduct life-stage interview; quantify income replacement, liability exposure, and coverage gaps."},
             {"step": "Market & quote",          "detail": "Run comparative quotes across carriers; evaluate premium, coverage limits, and exclusions."},
@@ -1541,10 +1541,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"quoting": ["Applied EPIC", "EZLynx", "Vertafore AMS360"], "compliance": ["FINRA suitability checklist", "State DOI CE tracker"], "crm": ["Salesforce FSC", "Redtail CRM"]},
     },
 
-    # â”€â”€ 43 ADMIN / OFFICE SUPPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 43 ADMIN / OFFICE SUPPORT ──────────────────────────────────────────────
     "43-6014.00": {
         "soc_code": "43-6014.00",
-        "primary_directive": "Serve as the operational backbone of the office â€” managing information flow, scheduling, correspondence, and administrative systems with accuracy and discretion.",
+        "primary_directive": "Serve as the operational backbone of the office — managing information flow, scheduling, correspondence, and administrative systems with accuracy and discretion.",
         "step_by_step_json": [
             {"step": "Calendar & comms",        "detail": "Manage executive calendar; prioritize inbound comms; draft responses and route to appropriate owner."},
             {"step": "Document management",     "detail": "Create, format, and version-control reports, presentations, and correspondence per org templates."},
@@ -1555,10 +1555,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"productivity": ["Microsoft 365 / Google Workspace", "Zoom / Teams"], "admin": ["DocuSign", "Concur Expense", "SharePoint"], "scheduling": ["Calendly", "Outlook scheduling assistant"]},
     },
 
-    # â”€â”€ 45 FARMING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 45 FARMING ─────────────────────────────────────────────────────────────
     "45-2041.00": {
         "soc_code": "45-2041.00",
-        "primary_directive": "Maintain agricultural product quality through precise grading, sorting, and inspection â€” minimizing waste, ensuring food safety compliance, and maximizing marketable yield.",
+        "primary_directive": "Maintain agricultural product quality through precise grading, sorting, and inspection — minimizing waste, ensuring food safety compliance, and maximizing marketable yield.",
         "step_by_step_json": [
             {"step": "Receive & inspect",       "detail": "Check incoming lots against USDA grade standards; reject non-conforming product; log lot numbers."},
             {"step": "Set up equipment",        "detail": "Calibrate optical sorters, grading tables, and weight sensors to spec before each run."},
@@ -1569,10 +1569,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"equipment": ["Optical belt sorter", "Weight-check conveyor", "Grading table"], "compliance": ["USDA grade standards", "FSMA traceability rule"], "erp": ["AgriWebb", "Granular", "FarmLogs"]},
     },
 
-    # â”€â”€ 47 CONSTRUCTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 47 CONSTRUCTION ────────────────────────────────────────────────────────
     "47-1011.00": {
         "soc_code": "47-1011.00",
-        "primary_directive": "Lead construction trade crews to deliver scope on schedule and budget â€” enforcing safety, quality, and contract compliance from mobilization through close-out.",
+        "primary_directive": "Lead construction trade crews to deliver scope on schedule and budget — enforcing safety, quality, and contract compliance from mobilization through close-out.",
         "step_by_step_json": [
             {"step": "Mobilize & plan",         "detail": "Review drawings, specs, and schedule; conduct pre-task planning and site hazard identification."},
             {"step": "Crew management",         "detail": "Assign tasks by trade and skill; coordinate subcontractors; enforce safety PPE and site rules."},
@@ -1584,7 +1584,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
     },
     "47-2061.00": {
         "soc_code": "47-2061.00",
-        "primary_directive": "Execute physical construction tasks safely and efficiently â€” supporting all trades with ground-level labor, material handling, and site preparation to keep the project moving.",
+        "primary_directive": "Execute physical construction tasks safely and efficiently — supporting all trades with ground-level labor, material handling, and site preparation to keep the project moving.",
         "step_by_step_json": [
             {"step": "Pre-task safety",         "detail": "Attend toolbox talk; complete JHA; inspect personal PPE and tool/equipment condition."},
             {"step": "Site preparation",        "detail": "Excavate, grade, and compact per stakeout; install erosion controls and form work."},
@@ -1595,10 +1595,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"safety": ["OSHA 10-hr card", "Fall protection harness", "Hard hat/Hi-vis vest"], "equipment": ["Excavator", "Plate compactor", "Concrete mixer"], "certs": ["Forklift / telehandler cert", "Confined space awareness"]},
     },
 
-    # â”€â”€ 49 MAINTENANCE & REPAIR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 49 MAINTENANCE & REPAIR ────────────────────────────────────────────────
     "49-9071.00": {
         "soc_code": "49-9071.00",
-        "primary_directive": "Maintain facility systems and equipment at peak reliability â€” executing preventive maintenance, rapid corrective repair, and continuous improvement to reduce downtime costs.",
+        "primary_directive": "Maintain facility systems and equipment at peak reliability — executing preventive maintenance, rapid corrective repair, and continuous improvement to reduce downtime costs.",
         "step_by_step_json": [
             {"step": "Work order intake",       "detail": "Triage work orders in CMMS by criticality; review equipment history and parts availability."},
             {"step": "Preventive maintenance",  "detail": "Execute PM tasks per OEM schedules: lubricate, inspect, clean, calibrate, and replace wear items."},
@@ -1609,10 +1609,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"cmms": ["Fiix", "UpKeep", "Maximo"], "diagnostic": ["Fluke multimeter", "Thermal camera", "Vibration analyzer"], "safety": ["LOTO kit", "Arc flash PPE", "Permit-to-work system"]},
     },
 
-    # â”€â”€ 51 PRODUCTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 51 PRODUCTION ──────────────────────────────────────────────────────────
     "51-1011.00": {
         "soc_code": "51-1011.00",
-        "primary_directive": "Direct production floor operations to achieve throughput, quality, and safety targets â€” leading operators, managing material flow, and driving continuous improvement.",
+        "primary_directive": "Direct production floor operations to achieve throughput, quality, and safety targets — leading operators, managing material flow, and driving continuous improvement.",
         "step_by_step_json": [
             {"step": "Shift startup",           "detail": "Review prior shift log; verify machine readiness, material availability, and staffing; brief team."},
             {"step": "Production control",      "detail": "Monitor output vs. schedule; adjust run rates, address bottlenecks, and reallocate labor in real time."},
@@ -1623,10 +1623,10 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"mes": ["Plex MES", "SAP PP module", "Ignition SCADA"], "quality": ["SPC software", "GD&T gauging", "ISO 9001 NCR log"], "lean": ["VSM", "5S audit", "Kaizen board"]},
     },
 
-    # â”€â”€ 53 TRANSPORTATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 53 TRANSPORTATION ──────────────────────────────────────────────────────
     "53-3032.00": {
         "soc_code": "53-3032.00",
-        "primary_directive": "Transport freight safely, on time, and in compliance with FMCSA regulations â€” maintaining vehicle readiness, managing hours of service, and delivering exceptional service.",
+        "primary_directive": "Transport freight safely, on time, and in compliance with FMCSA regulations — maintaining vehicle readiness, managing hours of service, and delivering exceptional service.",
         "step_by_step_json": [
             {"step": "Pre-trip inspection",     "detail": "Complete FMCSA-required inspection of tractor and trailer: lights, brakes, tires, coupling, fluids."},
             {"step": "Load & secure",           "detail": "Verify BOL quantities; check load for weight distribution and cargo security per CVSA standards."},
@@ -1637,7 +1637,7 @@ _MOCK_LOGIC: dict[str, dict[str, Any]] = {
         "toolbox_requirements": {"compliance": ["ELD mandate (Omnitracs/KeepTruckin)", "FMCSA regulations 49 CFR 390-399"], "navigation": ["Rand McNally TND", "Trucker Path app"], "safety": ["DOT physical card", "HAZMAT endorsement (if req'd)"]},
     },
 
-    # â”€â”€ SAL VAULT IP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── SAL VAULT IP ───────────────────────────────────────────────────────────
     "15-1299.08": {
         "soc_code": "15-1299.08",
         "primary_directive": "Vault-grade systems engineering: integrate agentic workflows with audit-ready SAL steps and proprietary controls.",
@@ -1688,7 +1688,7 @@ def _demo_fetch_registry_by_prefix(*, prefix2: str, query: str, private_vault_on
     if private_vault_only:
         rows = [r for r in rows if r.get("is_custom") is True]
     else:
-        # Global Registry â€” never expose proprietary Vault IP roles publicly
+        # Global Registry — never expose proprietary Vault IP roles publicly
         rows = [r for r in rows if not r.get("is_custom")]
     t = query.strip().lower()
     if t:
@@ -1712,7 +1712,7 @@ def fetch_registry_by_prefix(supabase_url: str, supabase_key: str, *, prefix2: s
     if private_vault_only:
         q = q.eq("is_custom", True)
     else:
-        # Global Registry â€” never expose proprietary Vault IP roles publicly
+        # Global Registry — never expose proprietary Vault IP roles publicly
         q = q.eq("is_custom", False)
     t = query.strip()
     if t:
@@ -1767,7 +1767,7 @@ def sal_intent_hub_reply(*, client, user_request: str, vault_only: bool, demo_mo
             rationale = str(data.get("rationale") or "").strip()
             shortlist = data.get("shortlist") or []
             msg = (
-                f"**Global Registry match:** `{escape(selected_soc)}` â€” {escape(rationale)}\n\n"
+                f"**Global Registry match:** `{escape(selected_soc)}` — {escape(rationale)}\n\n"
                 f"**Alternates:** {', '.join(f'`{escape(str(x))}`' for x in shortlist[:3])}"
             ).strip()
             return {"message": msg, "selected_soc": selected_soc, "candidates": candidates}
@@ -1775,13 +1775,13 @@ def sal_intent_hub_reply(*, client, user_request: str, vault_only: bool, demo_mo
             pass
 
     return {
-        "message": f"**Global Registry match:** `{escape(selected_soc)}` â€” {escape(str(selected.get('title') or 'Best-fit SOC logic record'))}",
+        "message": f"**Global Registry match:** `{escape(selected_soc)}` — {escape(str(selected.get('title') or 'Best-fit SOC logic record'))}",
         "selected_soc": selected_soc,
         "candidates": candidates,
     }
 
 
-# â”€â”€ Render helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render helpers ───────────────────────────────────────────────────────────
 
 def _sync_active_role(rows: list[dict[str, Any]]) -> None:
     codes = [str(r.get("soc_code") or "") for r in rows if str(r.get("soc_code") or "")]
@@ -1807,7 +1807,7 @@ def _render_sidebar_registry_directory(rows: list[dict[str, Any]], *, button_key
             '<div class="sal-priority-badge">&#9733; PRIORITY &nbsp;&middot;&nbsp; VAULT IP &nbsp;&middot;&nbsp; 15-1299.08</div>',
             unsafe_allow_html=True,
         )
-        if st.button(f"â¬› {title}", key=f"{button_key_prefix}sal_dir_{soc}",
+        if st.button(f"⬛ {title}", key=f"{button_key_prefix}sal_dir_{soc}",
                      use_container_width=True, type="primary" if is_active else "secondary"):
             st.session_state["active_soc"] = soc
 
@@ -1829,7 +1829,7 @@ def _render_sidebar_registry_directory(rows: list[dict[str, Any]], *, button_key
 
 def _render_file_tree_panel(*, supabase_url: str, supabase_key: str, query: str, vault_only: bool, demo_mode: bool, button_key_prefix: str = "") -> None:
     st.markdown("##### O\u2217NET major groups")
-    st.caption("Collapsible tree Â· SOC prefix folders Â· select a role to load the logic specification")
+    st.caption("Collapsible tree · SOC prefix folders · select a role to load the logic specification")
 
     for prefix2, label in SOC_MAJOR_GROUPS.items():
         expanded = st.session_state.get("active_prefix") == prefix2
@@ -1875,7 +1875,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     is_verified = chosen_row is not None  # every selected mock row is VERIFIED
     doc_class  = "sal-doc sal-gold-frame" if is_custom else "sal-doc"
 
-    # â”€â”€ Security Clearance badge (green glow when VERIFIED) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Security Clearance badge (green glow when VERIFIED) ─────────────────
     if is_verified:
         clearance_badge = (
             "<div class='sal-clearance-badge'>"
@@ -1961,7 +1961,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
     )
     tb_html = ""
     if tb is not None and tb != "":
-        # â”€â”€ Render as Toolbox Manifest â€” grouped capability pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Render as Toolbox Manifest — grouped capability pills ──────────────
         def _tb_to_manifest(tb_data) -> str:
             """Convert toolbox_requirements dict/list into a pill-based manifest."""
             cat_rows = ""
@@ -1995,7 +1995,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
             f"</div>"
         )
 
-    # â”€â”€ Compliance Guardrails block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Compliance Guardrails block ──────────────────────────────────────────
     gr_html = ""
     if guardrails or browse_mode:
         if browse_mode:
@@ -2038,7 +2038,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
 
     browse_note = (
         "<p style='font-family:\"Courier New\",monospace;font-size:0.72rem;color:#64748b;margin:0.6rem 0 0'>"
-        "<em>SAL Mock Vault â€” sample logic. Add live Supabase keys for production mode.</em></p>"
+        "<em>SAL Mock Vault — sample logic. Add live Supabase keys for production mode.</em></p>"
         if browse_mode else ""
     )
     rendered_ts = escape(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
@@ -2071,7 +2071,7 @@ def _render_logic_spec_html_card(*, selected_soc: str, chosen_row: dict[str, Any
 """, unsafe_allow_html=True)
 
 
-# â”€â”€ CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── CSS ──────────────────────────────────────────────────────────────────────
 
 def _inject_studio_styles() -> None:
     wm_light  = _wm_bg_url(0.055)
@@ -2083,7 +2083,7 @@ def _inject_studio_styles() -> None:
     truth_overlay = _truth_diagonal_stamp_url()
     st.markdown(f"""
 <style>
-  /* â”€â”€ Full-width panel backgrounds (no columns â€” stacked layout) â”€â”€ */
+  /* ── Full-width panel backgrounds (no columns — stacked layout) ── */
   /* Authority panel: seals + search + tree */
   div[data-testid="stVerticalBlock"]:has(div.sal-col-authority-anchor) {{
     position: relative;
@@ -2109,7 +2109,7 @@ def _inject_studio_styles() -> None:
     background-position: center 40%;
   }}
 
-  /* Header flanks â€” tiling diagonal SAL watermark at low opacity */
+  /* Header flanks — tiling diagonal SAL watermark at low opacity */
   .sal-header-flank-left {{
     background-image: url("{stamp_l}"), url("{wm_light}");
     background-size: 88% auto, auto;
@@ -2126,10 +2126,10 @@ def _inject_studio_styles() -> None:
 """, unsafe_allow_html=True)
     st.markdown("""
 <style>
-  /* â”€â”€ Layout â”€â”€ */
+  /* ── Layout ── */
   div[data-testid="stVerticalBlock"] > div:has(> iframe) { max-width: 100%; }
 
-  /* â”€â”€ Federal document card hardening â”€â”€ */
+  /* ── Federal document card hardening ── */
   .sal-doc {
     border-radius: 4px !important;
     border: 1.5px solid #b8c6e0 !important;
@@ -2137,7 +2137,7 @@ def _inject_studio_styles() -> None:
                 inset 0 0 0 1px rgba(255,255,255,0.6) !important;
   }
 
-  /* â”€â”€ SOC tree density â”€â”€ */
+  /* ── SOC tree density ── */
   details { margin-bottom: 0.05rem !important; }
   details summary {
     padding: 0.18rem 0.55rem !important;
@@ -2146,15 +2146,15 @@ def _inject_studio_styles() -> None:
   }
   details > div { padding: 0.2rem 0.35rem !important; }
 
-  /* â”€â”€ Tighter sector tiles â”€â”€ */
+  /* ── Tighter sector tiles ── */
   .sal-sector-tile { padding: 0.45rem 0.4rem !important; margin-bottom: 0.25rem !important; border-radius: 4px !important; }
   .sal-sector-tile-icon { font-size: 1.35rem !important; }
 
-  /* â”€â”€ Denser table â”€â”€ */
+  /* ── Denser table ── */
   .sal-lvl-table td { padding: 0.16rem 0.32rem !important; }
   .sal-lvl-table th { padding: 0.18rem 0.32rem !important; font-size: 0.62rem !important; }
 
-  /* â”€â”€ Proprietary gold frame â”€â”€ */
+  /* ── Proprietary gold frame ── */
   .sal-gold-frame {
     border: 2px solid #c9a227 !important;
     border-radius: 4px !important;
@@ -2164,7 +2164,7 @@ def _inject_studio_styles() -> None:
     box-shadow: 0 2px 14px rgba(201,162,39,0.14) !important;
   }
 
-  /* â”€â”€ Sidebar compact buttons â”€â”€ */
+  /* ── Sidebar compact buttons ── */
   [data-testid="stSidebar"] .stButton > button {
     font-size: 0.7rem !important;
     line-height: 1.12 !important;
@@ -2177,8 +2177,8 @@ def _inject_studio_styles() -> None:
   [data-testid="stSidebar"] .stButton { margin-bottom: 0.08rem !important; }
   .sal-metric-wrap .stMetric { padding-top: 0.25rem; }
 
-  /* â”€â”€ Logic spec document card â”€â”€ */
-  /* â”€â”€ Credibility ticker bar â”€â”€ */
+  /* ── Logic spec document card ── */
+  /* ── Credibility ticker bar ── */
   .sal-credibility-bar {
     background: #020b1e;
     border-top: 1px solid #1d4ed833;
@@ -2197,7 +2197,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-cred-sep { color: #1d4ed8; font-weight: 400; }
 
-  /* â”€â”€ SAL Seal CTA panel â”€â”€ */
+  /* ── SAL Seal CTA panel ── */
   .sal-seal-cta {
     background: linear-gradient(135deg, #040d1f 0%, #071540 60%, #0b1f4a 100%);
     border: 1.5px solid #1d4ed855;
@@ -2236,7 +2236,7 @@ def _inject_studio_styles() -> None:
     letter-spacing: 0.08em;
   }
 
-  /* â”€â”€ Logic spec document card â€” certificate style â”€â”€ */
+  /* ── Logic spec document card — certificate style ── */
   .sal-doc {
     border: 2px solid #1d4ed8;
     border-radius: 8px;
@@ -2288,7 +2288,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-doc h3, .sal-doc h4, .sal-doc h5 { color: #0b2a6f; }
 
-  /* â”€â”€ SVG Official SAL Seal (top-right of logic card) â”€â”€ */
+  /* ── SVG Official SAL Seal (top-right of logic card) ── */
   .sal-notary-seal {
     position: absolute;
     top: 6px;
@@ -2304,7 +2304,7 @@ def _inject_studio_styles() -> None:
     border-radius: 50%;
   }
 
-  /* â”€â”€ Outlook pill â”€â”€ */
+  /* ── Outlook pill ── */
   .sal-outlook {
     display: inline-block;
     border: 1px solid #b9c6ff;
@@ -2316,13 +2316,13 @@ def _inject_studio_styles() -> None:
     margin-top: 0.25rem;
   }
 
-  /* â”€â”€ Logic steps â”€â”€ */
+  /* ── Logic steps ── */
   .sal-doc .sal-steps { margin: 0.5rem 0 0 1.1rem; padding: 0; color: #0b1220; }
   .sal-doc .sal-steps li { margin: 0.35rem 0; line-height: 1.35; }
   .sal-doc .sal-section { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #e8ecf4; }
   .sal-doc .sal-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
 
-  /* â”€â”€ Intelligence Hub â”€â”€ */
+  /* ── Intelligence Hub ── */
   .sal-hub-wrap {
     max-width: 720px;
     margin: 0 auto 0.5rem auto;
@@ -2341,14 +2341,12 @@ def _inject_studio_styles() -> None:
     line-height: 1.45;
   }
   .sal-hub-form input,
-    font-size: 1.35rem !important;
-    padding: 1rem 1rem !important;
-    min-height: 3.5rem !important;
+  .sal-hub-form [data-baseweb="input"] input {
     font-size: 1.05rem !important;
     padding: 0.65rem 0.85rem !important;
   }
 
-  /* â”€â”€ Section labels â”€â”€ */
+  /* ── Section labels ── */
   .sal-stack-label {
     font-size: 0.72rem;
     font-weight: 700;
@@ -2358,7 +2356,7 @@ def _inject_studio_styles() -> None:
     text-transform: uppercase;
   }
 
-  /* â”€â”€ Bureau compact buttons â”€â”€ */
+  /* ── Bureau compact buttons ── */
   div[data-testid="stColumn"]:has(div.sal-bureau-anchor) .stButton > button {
     font-size: 0.7rem !important;
     line-height: 1.12 !important;
@@ -2369,9 +2367,9 @@ def _inject_studio_styles() -> None:
   }
   div[data-testid="stColumn"]:has(div.sal-bureau-anchor) .stButton { margin-bottom: 0.08rem !important; }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     ENGINE COLUMN â€” Digital Filing Cabinet (SOC Ledger)
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* ══════════════════════════════════════════════════════════════════════════
+     ENGINE COLUMN — Digital Filing Cabinet (SOC Ledger)
+     ══════════════════════════════════════════════════════════════════════════ */
 
   /* Filing cabinet manifest header */
   .sal-filing-hdr {
@@ -2386,7 +2384,7 @@ def _inject_studio_styles() -> None:
   .sal-filing-hdr-code  { color: #93c5fd; font-size: 0.7rem; }
   .sal-filing-hdr-count { color: #60a5fa; opacity: 0.85; }
 
-  /* Expander folders â€” ledger drawer rows */
+  /* Expander folders — ledger drawer rows */
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) details {
     border-radius: 0 !important;
     border: none !important;
@@ -2418,7 +2416,7 @@ def _inject_studio_styles() -> None:
     padding-top: 0 !important; padding-bottom: 0 !important;
   }
 
-  /* Role buttons â€” ledger record rows */
+  /* Role buttons — ledger record rows */
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) .stButton > button {
     font-family: 'Courier New','Lucida Console',monospace !important;
     font-size: 0.59rem !important; line-height: 1.15 !important;
@@ -2446,7 +2444,7 @@ def _inject_studio_styles() -> None:
     padding-left: 0.25rem !important;
   }
 
-  /* Filter input â€” monospaced ledger field */
+  /* Filter input — monospaced ledger field */
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) [data-testid="stTextInput"] input {
     font-family: 'Courier New',monospace !important;
     font-size: 0.66rem !important;
@@ -2456,10 +2454,10 @@ def _inject_studio_styles() -> None:
     letter-spacing: 0.03em !important;
   }
 
-  /* Suppress default tree caption â€” replaced by filing header */
+  /* Suppress default tree caption — replaced by filing header */
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) .stCaption { display: none !important; }
 
-  /* â”€â”€ Sovereign document header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Sovereign document header ──────────────────────────────────────────── */
   .sal-header-container {
     max-width: 100%;
     overflow: visible;
@@ -2571,7 +2569,7 @@ def _inject_studio_styles() -> None:
     text-align: center; letter-spacing: 0.1em; text-transform: uppercase;
     margin: 0.5rem 0 0.25rem;
   }
-  /* â”€â”€ Three-Column Vertical Hub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Three-Column Vertical Hub ──────────────────────────────────────────── */
 
   /* Column wrappers */
   .sal-col-wrap {
@@ -2633,7 +2631,7 @@ def _inject_studio_styles() -> None:
     white-space: nowrap;
   }
 
-  /* PRIORITY badge â€” vault IP entry in folder tree */
+  /* PRIORITY badge — vault IP entry in folder tree */
   .sal-priority-badge {
     font-family: 'Courier New', 'Lucida Console', monospace;
     font-size: 0.52rem; font-weight: 900;
@@ -2664,7 +2662,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-search-anchor p { font-size: 0.72rem; font-weight: 900; color: #1d4ed8; letter-spacing: 0.14em; margin: 0 0 0.35rem; line-height: 1.3; font-family: 'Courier New', monospace; }
 
-  /* Directory rule â€” replaces heavy navy filing cabinet header */
+  /* Directory rule — replaces heavy navy filing cabinet header */
   .sal-dir-rule {
     display: flex;
     justify-content: space-between;
@@ -2713,11 +2711,11 @@ def _inject_studio_styles() -> None:
     .sal-col-wrap { min-height: unset; margin-bottom: 1rem; }
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ══════════════════════════════════════════════════════════════════════════
      PHASE 4: SOVEREIGN INSTITUTIONAL REFINEMENTS
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+     ══════════════════════════════════════════════════════════════════════════ */
 
-  /* â”€â”€ HEADER: seal image sizing + blueprint watermark â”€â”€ */
+  /* ── HEADER: seal image sizing + blueprint watermark ── */
   .sal-sovereign-header {
     position: relative;
     text-align: center;
@@ -2732,7 +2730,7 @@ def _inject_studio_styles() -> None:
       #ffffff;
   }
   .sal-sovereign-header::before {
-    content: 'STANDARD AGENT LOGIC  Â·  GLOBAL DNS FOR DIGITAL LABOR  Â·  FEDERAL AUTHORIZED REGISTRY  Â·  O\2217NET SOC COMPLIANT';
+    content: 'STANDARD AGENT LOGIC  ·  GLOBAL DNS FOR DIGITAL LABOR  ·  FEDERAL AUTHORIZED REGISTRY  ·  O\2217NET SOC COMPLIANT';
     position: absolute;
     bottom: 0.3rem; left: 0; right: 0;
     font-family: 'Courier New', monospace;
@@ -2796,7 +2794,7 @@ def _inject_studio_styles() -> None:
     white-space: nowrap;
   }
 
-  /* â”€â”€ LOGIC SPEC: high-security readout typography â”€â”€ */
+  /* ── LOGIC SPEC: high-security readout typography ── */
   .sal-doc-content code {
     font-family: 'Courier New','Lucida Console',monospace !important;
     font-size: 0.88rem;
@@ -2837,7 +2835,7 @@ def _inject_studio_styles() -> None:
     color: #1d4ed8; margin: 0 0 0.25rem;
   }
 
-  /* â”€â”€ SECTION DIVIDERS: double-line ribbon motif â”€â”€ */
+  /* ── SECTION DIVIDERS: double-line ribbon motif ── */
   .sal-section {
     border-top: 1px solid #e8ecf4 !important;
   }
@@ -2865,7 +2863,7 @@ def _inject_studio_styles() -> None:
     color: #1d4ed8; letter-spacing: 0.14em; white-space: nowrap;
   }
 
-  /* â”€â”€ NAV COLUMN BUTTONS: readable directory-list style â”€â”€ */
+  /* ── NAV COLUMN BUTTONS: readable directory-list style ── */
   div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) .stButton > button {
     font-family: 'Courier New','Lucida Console',monospace !important;
     font-size: 0.72rem !important;
@@ -2878,7 +2876,7 @@ def _inject_studio_styles() -> None:
     padding: 0.18rem 0.55rem !important;
     min-height: 1.6rem !important;
   }
-  /* Sector seal selector buttons â€” keep centered since they're under seals */
+  /* Sector seal selector buttons — keep centered since they're under seals */
   div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) div[data-testid="stColumns"] .stButton > button {
     text-align: center !important;
     font-size: 0.65rem !important;
@@ -2886,7 +2884,7 @@ def _inject_studio_styles() -> None:
     letter-spacing: 0.04em !important;
   }
 
-  /* â”€â”€ THREE-COLUMN TOP OFFSET LOCK â”€â”€ */
+  /* ── THREE-COLUMN TOP OFFSET LOCK ── */
   div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) > div,
   div[data-testid="stColumn"]:has(div.sal-col-authority-anchor) > div,
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) > div {
@@ -2896,7 +2894,7 @@ def _inject_studio_styles() -> None:
     box-sizing: border-box !important;
   }
 
-  /* â”€â”€ STACK LABELS: official form all-caps â”€â”€ */
+  /* ── STACK LABELS: official form all-caps ── */
   .sal-stack-label {
     font-family: 'Arial','Helvetica Neue',sans-serif !important;
     font-size: 0.65rem !important;
@@ -2909,16 +2907,16 @@ def _inject_studio_styles() -> None:
     margin: 0 0 0.45rem 0 !important;
   }
 
-  /* â”€â”€ FILING CABINET HEADER: double-left border motif â”€â”€ */
+  /* ── FILING CABINET HEADER: double-left border motif ── */
   .sal-filing-hdr {
     border-left: 4px double #1d4ed8 !important;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     DATA TRANSFER LAYER â€” FEDERAL LEDGER CLICKABLE ROWS
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* ══════════════════════════════════════════════════════════════════════════
+     DATA TRANSFER LAYER — FEDERAL LEDGER CLICKABLE ROWS
+     ══════════════════════════════════════════════════════════════════════════ */
 
-  /* Ledger cell wrapper â€” gives each data cell a table-row feel */
+  /* Ledger cell wrapper — gives each data cell a table-row feel */
   .sal-ledger-cell {
     padding: 0.18rem 0.3rem;
     min-height: 1.85rem;
@@ -2955,7 +2953,7 @@ def _inject_studio_styles() -> None:
     color: #475569;
   }
 
-  /* Ledger row buttons â€” compact official-form style */
+  /* Ledger row buttons — compact official-form style */
   div[data-testid="stColumn"]:has(div.sal-col-bureau-anchor) .stButton > button {
     font-family: 'Courier New','Lucida Console',monospace !important;
     font-size: 0.55rem !important;
@@ -2984,9 +2982,9 @@ def _inject_studio_styles() -> None:
     gap: 0 !important;
   }
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ══════════════════════════════════════════════════════════════════════════
      SECURITY CLEARANCE BADGE
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+     ══════════════════════════════════════════════════════════════════════════ */
   .sal-clearance-badge {
     display: inline-flex;
     align-items: center;
@@ -3030,7 +3028,7 @@ def _inject_studio_styles() -> None:
     50%       { opacity: 0.55; box-shadow: 0 0 2px #22c55e; }
   }
 
-  /* â”€â”€ Capabilities: Toolbox Manifest â”€â”€ */
+  /* ── Capabilities: Toolbox Manifest ── */
   .sal-toolbox-manifest {
     background: #04091a;
     border: 1px solid #1d4ed833;
@@ -3068,7 +3066,7 @@ def _inject_studio_styles() -> None:
     letter-spacing: 0.04em;
   }
 
-  /* â”€â”€ SAL Command Interface â”€â”€ */
+  /* ── SAL Command Interface ── */
   .sal-cmd-hdr {
     background: linear-gradient(90deg, #031124 0%, #0b2a6f 34%, #0a1f55 58%, #031124 100%);
     border: 1px solid #2563eb;
@@ -3079,7 +3077,7 @@ def _inject_studio_styles() -> None:
     align-items: center;
     gap: 0.55rem;
     font-family: 'Courier New', monospace;
-    font-size: 1.1rem;
+    font-size: 0.62rem;
     color: #60a5fa;
     letter-spacing: 0.09em;
     position: relative;
@@ -3121,7 +3119,7 @@ def _inject_studio_styles() -> None:
     border-right: 1px solid #2563eb;
     padding: 0.42rem 1rem 0.38rem;
     font-family: 'Courier New', monospace;
-    font-size: 1.15rem;
+    font-size: 0.66rem;
     color: #64748b;
     letter-spacing: 0.06em;
     display: flex;
@@ -3139,7 +3137,7 @@ def _inject_studio_styles() -> None:
     justify-content: space-between;
     padding: 0.35rem 1rem 0.48rem;
     font-family: 'Courier New', monospace;
-    font-size: 1rem;
+    font-size: 0.58rem;
     letter-spacing: 0.06em;
   }
   .sal-cmd-subnote strong {
@@ -3280,7 +3278,7 @@ def _inject_studio_styles() -> None:
     word-break: break-word !important;
   }
 
-  /* â”€â”€ Bug 1: Loaded-role feedback bar (visible at tree level) â”€â”€ */
+  /* ── Bug 1: Loaded-role feedback bar (visible at tree level) ── */
   .sal-tree-loaded {
     display: flex;
     align-items: center;
@@ -3332,7 +3330,7 @@ def _inject_studio_styles() -> None:
     flex-shrink: 0;
   }
 
-  /* â”€â”€ Bug 4: Active query filter pill above tree â”€â”€ */
+  /* ── Bug 4: Active query filter pill above tree ── */
   .sal-tree-filter {
     display: flex;
     align-items: center;
@@ -3357,7 +3355,7 @@ def _inject_studio_styles() -> None:
     opacity: 0.65;
   }
 
-  /* â”€â”€ Intent Router â”€â”€ */
+  /* ── Intent Router ── */
   .sal-intent-wrap {
     text-align: center;
     padding: 0.6rem 0 0.5rem;
@@ -3425,7 +3423,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-intent-banner-sep { color: #1d4ed833; }
 
-  /* â”€â”€ Header trio layout â”€â”€ */
+  /* ── Header trio layout ── */
   .sal-header-trio {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -3507,7 +3505,7 @@ def _inject_studio_styles() -> None:
     max-width: 100%;
   }
 
-  /* â”€â”€ Seal image â€” clip to circle, eliminating baked-in PNG shadow corners â”€â”€ */
+  /* ── Seal image — clip to circle, eliminating baked-in PNG shadow corners ── */
   .sal-great-seal-img {
     filter: none !important;
     mix-blend-mode: multiply !important;
@@ -3516,7 +3514,7 @@ def _inject_studio_styles() -> None:
     outline: none !important;
     background: transparent !important;
   }
-  /* Streamlit wraps <img> in stImage figure â€” strip its shadow too */
+  /* Streamlit wraps <img> in stImage figure — strip its shadow too */
   .sal-eagle-wrap figure,
   .sal-eagle-wrap [data-testid="stImage"],
   .sal-eagle-wrap [data-testid="stImage"] > div,
@@ -3528,7 +3526,7 @@ def _inject_studio_styles() -> None:
     margin: 0 auto !important;
   }
 
-  /* â”€â”€ Header ribbon: remove border box, let title float clean â”€â”€ */
+  /* ── Header ribbon: remove border box, let title float clean ── */
   .sal-ribbon-outer {
     border: none !important;
     border-radius: 0 !important;
@@ -3543,14 +3541,14 @@ def _inject_studio_styles() -> None:
 </style>
 """, unsafe_allow_html=True)
 
-    # â”€â”€ QUANTUM DARK MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── QUANTUM DARK MODE ─────────────────────────────────────────────────────
     if st.session_state.get("dark_mode", False):
       st.markdown("""
 <style>
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ══════════════════════════════════════════════════════════════════════════
      QUANTUM INSTITUTIONAL DARK MODE
      Retrofuturist aesthetic: deep navy-black shell, certificate stays white
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+     ══════════════════════════════════════════════════════════════════════════ */
 
   /* Page shell */
   .stApp,
@@ -3559,12 +3557,12 @@ def _inject_studio_styles() -> None:
   [data-testid="stMainBlockContainer"],
   section.main { background-color: #020b1e !important; }
 
-  /* Permanent column white-override fix â€” transparent instead of injected white */
+  /* Permanent column white-override fix — transparent instead of injected white */
   [data-testid="stColumn"],
   div[data-testid="stHorizontalBlock"],
   div[data-testid="stVerticalBlock"] { background-color: transparent !important; }
 
-  /* Three-column wraps â†’ dark quantum treatment */
+  /* Three-column wraps → dark quantum treatment */
   .sal-col-bureau    { background: linear-gradient(160deg,#020c1b 0%,#040d20 100%) !important; border-color: #1d4ed822 !important; }
   .sal-col-authority { background: #030b19 !important; border-color: #1d4ed833 !important; box-shadow: 0 4px 32px rgba(0,0,0,0.65) !important; }
   .sal-col-engine    { background: linear-gradient(160deg,#020c1b 0%,#030e1d 100%) !important; border-color: #1d4ed822 !important; }
@@ -3584,7 +3582,7 @@ def _inject_studio_styles() -> None:
   [data-testid="stSidebar"] .stMarkdown h3,
   [data-testid="stSidebar"] .stMarkdown h4 { color: #93c5fd !important; }
 
-  /* Sovereign header â€” dark quantum */
+  /* Sovereign header — dark quantum */
   .sal-sovereign-header {
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0L0 0 0 60' fill='none' stroke='%231d4ed8' stroke-width='0.4' opacity='0.12'/%3E%3Ccircle cx='0' cy='0' r='1.5' fill='%231d4ed8' opacity='0.15'/%3E%3C/svg%3E") repeat,
@@ -3603,12 +3601,12 @@ def _inject_studio_styles() -> None:
     color: #93c5fd !important;
     border-color: #1d4ed844 !important;
   }
-  /* Great seal â€” screen blend works on dark; multiply vanishes */
+  /* Great seal — screen blend works on dark; multiply vanishes */
   .sal-great-seal-img {
     mix-blend-mode: screen !important;
     filter: brightness(1.08) !important;
   }
-  /* Flanks â€” lighten text for dark mode */
+  /* Flanks — lighten text for dark mode */
   .sal-flank-text span { color: #334155 !important; }
   .sal-flank-wm { color: rgba(96,165,250,0.06) !important; }
   .sal-flank-rule { background: linear-gradient(to bottom,transparent 0%,#1d4ed844 25%,#1d4ed866 50%,#1d4ed844 75%,transparent 100%) !important; }
@@ -3624,7 +3622,7 @@ def _inject_studio_styles() -> None:
   [data-testid="stMetricValue"] { color: #f1f5f9 !important; }
   [data-testid="stMetricLabel"] { color: #475569 !important; }
 
-  /* Global default buttons â†’ dark institutional */
+  /* Global default buttons → dark institutional */
   .stButton > button:not([kind="primary"]) {
     background: #071540 !important;
     border: 1px solid #1d4ed844 !important;
@@ -3637,7 +3635,7 @@ def _inject_studio_styles() -> None:
     box-shadow: 0 0 14px rgba(59,130,246,0.2) !important;
   }
 
-  /* Global text inputs â†’ dark */
+  /* Global text inputs → dark */
   [data-testid="stTextInput"] input {
     background: #030b19 !important;
     color: #e2e8f0 !important;
@@ -3645,12 +3643,12 @@ def _inject_studio_styles() -> None:
   }
   [data-testid="stTextInput"] input::placeholder { color: #334155 !important; }
 
-  /* Expanders (global base â€” engine col overrides below) */
+  /* Expanders (global base — engine col overrides below) */
   details { background: #030e1d !important; border-color: #1d4ed811 !important; }
   details summary { color: #93c5fd !important; }
   details > div   { background: #020b1e !important; }
 
-  /* Engine column (SOC tree) â€” dark tree rows */
+  /* Engine column (SOC tree) — dark tree rows */
   div[data-testid="stColumn"]:has(div.sal-col-engine-anchor) details summary {
     color: #93c5fd !important;
     background: rgba(11,42,111,0.2) !important;
@@ -3717,7 +3715,7 @@ def _inject_studio_styles() -> None:
   .sal-ledger-salary { color: #475569 !important; }
   .sal-ledger-soc    { color: #93c5fd !important; background: rgba(11,42,111,0.22) !important; border-color: #1d4ed833 !important; }
 
-  /* Tree feedback bar â€” dark version */
+  /* Tree feedback bar — dark version */
   .sal-tree-loaded {
     background: linear-gradient(90deg, #04112e 0%, rgba(4,17,46,0) 100%) !important;
     border-color: #22c55e !important;
@@ -3728,7 +3726,7 @@ def _inject_studio_styles() -> None:
   .sal-tree-loaded-title { color: #cbd5e1 !important; }
   .sal-tree-loaded-soc   { background: rgba(29,78,216,0.25) !important; color: #60a5fa !important; }
 
-  /* Filter pill â€” dark amber */
+  /* Filter pill — dark amber */
   .sal-tree-filter {
     background: #0d0800 !important;
     border-color: #92400e !important;
@@ -3800,22 +3798,22 @@ def _inject_studio_styles() -> None:
   /* Bright outlook label (dark) */
   .sal-bright-outlook-title { color: #60a5fa !important; }
 
-  /* Intent router pills â€” dark mode overrides */
+  /* Intent router pills — dark mode overrides */
   .sal-intent-wrap { border-top-color: #1d4ed822 !important; }
   .sal-intent-title { color: #1d4ed8 !important; }
   .sal-intent-sub   { color: #334155 !important; }
   .sal-intent-banner { background: #030b19 !important; }
 
-  /* .sal-doc STAYS white â€” certificate on dark background = premium */
+  /* .sal-doc STAYS white — certificate on dark background = premium */
   /* All other dark custom elements already have dark bg set inline */
 </style>
 """, unsafe_allow_html=True)
 
 
-# â”€â”€ Section renderers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Section renderers ────────────────────────────────────────────────────────
 
 def _render_hub(*, client, browse_mode: bool) -> None:
-    """TOP â€” Intelligence Hub: centered hero + project-to-standard mapping."""
+    """TOP — Intelligence Hub: centered hero + project-to-standard mapping."""
     st.markdown('<p class="sal-stack-label">Top &middot; SAL Intelligence Hub</p>', unsafe_allow_html=True)
     lc, cc, rc = st.columns([1, 2.35, 1])
     with cc:
@@ -3849,7 +3847,7 @@ def _render_hub(*, client, browse_mode: bool) -> None:
 
 
 def _render_bureau(*, client, browse_mode: bool) -> None:
-    """MIDDLE â€” Registry Bureau: SOC folder tree (left) + logic card (right)."""
+    """MIDDLE — Registry Bureau: SOC folder tree (left) + logic card (right)."""
     st.markdown('<p class="sal-stack-label">Middle &middot; The Registry Bureau</p>', unsafe_allow_html=True)
     st.markdown("#### The Bureau \u2014 Standardized Logic Library navigator")
     st.caption("O\u2217NET major-group folder tree (left) \u00b7 Logic specification document (right)")
@@ -3908,7 +3906,7 @@ def _render_bureau(*, client, browse_mode: bool) -> None:
 
 
 def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, icon_svg: str) -> str:
-    """Build a 200x200 SVG federal-grade notary seal â€” gold outer rim, gear teeth, arc text."""
+    """Build a 200x200 SVG federal-grade notary seal — gold outer rim, gear teeth, arc text."""
     # Gold colour shared with main SAL seal for visual continuity
     GOLD = "#c9a227"
     GOLD_LIGHT = "#f0d060"
@@ -3957,7 +3955,7 @@ def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, ico
         f'  <circle cx="100" cy="100" r="90" fill="none" stroke="{GOLD}" stroke-width="1.8" opacity="0.7"/>\n'
         f'  <circle cx="100" cy="100" r="89" fill="{bg}" filter="url(#shadow{cid})"/>\n'
         f'  <circle cx="100" cy="100" r="89" fill="url(#bg{cid})"/>\n'
-        # Ring details â€” sector colour + gold accents
+        # Ring details — sector colour + gold accents
         f'  <circle cx="100" cy="100" r="86" fill="none" stroke="{ring}" stroke-width="2.2"/>\n'
         f'  <circle cx="100" cy="100" r="81" fill="none" stroke="{GOLD}" stroke-width="0.8"'
         f'          stroke-dasharray="4 2.5" opacity="0.6"/>\n'
@@ -3979,9 +3977,9 @@ def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, ico
     )
 
 
-# â”€â”€ Per-sector icon SVG fragments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Per-sector icon SVG fragments ────────────────────────────────────────────
 _SEAL_ICONS: dict[str, str] = {
-    # Management (11) â€” Federal government building with columns + pediment
+    # Management (11) — Federal government building with columns + pediment
     "11": """
     <polygon points="84,108 116,108 100,88" fill="none" stroke="#c4b5fd" stroke-width="2.2"/>
     <rect x="87" y="108" width="26" height="23" fill="none" stroke="#a78bfa" stroke-width="1.8"/>
@@ -3997,7 +3995,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="78" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.8" font-weight="800" fill="#c4b5fd" letter-spacing="1.2">MANAGEMENT</text>""",
 
-    # Engineering / Architecture (17) â€” Drafting compass + T-square + blueprint grid
+    # Engineering / Architecture (17) — Drafting compass + T-square + blueprint grid
     "17": """
     <line x1="78" y1="114" x2="122" y2="114" stroke="#fbbf24" stroke-width="2.2"/>
     <line x1="76" y1="108" x2="124" y2="108" stroke="#fbbf24" stroke-width="0.9" opacity="0.5" stroke-dasharray="3 2"/>
@@ -4013,7 +4011,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="77" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#fbbf24" letter-spacing="1">ENGINEERING</text>""",
 
-    # Finance (13) â€” Bar chart with grid lines + trend line + baseline
+    # Finance (13) — Bar chart with grid lines + trend line + baseline
     "13": """
     <line x1="70" y1="83"  x2="130" y2="83"  stroke="#93c5fd" stroke-width="0.7" opacity="0.35" stroke-dasharray="2 2"/>
     <line x1="70" y1="97"  x2="130" y2="97"  stroke="#93c5fd" stroke-width="0.7" opacity="0.35" stroke-dasharray="2 2"/>
@@ -4030,7 +4028,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="75" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#93c5fd" letter-spacing="1.5">FINANCE</text>""",
 
-    # Technology / Computer (15) â€” IC chip with circuit-board pin array + terminal
+    # Technology / Computer (15) — IC chip with circuit-board pin array + terminal
     "15": """
     <rect x="81" y="82" width="38" height="36" rx="3" fill="none" stroke="#bfdbfe" stroke-width="2.2"/>
     <rect x="87" y="88" width="26" height="24" rx="2" fill="#071540" stroke="#93c5fd" stroke-width="1.5"/>
@@ -4056,7 +4054,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="75"  text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#93c5fd" letter-spacing="1.5">TECHNOLOGY</text>""",
 
-    # Healthcare (29) â€” Bold cross + caduceus serpent curves + wings
+    # Healthcare (29) — Bold cross + caduceus serpent curves + wings
     "29": """
     <rect x="93" y="79" width="14" height="42" rx="2" fill="#5ee8c8" opacity="0.88"/>
     <rect x="79" y="93" width="42" height="14" rx="2" fill="#5ee8c8" opacity="0.88"/>
@@ -4072,7 +4070,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="75" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#5ee8c8" letter-spacing="1.8">HEALTHCARE</text>""",
 
-    # Life, Physical & Social Science (19) â€” atom / orbital rings
+    # Life, Physical & Social Science (19) — atom / orbital rings
     "19": """
     <circle cx="100" cy="106" r="6.5" fill="#86efac" opacity="0.9"/>
     <circle cx="100" cy="106" r="3" fill="#071a10"/>
@@ -4082,7 +4080,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#86efac" letter-spacing="1">SCIENCE</text>""",
 
-    # Community &amp; Social Service (21) â€” three linked nodes / community network
+    # Community &amp; Social Service (21) — three linked nodes / community network
     "21": """
     <circle cx="100" cy="93" r="10" fill="none" stroke="#d8b4fe" stroke-width="2" opacity="0.85"/>
     <circle cx="87" cy="115" r="10" fill="none" stroke="#d8b4fe" stroke-width="2" opacity="0.85"/>
@@ -4096,7 +4094,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#d8b4fe" letter-spacing="1">COMMUNITY</text>""",
 
-    # Legal (23) â€” scales of justice
+    # Legal (23) — scales of justice
     "23": """
     <line x1="100" y1="82" x2="100" y2="130" stroke="#fcd34d" stroke-width="2.5"/>
     <line x1="78" y1="90" x2="122" y2="90" stroke="#fcd34d" stroke-width="2"/>
@@ -4111,7 +4109,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#fcd34d" letter-spacing="1.5">LEGAL</text>""",
 
-    # Educational Instruction &amp; Library (25) â€” open book
+    # Educational Instruction &amp; Library (25) — open book
     "25": """
     <rect x="78" y="88" width="22" height="32" rx="1" fill="none" stroke="#7dd3fc" stroke-width="2"/>
     <rect x="100" y="88" width="22" height="32" rx="1" fill="none" stroke="#7dd3fc" stroke-width="2"/>
@@ -4128,7 +4126,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#7dd3fc" letter-spacing="1">EDUCATION</text>""",
 
-    # Arts, Design, Entertainment &amp; Media (27) â€” painter's palette + brush
+    # Arts, Design, Entertainment &amp; Media (27) — painter's palette + brush
     "27": """
     <ellipse cx="99" cy="107" rx="20" ry="18" fill="none" stroke="#f9a8d4" stroke-width="2"/>
     <circle cx="89" cy="98" r="3.5" fill="#f9a8d4" opacity="0.85"/>
@@ -4142,7 +4140,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#f9a8d4" letter-spacing="1">ARTS &amp; MEDIA</text>""",
 
-    # Healthcare Support (31) â€” stethoscope
+    # Healthcare Support (31) — stethoscope
     "31": """
     <path d="M86,86 Q80,86 80,93 L80,108 Q80,124 100,124 Q120,124 120,108 L120,93 Q120,86 114,86"
           fill="none" stroke="#6ee7b7" stroke-width="2.5" stroke-linecap="round"/>
@@ -4154,7 +4152,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#6ee7b7" letter-spacing="1">HLTH SUPPORT</text>""",
 
-    # Protective Service (33) â€” badge shield with star
+    # Protective Service (33) — badge shield with star
     "33": """
     <path d="M100,85 L121,94 L121,113 Q121,128 100,135 Q79,128 79,113 L79,94 Z"
           fill="none" stroke="#a3e635" stroke-width="2.2"/>
@@ -4165,7 +4163,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#a3e635" letter-spacing="1">PROTECTIVE</text>""",
 
-    # Food Preparation &amp; Serving (35) â€” chef hat + brim
+    # Food Preparation &amp; Serving (35) — chef hat + brim
     "35": """
     <rect x="81" y="112" width="38" height="11" rx="1.5" fill="none" stroke="#fb923c" stroke-width="2.2"/>
     <path d="M83,112 Q83,92 100,92 Q117,92 117,112" fill="none" stroke="#fb923c" stroke-width="2"/>
@@ -4178,7 +4176,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#fb923c" letter-spacing="1">FOOD SERVICE</text>""",
 
-    # Building &amp; Grounds (37) â€” rake over leaf cluster
+    # Building &amp; Grounds (37) — rake over leaf cluster
     "37": """
     <line x1="100" y1="83" x2="100" y2="127" stroke="#bef264" stroke-width="2.2"/>
     <line x1="81" y1="127" x2="119" y2="127" stroke="#bef264" stroke-width="2.5"/>
@@ -4193,7 +4191,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#bef264" letter-spacing="1.5">GROUNDS</text>""",
 
-    # Personal Care &amp; Service (39) â€” figure with heart
+    # Personal Care &amp; Service (39) — figure with heart
     "39": """
     <circle cx="100" cy="90" r="9.5" fill="none" stroke="#fbcfe8" stroke-width="2"/>
     <path d="M83,130 Q83,113 100,113 Q117,113 117,130" fill="none" stroke="#fbcfe8" stroke-width="2"/>
@@ -4202,7 +4200,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#fbcfe8" letter-spacing="1">PERSONAL CARE</text>""",
 
-    # Sales &amp; Related (41) â€” rising trend line + dollar sign
+    # Sales &amp; Related (41) — rising trend line + dollar sign
     "41": """
     <line x1="73" y1="83" x2="73" y2="128" stroke="#fdba74" stroke-width="1.5" opacity="0.55"/>
     <line x1="71" y1="128" x2="129" y2="128" stroke="#fdba74" stroke-width="1.5" opacity="0.55"/>
@@ -4215,7 +4213,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#fdba74" letter-spacing="1.5">SALES</text>""",
 
-    # Office &amp; Administrative Support (43) â€” stacked document tray
+    # Office &amp; Administrative Support (43) — stacked document tray
     "43": """
     <rect x="80" y="118" width="40" height="12" rx="1" fill="none" stroke="#93c5fd" stroke-width="1.5" opacity="0.45"/>
     <rect x="80" y="107" width="40" height="12" rx="1" fill="none" stroke="#93c5fd" stroke-width="1.8" opacity="0.65"/>
@@ -4227,7 +4225,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#93c5fd" letter-spacing="1">ADMIN SUPPORT</text>""",
 
-    # Farming, Fishing &amp; Forestry (45) â€” wheat sheaf
+    # Farming, Fishing &amp; Forestry (45) — wheat sheaf
     "45": """
     <line x1="100" y1="88" x2="100" y2="128" stroke="#d9f99d" stroke-width="2.2"/>
     <path d="M100,97 Q87,90 84,82" fill="none" stroke="#d9f99d" stroke-width="1.8"/>
@@ -4243,7 +4241,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="8" font-weight="800" fill="#d9f99d" letter-spacing="1.5">FARMING</text>""",
 
-    # Construction &amp; Extraction (47) â€” hard hat
+    # Construction &amp; Extraction (47) — hard hat
     "47": """
     <path d="M74,115 Q74,97 100,91 Q126,97 126,115 Z" fill="none" stroke="#fca5a5" stroke-width="2.2"/>
     <path d="M76,115 Q76,99 100,94 Q124,99 124,115 Z" fill="#fca5a5" opacity="0.12"/>
@@ -4256,7 +4254,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#fca5a5" letter-spacing="1">CONSTRUCTION</text>""",
 
-    # Installation, Maintenance &amp; Repair (49) â€” wrench
+    # Installation, Maintenance &amp; Repair (49) — wrench
     "49": """
     <path d="M115,82 Q126,82 126,92 Q126,99 119,101 L89,127 Q84,132 79,130 Q75,128 76,123 Q77,118 83,116 L113,90 Q114,85 115,82 Z"
           fill="none" stroke="#a5b4fc" stroke-width="2.2"/>
@@ -4268,7 +4266,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7" font-weight="800" fill="#a5b4fc" letter-spacing="1">MAINTENANCE</text>""",
 
-    # Production (51) â€” precision gear / cog
+    # Production (51) — precision gear / cog
     "51": """
     <circle cx="100" cy="107" r="16" fill="none" stroke="#fcd34d" stroke-width="2.5"/>
     <circle cx="100" cy="107" r="6.5" fill="none" stroke="#fcd34d" stroke-width="2"/>
@@ -4284,7 +4282,7 @@ _SEAL_ICONS: dict[str, str] = {
     <text x="100" y="76" text-anchor="middle" font-family="Arial,sans-serif"
           font-size="7.5" font-weight="800" fill="#fcd34d" letter-spacing="1">PRODUCTION</text>""",
 
-    # Transportation &amp; Material Moving (53) â€” steering wheel
+    # Transportation &amp; Material Moving (53) — steering wheel
     "53": """
     <circle cx="100" cy="108" r="23" fill="none" stroke="#67e8f9" stroke-width="2.5"/>
     <circle cx="100" cy="108" r="8.5" fill="none" stroke="#67e8f9" stroke-width="2"/>
@@ -4303,7 +4301,7 @@ _SEAL_ICONS: dict[str, str] = {
 
 
 def _render_placement(*, client, browse_mode: bool) -> None:
-    """BOTTOM â€” Sector Placement: high-resolution SVG notary seals + latest verified logic strip."""
+    """BOTTOM — Sector Placement: high-resolution SVG notary seals + latest verified logic strip."""
     st.markdown('<p class="sal-stack-label">Bottom &middot; Sector Placement</p>', unsafe_allow_html=True)
     st.markdown("#### Sector Placement \u2014 sector authority & verified access")
     st.markdown("##### Federal sector authority seals")
@@ -4345,10 +4343,10 @@ def _render_placement(*, client, browse_mode: bool) -> None:
                         st.session_state["active_soc"] = soc
 
 
-# â”€â”€ Three-column helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Three-column helpers ─────────────────────────────────────────────────────
 
 def _wm_bg_url(opacity: float) -> str:
-    """Tiling diagonal watermark text â€” plain rgba() so it renders in Chrome CSS background-image."""
+    """Tiling diagonal watermark text — plain rgba() so it renders in Chrome CSS background-image."""
     c = f"rgba(11,42,111,{opacity})"
     svg = (
         "<svg xmlns='http://www.w3.org/2000/svg' width='340' height='80'>"
@@ -4374,7 +4372,7 @@ def _wm_bg_url(opacity: float) -> str:
 
 
 def _stamp_bg_url(opacity: float = 0.13) -> str:
-    """Large rotated 'OFFICIAL Â· SOURCE OF TRUTH' notary stamp â€” plain rgba(), no SVG filter."""
+    """Large rotated 'OFFICIAL · SOURCE OF TRUTH' notary stamp — plain rgba(), no SVG filter."""
     c  = f"rgba(11,42,111,{opacity})"
     cl = f"rgba(11,42,111,{round(opacity*0.55,4)})"
     svg = (
@@ -4388,14 +4386,14 @@ def _stamp_bg_url(opacity: float = 0.13) -> str:
         f"<text x='235' y='72' text-anchor='middle' "
         f"font-family='Arial,sans-serif' font-size='11' fill='{c}' letter-spacing='7'>"
         "\u2605 \u2605 \u2605 \u2605 \u2605</text>"
-        # OFFICIAL â€” bold display text
+        # OFFICIAL — bold display text
         f"<text x='235' y='122' text-anchor='middle' "
         f"font-family='Arial Black,Arial,sans-serif' font-size='44' font-weight='900' "
         f"fill='{c}' letter-spacing='8'>OFFICIAL</text>"
         # Divider rules
         f"<line x1='35' y1='132' x2='162' y2='132' stroke='{c}' stroke-width='2.6'/>"
         f"<line x1='308' y1='132' x2='435' y2='132' stroke='{c}' stroke-width='2.6'/>"
-        # SOURCE OF TRUTH â€” subtitle
+        # SOURCE OF TRUTH — subtitle
         f"<text x='235' y='162' text-anchor='middle' "
         f"font-family='Arial,sans-serif' font-size='14' font-weight='800' "
         f"fill='{c}' letter-spacing='6'>SOURCE OF TRUTH</text>"
@@ -4411,7 +4409,7 @@ def _stamp_bg_url(opacity: float = 0.13) -> str:
 
 
 def _truth_diagonal_stamp_url() -> str:
-    """Diagonal OFFICIAL SOURCE OF TRUTH â€” dark grey, âˆ’30Â°, serif (zone behind Sectors/Seals)."""
+    """Diagonal OFFICIAL SOURCE OF TRUTH — dark grey, −30°, serif (zone behind Sectors/Seals)."""
     c = "#3f3f46"
     svg = (
         "<svg xmlns='http://www.w3.org/2000/svg' width='880' height='560'>"
@@ -4436,7 +4434,7 @@ def _great_seal_data_uri() -> str:
     path = _SAL_GREAT_SEAL_PATH
     if not path.is_file():
         raise FileNotFoundError(
-            "Missing assets/SAL_GREAT_SEAL.png â€” add the seal raster to the assets folder."
+            "Missing assets/SAL_GREAT_SEAL.png — add the seal raster to the assets folder."
         )
     raw = path.read_bytes()
     b64 = base64.b64encode(raw).decode("ascii")
@@ -4444,11 +4442,11 @@ def _great_seal_data_uri() -> str:
 
 
 def _render_bundle_staging_area() -> None:
-    """Full-width Agent Bundle staging area â€” visual card grid of all queued roles."""
+    """Full-width Agent Bundle staging area — visual card grid of all queued roles."""
     bundle: list = st.session_state.get("agent_bundle", [])
     _risk_lookup = {p: (lbl, pct, risk) for p, lbl, pct, risk, *_ in _AI_DISPLACEMENT}
 
-    # â”€â”€ Section header (always visible) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section header (always visible) ──────────────────────────────────
     count_label = f"{len(bundle)} ROLE{'S' if len(bundle) != 1 else ''} QUEUED" if bundle else "EMPTY"
     st.markdown(
         f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;font-weight:800;'
@@ -4459,7 +4457,7 @@ def _render_bundle_staging_area() -> None:
         unsafe_allow_html=True,
     )
 
-    # â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Empty state ───────────────────────────────────────────────────────
     if not bundle:
         st.markdown(
             '<div style="background:#04112e;border:1.5px solid #1d4ed822;border-radius:6px;'
@@ -4470,7 +4468,7 @@ def _render_bundle_staging_area() -> None:
         )
         return
 
-    # â”€â”€ Role cards â€” 3-column grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Role cards — 3-column grid ────────────────────────────────────────
     _COLS = 3
     for i in range(0, len(bundle), _COLS):
         chunk = bundle[i : i + _COLS]
@@ -4512,7 +4510,7 @@ def _render_bundle_staging_area() -> None:
                     ]
                     st.rerun()
 
-    # â”€â”€ Actions row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Actions row ───────────────────────────────────────────────────────
     if bundle:
         act_a, _, _2 = st.columns([1, 1, 3])
         with act_a:
@@ -4521,7 +4519,7 @@ def _render_bundle_staging_area() -> None:
                 st.session_state["agent_bundle"] = []
                 st.rerun()
 
-    # â”€â”€ Suggested Additions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Suggested Additions ───────────────────────────────────────────────
     if bundle:
         bundled_socs    = {item.get("soc_code", "") for item in bundle}
         bundled_prefixes = [soc.split("-")[0] for soc in bundled_socs if "-" in soc]
@@ -4581,10 +4579,10 @@ def _render_bundle_staging_area() -> None:
 
 
 def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
-    """Left column (1.0): O*NET SOC Folder Tree â€” 22 divisions, collapsible.
+    """Left column (1.0): O*NET SOC Folder Tree — 22 divisions, collapsible.
     Federal Ledger removed. Tree is the primary role-selection interface.
     """
-    # engine-anchor â†’ tree expander + folder row CSS targets this column
+    # engine-anchor → tree expander + folder row CSS targets this column
     st.markdown('<div class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
 
     # Filing-cabinet manifest header
@@ -4616,31 +4614,31 @@ def _render_col_bureau(*, client, browse_mode: bool, counts: dict) -> None:
         )
 
 
-# Unified sector seals â€” single source of truth for all sector access
+# Unified sector seals — single source of truth for all sector access
 # Each entry: (soc_prefix, label, seal_bg, ring_color, accent_color)
 _UNIFIED_SEALS = [
-    # Row 1 â€” SOC 11â€“21
+    # Row 1 — SOC 11–21
     ("11", "Management",   "#0d1130", "#7c3aed", "#c4b5fd"),
     ("13", "Finance",      "#060e1d", "#1d4ed8", "#93c5fd"),
     ("15", "Technology",   "#060f36", "#6d28d9", "#c4b5fd"),
     ("17", "Engineering",  "#120b08", "#b45309", "#fbbf24"),
     ("19", "Science",      "#071a10", "#15803d", "#86efac"),
     ("21", "Community",    "#1a0b24", "#7e22ce", "#d8b4fe"),
-    # Row 2 â€” SOC 23â€“33
+    # Row 2 — SOC 23–33
     ("23", "Legal",        "#160f02", "#92400e", "#fcd34d"),
     ("25", "Education",    "#051228", "#0369a1", "#7dd3fc"),
     ("27", "Arts & Media", "#1a0820", "#be185d", "#f9a8d4"),
     ("29", "Healthcare",   "#07211e", "#0d9488", "#5ee8c8"),
     ("31", "Hlth Support", "#051a14", "#047857", "#6ee7b7"),
     ("33", "Protective",   "#0a0e02", "#4d7c0f", "#a3e635"),
-    # Row 3 â€” SOC 35â€“45
+    # Row 3 — SOC 35–45
     ("35", "Food Service", "#1f0c00", "#c2410c", "#fb923c"),
     ("37", "Grounds",      "#0a1700", "#3f6212", "#bef264"),
     ("39", "Personal Care","#1f0616", "#9d174d", "#fbcfe8"),
     ("41", "Sales",        "#1a0b00", "#b45309", "#fdba74"),
     ("43", "Admin",        "#071428", "#1e40af", "#93c5fd"),
     ("45", "Farming",      "#0e1400", "#365314", "#d9f99d"),
-    # Row 4 â€” SOC 47â€“53
+    # Row 4 — SOC 47–53
     ("47", "Construction", "#180800", "#991b1b", "#fca5a5"),
     ("49", "Maintenance",  "#0f1018", "#3730a3", "#a5b4fc"),
     ("51", "Production",   "#110805", "#78350f", "#fcd34d"),
@@ -4648,31 +4646,31 @@ _UNIFIED_SEALS = [
 ]
 
 
-# â”€â”€ AI Displacement Sales Floor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── AI Displacement Sales Floor ─────────────────────────────────────────────
 _AI_DISPLACEMENT = [
     # (soc_prefix, label, pct_automatable, risk_tier, key_technologies)
-    ("43", "Admin & Office",   73, "CRITICAL", "NLP Â· RPA Â· Document AI"),
-    ("53", "Transport",        70, "CRITICAL", "Autonomous Vehicles Â· Route AI"),
-    ("51", "Production",       67, "CRITICAL", "Robotics Â· Computer Vision"),
-    ("35", "Food Service",     61, "HIGH",     "Automation Â· AI Kiosks"),
-    ("41", "Sales",            59, "HIGH",     "Conversational AI Â· CRM AI"),
+    ("43", "Admin & Office",   73, "CRITICAL", "NLP · RPA · Document AI"),
+    ("53", "Transport",        70, "CRITICAL", "Autonomous Vehicles · Route AI"),
+    ("51", "Production",       67, "CRITICAL", "Robotics · Computer Vision"),
+    ("35", "Food Service",     61, "HIGH",     "Automation · AI Kiosks"),
+    ("41", "Sales",            59, "HIGH",     "Conversational AI · CRM AI"),
     ("37", "Grounds",          54, "HIGH",     "Autonomous Equipment"),
-    ("45", "Farming",          52, "HIGH",     "Precision Ag Â· Drone AI"),
-    ("47", "Construction",     48, "HIGH",     "BIM AI Â· Autonomous Machinery"),
-    ("23", "Legal",            44, "MEDIUM",   "LLM Â· Contract AI Â· eDiscovery"),
-    ("49", "Maintenance",      44, "MEDIUM",   "Predictive AI Â· IoT Sensors"),
-    ("25", "Education",        36, "MEDIUM",   "Adaptive Learning Â· AI Tutors"),
-    ("13", "Finance",          35, "MEDIUM",   "Quant Models Â· Robo-Advisors"),
-    ("31", "Hlth Support",     34, "MEDIUM",   "Care Robots Â· EHR AI"),
-    ("39", "Personal Care",    32, "MEDIUM",   "Social Robots Â· Wearable AI"),
-    ("27", "Arts & Media",     31, "MEDIUM",   "GenAI Â· Image Synthesis"),
-    ("33", "Protective",       28, "LOW",      "Surveillance AI Â· Predictive Policing"),
-    ("21", "Community",        22, "LOW",      "Mental Health AI Â· Case Mgmt AI"),
-    ("17", "Engineering",      21, "LOW",      "Generative Design Â· CAE AI"),
-    ("19", "Science",          21, "LOW",      "Lab Automation Â· ML Models"),
-    ("29", "Healthcare",       18, "LOW",      "Diagnostic AI Â· Medical Imaging"),
+    ("45", "Farming",          52, "HIGH",     "Precision Ag · Drone AI"),
+    ("47", "Construction",     48, "HIGH",     "BIM AI · Autonomous Machinery"),
+    ("23", "Legal",            44, "MEDIUM",   "LLM · Contract AI · eDiscovery"),
+    ("49", "Maintenance",      44, "MEDIUM",   "Predictive AI · IoT Sensors"),
+    ("25", "Education",        36, "MEDIUM",   "Adaptive Learning · AI Tutors"),
+    ("13", "Finance",          35, "MEDIUM",   "Quant Models · Robo-Advisors"),
+    ("31", "Hlth Support",     34, "MEDIUM",   "Care Robots · EHR AI"),
+    ("39", "Personal Care",    32, "MEDIUM",   "Social Robots · Wearable AI"),
+    ("27", "Arts & Media",     31, "MEDIUM",   "GenAI · Image Synthesis"),
+    ("33", "Protective",       28, "LOW",      "Surveillance AI · Predictive Policing"),
+    ("21", "Community",        22, "LOW",      "Mental Health AI · Case Mgmt AI"),
+    ("17", "Engineering",      21, "LOW",      "Generative Design · CAE AI"),
+    ("19", "Science",          21, "LOW",      "Lab Automation · ML Models"),
+    ("29", "Healthcare",       18, "LOW",      "Diagnostic AI · Medical Imaging"),
     ("15", "Technology",       16, "LOW",      "AI Co-pilot (augment, not replace)"),
-    ("11", "Management",       12, "MINIMAL",  "Decision Support AI Â· Analytics"),
+    ("11", "Management",       12, "MINIMAL",  "Decision Support AI · Analytics"),
 ]
 
 _RISK_COLORS = {
@@ -4683,7 +4681,7 @@ _RISK_COLORS = {
     "MINIMAL":  ("#1e1b4b", "#c4b5fd", "#7c3aed"),
 }
 
-# Suggested pairings: prefix â†’ [(soc_code, title, one-line rationale), ...]
+# Suggested pairings: prefix → [(soc_code, title, one-line rationale), ...]
 _COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
     "11": [("13-2051.00","Financial Analysts","Budget oversight and ROI tracking"),
            ("15-1252.00","Software Developers","Digital infrastructure and tooling"),
@@ -4756,44 +4754,44 @@ _COMPLEMENTS: dict[str, list[tuple[str, str, str]]] = {
            ("23-1011.00","Lawyers","Military law and JAG corps support")],
 }
 
-# Intent routing: 5 paths â†’ relevant SOC prefixes + display metadata
+# Intent routing: 5 paths → relevant SOC prefixes + display metadata
 _INTENTS: dict[str, dict] = {
     "business": {
         "label": "Building a Business",
-        "icon": "â—ˆ",
-        "desc": "Executives Â· Finance Â· Legal Â· Sales Â· Ops",
+        "icon": "◈",
+        "desc": "Executives · Finance · Legal · Sales · Ops",
         "prefixes": {"11", "13", "23", "41", "43"},
         "color": "#f59e0b",
         "glow":  "#f59e0b44",
     },
     "team": {
         "label": "Building a Team",
-        "icon": "â¬¡",
-        "desc": "Computing Â· Engineering Â· Architecture Â· Science",
+        "icon": "⬡",
+        "desc": "Computing · Engineering · Architecture · Science",
         "prefixes": {"15", "17", "19"},
         "color": "#3b82f6",
         "glow":  "#3b82f644",
     },
     "assistant": {
         "label": "Personal Assistant",
-        "icon": "â—‡",
-        "desc": "Admin Support Â· Healthcare Â· Office Ops",
+        "icon": "◇",
+        "desc": "Admin Support · Healthcare · Office Ops",
         "prefixes": {"29", "31", "43"},
         "color": "#8b5cf6",
         "glow":  "#8b5cf644",
     },
     "research": {
         "label": "Research & Analysis",
-        "icon": "â—‰",
-        "desc": "Science Â· Social Research Â· Education Â· Data",
+        "icon": "◉",
+        "desc": "Science · Social Research · Education · Data",
         "prefixes": {"15", "19", "21", "25"},
         "color": "#06b6d4",
         "glow":  "#06b6d444",
     },
     "creative": {
         "label": "Creative Operation",
-        "icon": "â—†",
-        "desc": "Arts Â· Media Â· Entertainment Â· Design",
+        "icon": "◆",
+        "desc": "Arts · Media · Entertainment · Design",
         "prefixes": {"27"},
         "color": "#ec4899",
         "glow":  "#ec489944",
@@ -4802,12 +4800,12 @@ _INTENTS: dict[str, dict] = {
 
 
 def _render_intent_router() -> None:
-    """5-path intent selector â€” contextualizes the Sales Floor and pre-navigates the tree."""
+    """5-path intent selector — contextualizes the Sales Floor and pre-navigates the tree."""
     active = st.session_state.get("active_intent")
 
     st.markdown(
         '<div class="sal-intent-wrap">'
-        '<div class="sal-intent-title">â—ˆ &nbsp;WHAT ARE YOU BUILDING?</div>'
+        '<div class="sal-intent-title">◈ &nbsp;WHAT ARE YOU BUILDING?</div>'
         '<div class="sal-intent-sub">Select a path to focus the registry on your mission</div>'
         '</div>',
         unsafe_allow_html=True,
@@ -4843,7 +4841,7 @@ def _render_intent_router() -> None:
                 f'</div>',
                 unsafe_allow_html=True,
             )
-            btn_label = f"{'â—‰' if is_active else 'â—‹'}  {'Active' if is_active else 'Select'}"
+            btn_label = f"{'◉' if is_active else '○'}  {'Active' if is_active else 'Select'}"
             if st.button(btn_label, key=f"intent_{key}", use_container_width=True,
                          type="primary" if is_active else "secondary"):
                 if is_active:
@@ -4867,7 +4865,7 @@ def _render_intent_router() -> None:
     if active and active in _INTENTS:
         _ai = _INTENTS[active]
         _matched = [lbl for pfx, lbl, *_ in _AI_DISPLACEMENT if pfx in _ai["prefixes"]]
-        _match_str = " Â· ".join(_matched[:5])
+        _match_str = " · ".join(_matched[:5])
         _banner_bg  = "#030b19" if _dark else f"{_ai['color']}08"
         _focus_c    = "#94a3b8" if _dark else "#475569"
         _hint_c     = "#475569" if _dark else "#94a3b8"
@@ -4875,9 +4873,9 @@ def _render_intent_router() -> None:
             f'<div class="sal-intent-banner" style="border-left:3px solid {_ai["color"]};'
             f'background:{_banner_bg};">'
             f'<span style="color:{_ai["color"]};font-weight:900">{_ai["icon"]} &nbsp;{_ai["label"].upper()}</span>'
-            f'<span class="sal-intent-banner-sep">â—†</span>'
+            f'<span class="sal-intent-banner-sep">◆</span>'
             f'<span style="color:{_focus_c}">Focused on: {_match_str}</span>'
-            f'<span class="sal-intent-banner-sep">â—†</span>'
+            f'<span class="sal-intent-banner-sep">◆</span>'
             f'<span style="color:{_hint_c};font-size:0.6rem">Click active path to reset</span>'
             f'</div>',
             unsafe_allow_html=True,
@@ -4885,13 +4883,13 @@ def _render_intent_router() -> None:
 
 
 def _render_sal_seal_cta() -> None:
-    """Full-width SAL Certification CTA â€” between command interface and sales floor."""
+    """Full-width SAL Certification CTA — between command interface and sales floor."""
     st.markdown(
         '<div class="sal-seal-cta">'
         '<div class="sal-seal-cta-title">THE SAL STANDARD &nbsp;&#9670;&nbsp; VERIFYING AI AGENTS WORLDWIDE</div>'
         '<div class="sal-seal-cta-sub">'
         'The SAL Registry is the federal-grade authority for AI agent role specifications.<br>'
-        'Companies and developers certify their agents against the O&#x2217;NET SOC standard â€” '
+        'Companies and developers certify their agents against the O&#x2217;NET SOC standard — '
         'earning the right to display the <strong style="color:#f1f5f9">SAL Verified Seal</strong> on their platforms.'
         '</div>'
         '<div style="margin-bottom:0.75rem">'
@@ -4913,13 +4911,13 @@ def _render_sal_seal_cta() -> None:
             "SAL Certification is currently in private access. "
             "Build your Deployment Roster below, export your Manifest, "
             "and submit to certification@standardagentlogic.com for review.",
-            icon="ðŸ”",
+            icon="🔐",
         )
 
 
 def _render_ai_sales_floor() -> None:
-    """AI Displacement Sales Floor â€” full-width sector cards with embedded seals, sorted by automation risk."""
-    # Build seal param lookup: prefix â†’ (bg, ring, accent, icon_svg)
+    """AI Displacement Sales Floor — full-width sector cards with embedded seals, sorted by automation risk."""
+    # Build seal param lookup: prefix → (bg, ring, accent, icon_svg)
     _seal_lookup: dict[str, tuple[str, str, str, str]] = {
         code: (bg, ring, accent, _SEAL_ICONS.get(code, ""))
         for code, _lbl, bg, ring, accent in _UNIFIED_SEALS
@@ -4997,14 +4995,14 @@ def _render_ai_sales_floor() -> None:
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
-    """Full-width: Search (greeting) â†’ AI Sales Floor â†’ Sector Seals â†’ SOC Tree."""
+    """Full-width: Search (greeting) → AI Sales Floor → Sector Seals → SOC Tree."""
     st.markdown(
         '<div class="sal-col-authority-anchor"></div>'
         '<div class="sal-authority-stamp-layer" aria-hidden="true"></div>',
         unsafe_allow_html=True,
     )
 
-    # â”€â”€ SAL Command Interface â€” greeting at the top â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── SAL Command Interface — greeting at the top ───────────────────────────
     _vault_active = bool(st.session_state.get("vault_only", False))
     _scope_label  = "PRIVATE VAULT \u25c6 RESTRICTED" if _vault_active else "GLOBAL REGISTRY \u25c6 1,095 ROLES"
     _scope_color  = "#c4b5fd" if _vault_active else "#93c5fd"
@@ -5013,22 +5011,22 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         f'<div class="sal-cmd-hdr">'
         f'  <span class="sal-cmd-live-dot"></span>'
         f'  <span class="sal-cmd-live-txt">LIVE</span>'
-        f'  <span class="sal-cmd-sep">Â·</span>'
-        f'  <span class="sal-cmd-title">SALÂ COMMANDÂ INTERFACE</span>'
-        f'  <span class="sal-cmd-sep">Â·</span>'
-        f'  <span class="sal-cmd-stat">22Â DIVISIONS</span>'
-        f'  <span class="sal-cmd-sep">â—†</span>'
+        f'  <span class="sal-cmd-sep">·</span>'
+        f'  <span class="sal-cmd-title">SAL COMMAND INTERFACE</span>'
+        f'  <span class="sal-cmd-sep">·</span>'
+        f'  <span class="sal-cmd-stat">22 DIVISIONS</span>'
+        f'  <span class="sal-cmd-sep">◆</span>'
         f'  <span style="color:{_scope_color};font-weight:700">{_scope_label}</span>'
-        f'  <span class="sal-cmd-sep">â—†</span>'
-        f'  <span class="sal-cmd-stat">Oâˆ—NETÂ FEDERALÂ REGISTRY</span>'
+        f'  <span class="sal-cmd-sep">◆</span>'
+        f'  <span class="sal-cmd-stat">O∗NET FEDERAL REGISTRY</span>'
         f'</div>'
         '<div class="sal-cmd-prompt">'
-        '  <span class="sal-cmd-caret">â–¸</span>'
-        '  <span>ENTER QUERY â€” jobÂ titleÂ Â·Â SOCÂ codeÂ Â·Â skillÂ Â·Â naturalÂ languageÂ Â·Â capability</span>'
+        '  <span class="sal-cmd-caret">▸</span>'
+        '  <span>ENTER QUERY — job title · SOC code · skill · natural language · capability</span>'
         '</div>'
         '<div class="sal-cmd-subnote">'
-        '  <span><strong>SEARCH READY</strong> Â· Ask in plain English or use an SOC code for exact routing</span>'
-        '  <span><strong>CURRENT SCOPE</strong> Â· Results honor your active registry access mode</span>'
+        '  <span><strong>SEARCH READY</strong> · Ask in plain English or use an SOC code for exact routing</span>'
+        '  <span><strong>CURRENT SCOPE</strong> · Results honor your active registry access mode</span>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -5088,16 +5086,16 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             unsafe_allow_html=True,
         )
 
-    # â”€â”€ SAL Certification CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── SAL Certification CTA ─────────────────────────────────────────────────
     _render_sal_seal_cta()
 
-    # â”€â”€ Intent Router â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Intent Router ─────────────────────────────────────────────────────────
     _render_intent_router()
 
-    # â”€â”€ AI Displacement Sales Floor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── AI Displacement Sales Floor ───────────────────────────────────────────
     _render_ai_sales_floor()
 
-    # â”€â”€ Auto-scroll to tree when active_prefix changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Auto-scroll to tree when active_prefix changes ────────────────────
     _cur_prefix  = str(st.session_state.get("active_prefix") or "")
     _prev_prefix = str(st.session_state.get("_prev_active_prefix") or "")
     if _cur_prefix and _cur_prefix != _prev_prefix:
@@ -5121,7 +5119,7 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         })();
         </script>""", height=1, scrolling=False)
 
-    # â”€â”€ O*NET SOC Directory â€” engine anchor for CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── O*NET SOC Directory — engine anchor for CSS ───────────────────────
     st.markdown('<div id="sal-onet-tree" class="sal-col-engine-anchor"></div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="sal-dir-rule">'
@@ -5131,7 +5129,7 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
         unsafe_allow_html=True,
     )
 
-    # Bug 1 fix: "LOADED" feedback bar â€” always visible at tree level
+    # Bug 1 fix: "LOADED" feedback bar — always visible at tree level
     _active_soc_fb = str(st.session_state.get("active_soc") or "")
     if _active_soc_fb:
         _fb_row   = next(
@@ -5149,7 +5147,7 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             unsafe_allow_html=True,
         )
 
-    # Bug 4 fix: active query filter pill â€” reminds user what is being filtered
+    # Bug 4 fix: active query filter pill — reminds user what is being filtered
     if query.strip():
         st.markdown(
             f'<div class="sal-tree-filter">'
@@ -5171,13 +5169,13 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
     )
 
 def _render_col_engine(*, client, browse_mode: bool) -> None:
-    """Right column (1.2): Logic Specification card â€” reserved for active role details.
+    """Right column (1.2): Logic Specification card — reserved for active role details.
     Green Glow clearance badge + SAL Verified seal + dark terminal JSON block.
     """
-    # â”€â”€ Spec panel anchor â€” scroll target when a role is clicked â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Spec panel anchor — scroll target when a role is clicked ─────────────
     st.markdown('<div id="sal-spec-panel" class="sal-col-engine-right-anchor"></div>', unsafe_allow_html=True)
 
-    # â”€â”€ Auto-scroll DOWN to spec when a new role is selected â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Auto-scroll DOWN to spec when a new role is selected ─────────────────
     _cur_soc  = str(st.session_state.get("active_soc") or "")
     _prev_soc = str(st.session_state.get("_prev_active_soc") or "")
     if _cur_soc and _cur_soc != _prev_soc:
@@ -5209,7 +5207,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             scrolling=False,
         )
 
-    # â”€â”€ Logic Specification card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Logic Specification card ─────────────────────────────────────────────
     selected_soc = str(st.session_state.get("active_soc") or "")
     chosen_row: dict[str, Any] | None = None
     if selected_soc:
@@ -5253,27 +5251,27 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         guardrails=_guardrails,
     )
 
-    # â”€â”€ Agent Bundle â€” Shopping Cart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Agent Bundle — Shopping Cart ─────────────────────────────────────────
     bundle: list = st.session_state.get("agent_bundle", [])
     if selected_soc and chosen_row:
         already_in = any(r.get("soc_code") == selected_soc for r in bundle)
         role_title = str(chosen_row.get("title") or selected_soc)
         if already_in:
-            if st.button("âœ–  Decommission Role", key="sal_bundle_remove",
+            if st.button("✖  Decommission Role", key="sal_bundle_remove",
                          use_container_width=True, type="secondary"):
                 st.session_state["agent_bundle"] = [
                     r for r in bundle if r.get("soc_code") != selected_soc
                 ]
                 st.rerun()
         else:
-            if st.button("ï¼‹  Commission This Role", key="sal_bundle_add",
+            if st.button("＋  Commission This Role", key="sal_bundle_add",
                          use_container_width=True, type="primary"):
                 st.session_state["agent_bundle"] = bundle + [
                     {"soc_code": selected_soc, "title": role_title}
                 ]
                 st.rerun()
 
-    # â”€â”€ Cart display â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Cart display ─────────────────────────────────────────────────────────
     bundle = st.session_state.get("agent_bundle", [])
     if bundle:
         st.markdown(
@@ -5305,7 +5303,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                     unsafe_allow_html=True,
                 )
             with c2:
-                if st.button("âœ•", key=f"cart_rm_{item_soc}",
+                if st.button("✕", key=f"cart_rm_{item_soc}",
                              help=f"Remove {item_title}"):
                     st.session_state["agent_bundle"] = [
                         r for r in bundle if r.get("soc_code") != item_soc
@@ -5318,7 +5316,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             bundle_data = st.session_state["agent_bundle"]
             import json as _json
 
-            # â”€â”€ Build full MCP spec for every bundled role â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── Build full MCP spec for every bundled role ────────────────
             full_roles: list[dict] = []
             for entry in bundle_data:
                 code = entry.get("soc_code", "")
@@ -5381,16 +5379,16 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
             _role_count = len(bundle_data)
 
             if _paid:
-                # â”€â”€ Payment verified â€” unlock export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Payment verified — unlock export ──────────────────────
                 st.markdown(
                     '<div style="margin-bottom:0.4rem;padding:0.35rem 0.65rem;'
                     'background:#052e16;border:1px solid #16a34a55;border-radius:4px;'
                     'font-size:0.7rem;color:#4ade80;font-family:\'Courier New\',monospace;">'
-                    '&#10003; Payment verified â€” manifest unlocked</div>',
+                    '&#10003; Payment verified — manifest unlocked</div>',
                     unsafe_allow_html=True,
                 )
                 st.download_button(
-                    label=f"\u21e9  Export Deployment Manifest ({_role_count} role{'s' if _role_count != 1 else ''} Â· full MCP spec)",
+                    label=f"\u21e9  Export Deployment Manifest ({_role_count} role{'s' if _role_count != 1 else ''} · full MCP spec)",
                     data=bundle_json,
                     file_name="sal_deployment_manifest.json",
                     mime="application/json",
@@ -5398,12 +5396,12 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                     key="sal_bundle_export",
                 )
             else:
-                # â”€â”€ Not paid â€” show locked export + checkout CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Not paid — show locked export + checkout CTA ──────────
                 st.markdown(
                     '<div style="padding:0.6rem 0.75rem;margin-bottom:0.35rem;'
                     'background:#0f172a;border:1px dashed #1d4ed855;border-radius:4px;'
                     'font-size:0.75rem;color:#475569;text-align:center;">'
-                    '&#128274;&nbsp; Export Deployment Manifest â€” unlocked after checkout</div>',
+                    '&#128274;&nbsp; Export Deployment Manifest — unlocked after checkout</div>',
                     unsafe_allow_html=True,
                 )
                 if _stripe_url:
@@ -5428,20 +5426,20 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
                         unsafe_allow_html=True,
                     )
 
-# â”€â”€ Sovereign document header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Sovereign document header ────────────────────────────────────────────────
 
 def _sovereign_header_html() -> str:
-    """Great Seal centered between credential flanks â€” sovereign document header."""
+    """Great Seal centered between credential flanks — sovereign document header."""
     seal = _great_seal_data_uri()
     return (
         '<div class="sal-header-container">'
         '<div class="sal-sovereign-header">'
         '<div class="sal-serial">SAL\u2011REG\u20112026\u2011X</div>'
 
-        # â”€â”€ Three-part layout: left flank | seal | right flank â”€â”€
+        # ── Three-part layout: left flank | seal | right flank ──
         '<div class="sal-header-trio">'
 
-        # LEFT FLANK â€” authority + registration
+        # LEFT FLANK — authority + registration
         '<div class="sal-header-flank sal-header-flank-left">'
         '<div class="sal-flank-wm">VERIFIED</div>'
         '<div class="sal-flank-rule sal-flank-rule-right"></div>'
@@ -5454,13 +5452,13 @@ def _sovereign_header_html() -> str:
         '</div>'
         '</div>'
 
-        # CENTER â€” seal only (ribbon moved below trio)
+        # CENTER — seal only (ribbon moved below trio)
         '<div class="sal-header-center">'
         f'<div class="sal-eagle-wrap" style="background-image:url(\'{seal}\')">'
         '</div>'
         '</div>'
 
-        # RIGHT FLANK â€” specifications + compliance
+        # RIGHT FLANK — specifications + compliance
         '<div class="sal-header-flank sal-header-flank-right">'
         '<div class="sal-flank-wm">AUTHORIZED</div>'
         '<div class="sal-flank-rule sal-flank-rule-left"></div>'
@@ -5475,7 +5473,7 @@ def _sovereign_header_html() -> str:
 
         '</div>'  # end trio
 
-        # Ribbon title â€” full-width below the trio so it never gets clipped
+        # Ribbon title — full-width below the trio so it never gets clipped
         '<div class="sal-ribbon-outer">'
         '<div class="sal-ribbon-inner">'
         '<div class="sal-ribbon-title">STANDARD AGENT LOGIC REGISTRY</div>'
@@ -5506,7 +5504,7 @@ def _sovereign_header_html() -> str:
 
 
 def main() -> None:
-    # â”€â”€ Access gate â€” public sees password prompt; bookmark ?access=PW to bypass â”€â”€
+    # ── Access gate — public sees password prompt; bookmark ?access=PW to bypass ──
     _site_pw = (_secret_get("SITE_PASSWORD") or "").strip()
     if _site_pw:
         # URL token: ?access=PASSWORD grants entry without the prompt
@@ -5536,7 +5534,7 @@ def main() -> None:
                 unsafe_allow_html=True,
             )
             pw = st.text_input("Access code", type="password",
-                               placeholder="Enter access codeâ€¦",
+                               placeholder="Enter access code…",
                                label_visibility="collapsed")
             if st.button("Enter", use_container_width=True, type="primary"):
                 if pw == _site_pw:
@@ -5546,7 +5544,7 @@ def main() -> None:
                     st.error("Access denied.")
             st.stop()
 
-    # â”€â”€ Session state initialisation (MUST run before any widget) â”€â”€
+    # ── Session state initialisation (MUST run before any widget) ──
     if "active_soc" not in st.session_state:
         st.session_state["active_soc"] = ""
     if "active_prefix" not in st.session_state:
@@ -5563,13 +5561,13 @@ def main() -> None:
         st.session_state["active_intent"] = None
     if "payment_verified" not in st.session_state:
         st.session_state["payment_verified"] = False
-    # Detect Stripe redirect â€” ?checkout=success sets the payment flag for this session
+    # Detect Stripe redirect — ?checkout=success sets the payment flag for this session
     if st.query_params.get("checkout") == "success":
         st.session_state["payment_verified"] = True
 
     _inject_studio_styles()
 
-    # Scroll to top â€” fires after Streamlit finishes rendering
+    # Scroll to top — fires after Streamlit finishes rendering
     _stc.html(
         """<script>
         (function() {
@@ -5620,7 +5618,7 @@ def main() -> None:
             client = None
             counts = _demo_fetch_counts()
 
-    # â”€â”€ Sidebar â”€â”€
+    # ── Sidebar ──
     with st.sidebar:
         if live_connected:
             st.success("**Live production mode** \u00b7 Supabase")
@@ -5633,18 +5631,18 @@ def main() -> None:
         c2.metric("Standardized Logic Library", counts["registry_metadata"])
         st.metric("Safety Guardrails", counts["guardrails_and_compliance"])
         st.markdown("</div>", unsafe_allow_html=True)
-        # â”€â”€ Vault access gate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Vault access gate ────────────────────────────────────────────
         _vault_pw = (_secret_get("VAULT_PASSWORD") or "").strip()
         _has_vault_pw = bool(_vault_pw)
 
         if not _has_vault_pw:
-            # No password configured â€” vault locked in production
+            # No password configured — vault locked in production
             st.session_state["vault_unlocked"] = False
             st.session_state["vault_only"] = False
             st.radio("Library scope", ["Global Registry"], horizontal=True, key="sal_sidebar_scope")
-            st.caption("\U0001f512 Private Vault â€” access restricted")
+            st.caption("\U0001f512 Private Vault — access restricted")
         elif st.session_state.get("vault_unlocked"):
-            # Authenticated â€” show full scope toggle + lock button
+            # Authenticated — show full scope toggle + lock button
             scope = st.radio(
                 "Library scope", ["Global Registry", "Private Vault \U0001f3c6"],
                 horizontal=True, key="sal_sidebar_scope",
@@ -5694,17 +5692,17 @@ def main() -> None:
                                     _f.write(_new_raw)
                                 st.success("Password updated in secrets.toml.")
                             else:
-                                st.warning("secrets.toml not found â€” update manually.")
+                                st.warning("secrets.toml not found — update manually.")
                         except Exception as _e:
                             st.error(f"Could not write file: {_e}")
                         st.markdown(
                             "<p style='font-size:0.7rem;color:#94a3b8;margin-top:0.5rem'>"
-                            "Also paste into <b>Streamlit Cloud â†’ Settings â†’ Secrets</b>:</p>",
+                            "Also paste into <b>Streamlit Cloud → Settings → Secrets</b>:</p>",
                             unsafe_allow_html=True,
                         )
                         st.code(f'VAULT_PASSWORD = "{new_pw1}"', language="toml")
         else:
-            # Not yet authenticated â€” show password prompt
+            # Not yet authenticated — show password prompt
             st.session_state["vault_only"] = False
             st.radio("Library scope", ["Global Registry"], horizontal=True, key="sal_sidebar_scope")
             st.markdown(
@@ -5726,7 +5724,7 @@ def main() -> None:
 
         st.markdown("---")
         _dm = st.session_state.get("dark_mode", False)
-        _dm_label = "â˜€ Light Mode" if _dm else "â—¼ Dark Mode"
+        _dm_label = "☀ Light Mode" if _dm else "◼ Dark Mode"
         if st.button(_dm_label, use_container_width=True, key="sal_theme_toggle"):
             st.session_state["dark_mode"] = not _dm
             st.rerun()
@@ -5740,21 +5738,21 @@ def main() -> None:
 
     if browse_mode:
         st.info(
-            "**Browse mode:** Supabase keys missing â€” mock Global Registry active. "
+            "**Browse mode:** Supabase keys missing — mock Global Registry active. "
             "Set `.streamlit/secrets.toml` or environment variables for live production mode."
         )
 
-    # â”€â”€ Sovereign document header â”€â”€
+    # ── Sovereign document header ──
     st.markdown(_sovereign_header_html(), unsafe_allow_html=True)
 
-    # â”€â”€ Full-width stacked layout: Authority (seals + search + tree) â†’ Spec â”€â”€
+    # ── Full-width stacked layout: Authority (seals + search + tree) → Spec ──
     _render_col_authority(client=client, browse_mode=browse_mode)
     _render_col_engine(client=client, browse_mode=browse_mode)
 
-    # â”€â”€ Agent Bundle Staging Area â€” full-width below both columns â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Agent Bundle Staging Area — full-width below both columns ────────────
     _render_bundle_staging_area()
 
-    # â”€â”€ Footer â”€â”€
+    # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
     st.markdown(
         f'<div class="sal-footer">'
