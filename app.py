@@ -3083,12 +3083,12 @@ def _inject_studio_styles() -> None:
     border: 1px solid #2563eb;
     border-bottom: 1px solid #60a5fa33;
     border-radius: 12px 12px 0 0;
-    padding: 0.52rem 1rem;
+    padding: 0.6rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.55rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.62rem;
+    font-size: 0.74rem;
     color: #60a5fa;
     letter-spacing: 0.09em;
     position: relative;
@@ -3128,11 +3128,11 @@ def _inject_studio_styles() -> None:
     background: linear-gradient(180deg, #081224 0%, #040b18 100%);
     border-left: 1px solid #2563eb;
     border-right: 1px solid #2563eb;
-    padding: 0.42rem 1rem 0.38rem;
+    padding: 0.52rem 1rem 0.48rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.66rem;
-    color: #64748b;
-    letter-spacing: 0.06em;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -3141,18 +3141,18 @@ def _inject_studio_styles() -> None:
     background: linear-gradient(180deg, #081224 0%, #050d1c 100%);
     border-left: 1px solid #2563eb;
     border-right: 1px solid #2563eb;
-    color: #93c5fd;
+    color: #bfdbfe;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 0.8rem;
     justify-content: space-between;
-    padding: 0.35rem 1rem 0.48rem;
+    padding: 0.4rem 1rem 0.55rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.06em;
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
   }
   .sal-cmd-subnote strong {
-    color: #dbeafe;
+    color: #e2e8f0;
     font-weight: 800;
   }
   .sal-cmd-caret {
@@ -3210,7 +3210,7 @@ def _inject_studio_styles() -> None:
     border-top: 1px solid #bfdbfe44 !important;
     color: #fff !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 0.74rem !important;
+    font-size: 0.86rem !important;
     font-weight: 900 !important;
     letter-spacing: 0.16em !important;
     border-radius: 0 0 12px 12px !important;
@@ -3243,10 +3243,10 @@ def _inject_studio_styles() -> None:
     border: 1px solid #2563eb33;
     color: #bfdbfe;
     font-family: 'Courier New', monospace;
-    font-size: 0.68rem;
+    font-size: 0.76rem;
     font-weight: 700;
     letter-spacing: 0.07em;
-    padding: 0.28rem 0.58rem;
+    padding: 0.32rem 0.65rem;
     border-radius: 999px;
     cursor: default;
     white-space: nowrap;
