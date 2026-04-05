@@ -3181,10 +3181,10 @@ def _inject_studio_styles() -> None:
     caret-color: #38bdf8 !important;
     border: none !important;
     border-radius: 0 !important;
-    padding: 1rem 1.2rem !important;
+    padding: 1.2rem 1.4rem !important;
     letter-spacing: 0.03em !important;
     transition: border-color 0.2s !important;
-    height: 3.35rem !important;
+    height: 4.2rem !important;
     line-height: 1.3 !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] > div:hover {
