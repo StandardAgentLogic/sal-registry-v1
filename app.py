@@ -2512,30 +2512,16 @@ def _inject_studio_styles() -> None:
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
     flex-shrink: 0;
     position: relative;
     box-shadow: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    mix-blend-mode: multiply;
   }
   .sal-eagle-wrap::after {
     display: none;
-  }
-  .sal-great-seal-img {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 113% !important;
-    height: 113% !important;
-    max-width: none !important;
-    object-fit: cover;
-    object-position: 50% 50%;
-    mix-blend-mode: multiply;
-    image-rendering: -webkit-optimize-contrast;
   }
   .sal-eagle-wrap svg {
     max-width: 100%;
@@ -3421,7 +3407,7 @@ def _inject_studio_styles() -> None:
     overflow: visible;
   }
   .sal-header-center {
-    width: clamp(240px, 30%, 340px);
+    width: 300px;
     overflow: visible;
     text-align: center;
     justify-self: center;
@@ -5435,8 +5421,7 @@ def _sovereign_header_html() -> str:
 
         # CENTER — seal only (ribbon moved below trio)
         '<div class="sal-header-center">'
-        '<div class="sal-eagle-wrap">'
-        f'<img src="{seal}" class="sal-great-seal-img" alt="Great Seal of SAL"/>'
+        f'<div class="sal-eagle-wrap" style="background-image:url(\'{seal}\')">'
         '</div>'
         '</div>'
 
@@ -5746,3 +5731,8 @@ def main() -> None:
 
 
 main()
+
+
+
+
+
