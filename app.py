@@ -5149,8 +5149,9 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
                 }
                 return false;
             }
-            if (!scrollToTree()) { setTimeout(scrollToTree, 400); }
-            else { setTimeout(scrollToTree, 400); }
+            // Delay past the scroll-to-top script (fires at 0, 120, 400ms)
+            setTimeout(scrollToTree, 600);
+            setTimeout(scrollToTree, 1000);
         })();
         </script>""", height=1, scrolling=False)
 
