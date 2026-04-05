@@ -5135,24 +5135,24 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
     _prev_prefix = str(st.session_state.get("_prev_active_prefix") or "")
     if _cur_prefix and _cur_prefix != _prev_prefix:
         st.session_state["_prev_active_prefix"] = _cur_prefix
-        _stc.html("""<script>
-        (function() {
-            function scrollToTree() {
+        # Embed _cur_prefix so HTML is unique per change — forces Streamlit to re-execute
+        _stc.html(f"""<script>
+        (function() {{
+            var _p = '{_cur_prefix}';  // unique per prefix: forces re-execution on each change
+            function scrollToTree() {{
                 var anchor = window.parent.document.getElementById('sal-onet-tree');
                 var main   = window.parent.document.querySelector('[data-testid="stMain"]');
-                if (anchor && main) {
+                if (anchor && main) {{
                     var mainRect   = main.getBoundingClientRect();
                     var anchorRect = anchor.getBoundingClientRect();
                     var target     = main.scrollTop + (anchorRect.top - mainRect.top) - 16;
-                    main.scrollTo({top: target, behavior: 'smooth'});
-                    return true;
-                }
-                return false;
-            }
+                    main.scrollTo({{top: target, behavior: 'smooth'}});
+                }}
+            }}
             // Delay past the scroll-to-top script (fires at 0, 120, 400ms)
             setTimeout(scrollToTree, 600);
             setTimeout(scrollToTree, 1000);
-        })();
+        }})();
         </script>""", height=1, scrolling=False)
 
     # ── O*NET SOC Directory — engine anchor for CSS ───────────────────────
