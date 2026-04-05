@@ -2185,19 +2185,29 @@ def _inject_studio_styles() -> None:
     background: #020b1e;
     border-top: 1px solid #1d4ed833;
     border-bottom: 2px solid #1d4ed8;
-    padding: 0.4rem 1rem;
+    padding: 0.38rem 0;
     font-family: 'Courier New', monospace;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: #60a5fa;
     letter-spacing: 0.07em;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6rem;
+    overflow: hidden;
+    white-space: nowrap;
   }
-  .sal-cred-sep { color: #1d4ed8; font-weight: 400; }
+  .sal-ticker-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    animation: sal-ticker-scroll 28s linear infinite;
+    will-change: transform;
+  }
+  .sal-ticker-track:hover { animation-play-state: paused; }
+  .sal-ticker-item { padding: 0 1.4rem; white-space: nowrap; }
+  .sal-cred-sep { color: #1d4ed8; font-weight: 400; padding: 0 0.2rem; }
+  @keyframes sal-ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 
   /* ── SAL Seal CTA panel ── */
   .sal-seal-cta {
@@ -2236,6 +2246,29 @@ def _inject_studio_styles() -> None:
     font-weight: 700;
     color: #93c5fd;
     letter-spacing: 0.08em;
+  }
+  /* Certification CTA button */
+  .sal-cert-cta-anchor ~ div div[data-testid="stButton"] > button {
+    background: transparent !important;
+    border: 1px solid #c9a22788 !important;
+    border-top: 1px solid #f0d06055 !important;
+    color: #f0d060 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.82rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.18em !important;
+    border-radius: 4px !important;
+    padding: 0.65rem 2rem !important;
+    transition: all 0.25s !important;
+    text-shadow: 0 0 10px rgba(201,162,39,0.5) !important;
+    box-shadow: 0 0 0 0 transparent, inset 0 1px 0 rgba(240,208,96,0.1) !important;
+  }
+  .sal-cert-cta-anchor ~ div div[data-testid="stButton"] > button:hover {
+    background: linear-gradient(135deg, #c9a22711 0%, #f0d06008 100%) !important;
+    border-color: #c9a227cc !important;
+    box-shadow: 0 0 20px rgba(201,162,39,0.22), inset 0 1px 0 rgba(240,208,96,0.15) !important;
+    transform: translateY(-1px) !important;
+    color: #f5e070 !important;
   }
 
   /* ── Logic spec document card — certificate style ── */
@@ -3369,70 +3402,77 @@ def _inject_studio_styles() -> None:
   /* ── Intent Router ── */
   .sal-intent-wrap {
     text-align: center;
-    padding: 0.6rem 0 0.5rem;
-    border-top: 1px solid #1d4ed811;
+    padding: 1.1rem 0.5rem 0.6rem;
+    border-top: 1px solid #1d4ed822;
     margin-top: 0.5rem;
   }
   .sal-intent-title {
     font-family: 'Courier New', monospace;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 900;
-    letter-spacing: 0.18em;
-    color: #1d4ed8;
+    letter-spacing: 0.22em;
+    color: #60a5fa;
     text-transform: uppercase;
-    margin-bottom: 0.18rem;
+    margin-bottom: 0.25rem;
   }
   .sal-intent-sub {
-    font-size: 0.65rem;
-    color: #475569;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.55rem;
+    font-size: 0.72rem;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.7rem;
   }
   .sal-intent-pill {
-    border-radius: 6px;
-    padding: 0.5rem 0.4rem 0.45rem;
+    background: linear-gradient(160deg, #071540 0%, #040e2e 100%);
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem 0.65rem;
     text-align: center;
     margin-bottom: 0.3rem;
-    transition: box-shadow 0.2s, background 0.2s;
-    min-height: 5rem;
+    transition: box-shadow 0.22s, background 0.22s, transform 0.15s;
+    min-height: 6rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.18rem;
+    gap: 0.22rem;
+    cursor: default;
+  }
+  .sal-intent-pill:hover {
+    transform: translateY(-2px);
   }
   .sal-intent-pill-icon {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     line-height: 1;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.15rem;
   }
   .sal-intent-pill-label {
-    font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    font-family: 'Courier New', monospace;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.07em;
     line-height: 1.2;
   }
   .sal-intent-pill-desc {
     font-family: 'Courier New', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.04em;
-    line-height: 1.35;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+    opacity: 0.8;
   }
   .sal-intent-banner {
     display: flex;
     align-items: center;
     gap: 0.65rem;
     flex-wrap: wrap;
-    background: #030b19;
-    border-radius: 0 4px 4px 0;
-    padding: 0.4rem 0.85rem;
-    margin: 0.3rem 0 0.5rem;
+    background: linear-gradient(90deg, #020c1b 0%, #031124 100%);
+    border-radius: 0 6px 6px 0;
+    border: 1px solid #1d4ed833;
+    padding: 0.5rem 1rem;
+    margin: 0.4rem 0 0.6rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
   }
-  .sal-intent-banner-sep { color: #1d4ed833; }
+  .sal-intent-banner-sep { color: #1d4ed855; }
 
   /* ── Header trio layout ── */
   .sal-header-trio {
@@ -3586,12 +3626,89 @@ def _inject_studio_styles() -> None:
   }
 
   /* Sidebar */
-  [data-testid="stSidebar"] { background: #020c1b !important; border-right: 1px solid #1d4ed811 !important; }
+  /* ── Sidebar — dark federal theme ── */
+  [data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #020b1e 0%, #010918 100%) !important;
+    border-right: 1px solid #1d4ed822 !important;
+    box-shadow: 2px 0 18px rgba(0,0,0,0.45) !important;
+  }
   [data-testid="stSidebar"] .stMarkdown p,
-  [data-testid="stSidebar"] .stMarkdown li,
-  [data-testid="stSidebar"] label { color: #64748b !important; }
+  [data-testid="stSidebar"] .stMarkdown li { color: #64748b !important; }
+  [data-testid="stSidebar"] label,
+  [data-testid="stSidebar"] .stRadio label,
+  [data-testid="stSidebar"] .stCheckbox label { color: #94a3b8 !important; font-family: 'Courier New', monospace !important; font-size: 0.72rem !important; letter-spacing: 0.05em !important; }
   [data-testid="stSidebar"] .stMarkdown h3,
-  [data-testid="stSidebar"] .stMarkdown h4 { color: #93c5fd !important; }
+  [data-testid="stSidebar"] .stMarkdown h4,
+  [data-testid="stSidebar"] .stMarkdown h5 { color: #60a5fa !important; font-family: 'Courier New', monospace !important; letter-spacing: 0.1em !important; }
+  [data-testid="stSidebar"] .stMarkdown strong { color: #bfdbfe !important; }
+  /* Metric cards in sidebar */
+  [data-testid="stSidebar"] [data-testid="stMetric"] {
+    background: linear-gradient(135deg, #071540 0%, #040e2e 100%) !important;
+    border: 1px solid #1d4ed833 !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stMetricValue"] { color: #f1f5f9 !important; font-family: 'Courier New', monospace !important; }
+  [data-testid="stSidebar"] [data-testid="stMetricLabel"] { color: #64748b !important; font-size: 0.65rem !important; letter-spacing: 0.08em !important; }
+  /* Text inputs in sidebar */
+  [data-testid="stSidebar"] [data-testid="stTextInput"] > div {
+    background: #04112e !important;
+    border: 1px solid #1d4ed844 !important;
+    border-radius: 4px !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stTextInput"] input {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.8rem !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stTextInput"] input::placeholder { color: #475569 !important; }
+  /* Radio buttons */
+  [data-testid="stSidebar"] .stRadio [data-testid="stWidgetLabel"] p { color: #60a5fa !important; font-family: 'Courier New', monospace !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
+  /* Unlock button */
+  [data-testid="stSidebar"] [data-testid="stButton"] > button[kind="primary"] {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%) !important;
+    border: 1px solid #3b82f655 !important;
+    color: #fff !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.1em !important;
+  }
+  /* Dark mode toggle */
+  [data-testid="stSidebar"] [data-testid="stButton"] > button[kind="secondary"] {
+    background: #040e2e !important;
+    border: 1px solid #1d4ed844 !important;
+    color: #60a5fa !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.08em !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stButton"] > button[kind="secondary"]:hover {
+    background: #071540 !important;
+    border-color: #3b82f6 !important;
+    color: #bfdbfe !important;
+  }
+  /* Expander in sidebar */
+  [data-testid="stSidebar"] details > summary {
+    color: #475569 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.06em !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stExpander"] {
+    border: 1px solid #1d4ed811 !important;
+    background: transparent !important;
+  }
+  /* Divider */
+  [data-testid="stSidebar"] hr {
+    border-color: #1d4ed822 !important;
+  }
+  /* Alert in sidebar */
+  [data-testid="stSidebar"] [data-testid="stAlert"] {
+    background: #04112e !important;
+    border: 1px solid #1d4ed844 !important;
+    color: #60a5fa !important;
+  }
 
   /* Sovereign header — dark quantum */
   .sal-sovereign-header {
@@ -3811,9 +3928,9 @@ def _inject_studio_styles() -> None:
 
   /* Intent router pills — dark mode overrides */
   .sal-intent-wrap { border-top-color: #1d4ed822 !important; }
-  .sal-intent-title { color: #1d4ed8 !important; }
-  .sal-intent-sub   { color: #334155 !important; }
-  .sal-intent-banner { background: #030b19 !important; }
+  .sal-intent-title { color: #60a5fa !important; }
+  .sal-intent-sub   { color: #475569 !important; }
+  .sal-intent-banner { background: linear-gradient(90deg,#020c1b 0%,#031124 100%) !important; }
 
   /* .sal-doc STAYS white — certificate on dark background = premium */
   /* All other dark custom elements already have dark bg set inline */
@@ -3918,72 +4035,94 @@ def _render_bureau(*, client, browse_mode: bool) -> None:
 
 def _notary_seal_svg(code: str, title: str, bg: str, ring: str, accent: str, icon_svg: str) -> str:
     """Build a 200x200 SVG federal-grade notary seal — gold outer rim, gear teeth, arc text."""
-    # Gold colour shared with main SAL seal for visual continuity
     GOLD = "#c9a227"
-    GOLD_LIGHT = "#f0d060"
+    GOLD_LIGHT = "#f5e070"
+    GOLD_DARK  = "#7a5a08"
     teeth: list[str] = []
-    n_teeth = 52
+    n_teeth = 60
     for i in range(n_teeth):
-        a1 = ((i * 360 / n_teeth) - 2.4) * math.pi / 180
-        a2 = ((i * 360 / n_teeth) + 2.4) * math.pi / 180
-        ri, ro = 91, 101
+        angle = i * 360 / n_teeth
+        # alternate tall/short teeth for jewel-crown look
+        tall = (i % 2 == 0)
+        ri = 91
+        ro = 103 if tall else 99
+        a1 = (angle - 2.0) * math.pi / 180
+        a2 = (angle + 2.0) * math.pi / 180
         pts = (
             f"{100 + ri * math.cos(a1):.2f},{100 + ri * math.sin(a1):.2f} "
             f"{100 + ri * math.cos(a2):.2f},{100 + ri * math.sin(a2):.2f} "
             f"{100 + ro * math.cos(a2):.2f},{100 + ro * math.sin(a2):.2f} "
             f"{100 + ro * math.cos(a1):.2f},{100 + ro * math.sin(a1):.2f}"
         )
-        teeth.append(f'<polygon points="{pts}" fill="{GOLD}" opacity="0.92"/>')
+        op = "1.0" if tall else "0.65"
+        teeth.append(f'<polygon points="{pts}" fill="url(#goldrim{code.replace("-","")})" opacity="{op}"/>')
     teeth_html = "\n  ".join(teeth)
     cid = f"s{code.replace('-','')}"
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"'
         f' width="190" height="190" style="display:block;margin:0 auto;overflow:visible">\n'
         f'  <defs>\n'
-        f'    <radialGradient id="bg{cid}" cx="34%" cy="28%" r="70%">\n'
-        f'      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>\n'
-        f'      <stop offset="100%" stop-color="#000000" stop-opacity="0.0"/>\n'
+        # Disc fill: deep colour with bright top-left highlight
+        f'    <radialGradient id="discfill{cid}" cx="32%" cy="26%" r="72%">\n'
+        f'      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.18"/>\n'
+        f'      <stop offset="45%"  stop-color="{bg}"    stop-opacity="1"/>\n'
+        f'      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>\n'
         f'    </radialGradient>\n'
+        # Gold gradient for teeth and rims
         f'    <linearGradient id="goldrim{cid}" x1="0%" y1="0%" x2="100%" y2="100%">\n'
-        f'      <stop offset="0%" stop-color="{GOLD_LIGHT}"/>\n'
-        f'      <stop offset="50%" stop-color="{GOLD}"/>\n'
-        f'      <stop offset="100%" stop-color="#8a6a10"/>\n'
+        f'      <stop offset="0%"   stop-color="{GOLD_LIGHT}"/>\n'
+        f'      <stop offset="40%"  stop-color="{GOLD}"/>\n'
+        f'      <stop offset="100%" stop-color="{GOLD_DARK}"/>\n'
         f'    </linearGradient>\n'
-        f'    <path id="topA{cid}" d="M100,100 m-66,0 a66,66 0 1,1 132,0"/>\n'
-        f'    <path id="botA{cid}" d="M100,100 m-61,0 a61,61 0 0,0 122,0"/>\n'
-        f'    <filter id="glo{cid}">\n'
-        f'      <feGaussianBlur stdDeviation="1.6" result="b"/>\n'
+        # Accent ring glow
+        f'    <radialGradient id="ringglow{cid}" cx="50%" cy="50%" r="50%">\n'
+        f'      <stop offset="70%"  stop-color="{ring}" stop-opacity="0"/>\n'
+        f'      <stop offset="100%" stop-color="{ring}" stop-opacity="0.25"/>\n'
+        f'    </radialGradient>\n'
+        # Icon soft glow
+        f'    <filter id="glo{cid}" x="-20%" y="-20%" width="140%" height="140%">\n'
+        f'      <feGaussianBlur stdDeviation="2.2" result="b"/>\n'
         f'      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>\n'
         f'    </filter>\n'
-        f'    <filter id="shadow{cid}" x="-10%" y="-10%" width="120%" height="120%">\n'
-        f'      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>\n'
+        # Drop shadow for whole disc
+        f'    <filter id="shadow{cid}" x="-12%" y="-12%" width="124%" height="124%">\n'
+        f'      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.55"/>\n'
         f'    </filter>\n'
+        f'    <path id="topA{cid}" d="M100,100 m-67,0 a67,67 0 1,1 134,0"/>\n'
+        f'    <path id="botA{cid}" d="M100,100 m-62,0 a62,62 0 0,0 124,0"/>\n'
         f'  </defs>\n'
-        # Outer gold medal rim (behind teeth)
-        f'  <circle cx="100" cy="100" r="103" fill="url(#goldrim{cid})" opacity="0.35"/>\n'
+        # Outer glow ring
+        f'  <circle cx="100" cy="100" r="100" fill="url(#ringglow{cid})"/>\n'
+        # Teeth crown
         f'  {teeth_html}\n'
-        # Gold ring just inside teeth
-        f'  <circle cx="100" cy="100" r="90" fill="none" stroke="{GOLD}" stroke-width="1.8" opacity="0.7"/>\n'
-        f'  <circle cx="100" cy="100" r="89" fill="{bg}" filter="url(#shadow{cid})"/>\n'
-        f'  <circle cx="100" cy="100" r="89" fill="url(#bg{cid})"/>\n'
-        # Ring details — sector colour + gold accents
-        f'  <circle cx="100" cy="100" r="86" fill="none" stroke="{ring}" stroke-width="2.2"/>\n'
-        f'  <circle cx="100" cy="100" r="81" fill="none" stroke="{GOLD}" stroke-width="0.8"'
-        f'          stroke-dasharray="4 2.5" opacity="0.6"/>\n'
-        f'  <circle cx="100" cy="100" r="76" fill="none" stroke="{ring}" stroke-width="1.1"/>\n'
-        f'  <circle cx="100" cy="100" r="72" fill="none" stroke="{accent}" stroke-width="0.5"'
-        f'          opacity="0.4"/>\n'
+        # Outer gold rim circle
+        f'  <circle cx="100" cy="100" r="91" fill="none" stroke="url(#goldrim{cid})" stroke-width="1.5" opacity="0.9"/>\n'
+        # Main disc with depth gradient + shadow
+        f'  <circle cx="100" cy="100" r="90" fill="{bg}" filter="url(#shadow{cid})"/>\n'
+        f'  <circle cx="100" cy="100" r="90" fill="url(#discfill{cid})"/>\n'
+        # Ring layers: outer accent, gold dashes, inner accent, fine inner
+        f'  <circle cx="100" cy="100" r="87" fill="none" stroke="{ring}"  stroke-width="2.8" opacity="0.9"/>\n'
+        f'  <circle cx="100" cy="100" r="83" fill="none" stroke="{GOLD}"  stroke-width="1.0"'
+        f'          stroke-dasharray="5 2" opacity="0.7"/>\n'
+        f'  <circle cx="100" cy="100" r="79" fill="none" stroke="{ring}"  stroke-width="1.4" opacity="0.6"/>\n'
+        f'  <circle cx="100" cy="100" r="75" fill="none" stroke="{accent}" stroke-width="0.7" opacity="0.5"/>\n'
+        # Subtle inner highlight arc (top-left specular)
+        f'  <path d="M 55 68 A 53 53 0 0 1 145 68" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.12"/>\n'
+        # Icon
         f'  <g filter="url(#glo{cid})">{icon_svg}</g>\n'
-        f'  <text font-family="\'Arial Narrow\',Arial,sans-serif" font-size="10" font-weight="900"'
-        f'        letter-spacing="3" fill="{accent}" text-anchor="middle">\n'
+        # Arc title text — larger & brighter
+        f'  <text font-family="\'Arial Narrow\',Arial,sans-serif" font-size="11" font-weight="900"'
+        f'        letter-spacing="3.5" fill="{accent}" text-anchor="middle">\n'
         f'    <textPath href="#topA{cid}" startOffset="50%">{title.upper()}</textPath>\n'
         f'  </text>\n'
-        f'  <text font-family="Arial,sans-serif" font-size="7.5" font-weight="700"'
-        f'        letter-spacing="2.2" fill="{GOLD}" text-anchor="middle" opacity="0.9">\n'
+        # Bottom arc: SOC code
+        f'  <text font-family="Arial,sans-serif" font-size="8" font-weight="700"'
+        f'        letter-spacing="2.5" fill="{GOLD_LIGHT}" text-anchor="middle" opacity="0.95">\n'
         f'    <textPath href="#botA{cid}" startOffset="50%">SOC {code} \u00b7 O\u2217NET</textPath>\n'
         f'  </text>\n'
-        f'  <text x="56"  y="160" text-anchor="middle" font-size="9" fill="{GOLD}" opacity="0.85">&#9733;</text>\n'
-        f'  <text x="144" y="160" text-anchor="middle" font-size="9" fill="{GOLD}" opacity="0.85">&#9733;</text>\n'
+        # Gold stars flanking bottom text
+        f'  <text x="53"  y="162" text-anchor="middle" font-size="10" fill="{GOLD_LIGHT}" opacity="0.9">&#9733;</text>\n'
+        f'  <text x="147" y="162" text-anchor="middle" font-size="10" fill="{GOLD_LIGHT}" opacity="0.9">&#9733;</text>\n'
         f'</svg>'
     )
 
@@ -4829,19 +4968,19 @@ def _render_intent_router() -> None:
         color = intent["color"]
         glow  = intent["glow"]
         with col:
-            # Adapt pill styling to current theme
+            # Pill styling — always dark federal
             if is_active:
                 border = f"2px solid {color}"
-                bg     = f"linear-gradient(135deg,{color}22 0%,{color}0d 100%)"
-                shadow = f"0 0 16px {glow}, inset 0 0 8px {color}11"
-                lbl_c  = "#0b2a6f" if not _dark else "#f1f5f9"
+                bg     = f"linear-gradient(160deg,{color}28 0%,#071540 60%,#040e2e 100%)"
+                shadow = f"0 0 18px {glow}, inset 0 0 10px {color}18"
+                lbl_c  = "#f1f5f9"
                 desc_c = color
             else:
                 border = f"1px solid {color}44"
-                bg     = f"{color}08" if not _dark else "#04112e"
-                shadow = "none"
-                lbl_c  = "#475569" if not _dark else "#94a3b8"
-                desc_c = f"{color}88" if not _dark else f"{color}77"
+                bg     = "linear-gradient(160deg,#071540 0%,#040e2e 100%)"
+                shadow = f"inset 0 1px 0 {color}11"
+                lbl_c  = "#94a3b8"
+                desc_c = f"{color}99"
             st.markdown(
                 f'<div class="sal-intent-pill" style="border:{border};background:{bg};'
                 f'box-shadow:{shadow};">'
@@ -4852,7 +4991,7 @@ def _render_intent_router() -> None:
                 f'</div>',
                 unsafe_allow_html=True,
             )
-            btn_label = f"{'◉' if is_active else '○'}  {'Active' if is_active else 'Select'}"
+            btn_label = f"{'◉' if is_active else '○'}\u00a0\u00a0{'Active' if is_active else 'Select'}"
             if st.button(btn_label, key=f"intent_{key}", use_container_width=True,
                          type="primary" if is_active else "secondary"):
                 if is_active:
@@ -4909,14 +5048,15 @@ def _render_sal_seal_cta() -> None:
         '<span class="sal-seal-pillar">&#9632; GLOBALLY RECOGNIZED</span>'
         '<span class="sal-seal-pillar">&#9632; MCP SPEC COMPLIANT</span>'
         '</div>'
-        '</div>',
+        '</div>'
+        '<div class="sal-cert-cta-anchor"></div>',
         unsafe_allow_html=True,
     )
     if st.button(
-        "Apply for SAL Certification  &#8594;",
+        "\u2606\u00a0\u00a0APPLY FOR SAL CERTIFICATION\u00a0\u00a0\u2192",
         key="sal_cert_cta",
         use_container_width=False,
-        type="primary",
+        type="secondary",
     ):
         st.info(
             "SAL Certification is currently in private access. "
@@ -4949,7 +5089,7 @@ def _render_ai_sales_floor() -> None:
         '</div>',
         unsafe_allow_html=True,
     )
-    cols_per_row = 4
+    cols_per_row = 3
     for row_start in range(0, len(_AI_DISPLACEMENT), cols_per_row):
         chunk = _AI_DISPLACEMENT[row_start : row_start + cols_per_row]
         cols  = st.columns(len(chunk), gap="small")
@@ -4965,7 +5105,7 @@ def _render_ai_sales_floor() -> None:
             # Embed the sector seal
             s_bg, s_ring, s_acc, s_icon = _seal_lookup.get(prefix, ("#071540", "#1d4ed8", "#93c5fd", ""))
             seal_svg = _notary_seal_svg(prefix, label, s_bg, s_ring, s_acc, s_icon)
-            seal_md  = seal_svg.replace('width="190" height="190"', 'width="88" height="88"')
+            seal_md  = seal_svg.replace('width="190" height="190"', 'width="100" height="100"')
             with col:
                 st.markdown(
                     f'<div class="sal-floor-card" style="background:{bg};border:1px solid {bar}44;'
@@ -5528,19 +5668,44 @@ def _sovereign_header_html() -> str:
 
         '</div>'  # end sovereign-header
 
-        # Credibility ticker bar
+        # Credibility ticker bar — scrolling marquee, duplicated for seamless loop
         '<div class="sal-credibility-bar">'
-        '<span>&#9632; POWERED BY O&#x2217;NET</span>'
+        '<div class="sal-ticker-track">'
+        # First copy
+        '<span class="sal-ticker-item">&#9632;&nbsp;POWERED BY O&#x2217;NET</span>'
         '<span class="sal-cred-sep">&#124;</span>'
-        '<span>U.S. DEPARTMENT OF LABOR FEDERAL STANDARD</span>'
+        '<span class="sal-ticker-item">U.S. DEPARTMENT OF LABOR FEDERAL STANDARD</span>'
         '<span class="sal-cred-sep">&#124;</span>'
-        '<span>1,095 VERIFIED ROLE SPECIFICATIONS</span>'
+        '<span class="sal-ticker-item">1,095 VERIFIED ROLE SPECIFICATIONS</span>'
         '<span class="sal-cred-sep">&#124;</span>'
-        '<span>22 SOC MAJOR DIVISIONS</span>'
+        '<span class="sal-ticker-item">22 SOC MAJOR DIVISIONS</span>'
         '<span class="sal-cred-sep">&#124;</span>'
-        '<span>LAST VERIFIED: APRIL 2026</span>'
+        '<span class="sal-ticker-item">LAST VERIFIED: APRIL 2026</span>'
         '<span class="sal-cred-sep">&#124;</span>'
-        '<span>CLASSIFICATION: UNCLASSIFIED &#47;&#47; FOR OFFICIAL USE</span>'
+        '<span class="sal-ticker-item">MCP SPEC COMPLIANT</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">CLASSIFICATION: UNCLASSIFIED &#47;&#47; FOR OFFICIAL USE</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">GLOBAL AI LABOR DNS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        # Duplicate copy for seamless loop
+        '<span class="sal-ticker-item">&#9632;&nbsp;POWERED BY O&#x2217;NET</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">U.S. DEPARTMENT OF LABOR FEDERAL STANDARD</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">1,095 VERIFIED ROLE SPECIFICATIONS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">22 SOC MAJOR DIVISIONS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">LAST VERIFIED: APRIL 2026</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">MCP SPEC COMPLIANT</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">CLASSIFICATION: UNCLASSIFIED &#47;&#47; FOR OFFICIAL USE</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '<span class="sal-ticker-item">GLOBAL AI LABOR DNS</span>'
+        '<span class="sal-cred-sep">&#124;</span>'
+        '</div>'
         '</div>'
         '</div>'
     )
