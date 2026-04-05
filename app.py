@@ -1846,7 +1846,9 @@ def _render_file_tree_panel(*, supabase_url: str, supabase_key: str, query: str,
                 st.caption("No matches in this folder.")
             else:
                 if prefix2 == st.session_state.get("active_prefix"):
-                    _sync_active_role(rows)
+                    # Only auto-select a role if one isn't already explicitly set or cleared
+                    if st.session_state.get("active_soc") is not None and st.session_state.get("active_soc") != "":
+                        _sync_active_role(rows)
                 _render_sidebar_registry_directory(rows, button_key_prefix=button_key_prefix)
 
 
@@ -2617,6 +2619,15 @@ def _inject_studio_styles() -> None:
   .sal-sector-tile-desc  { font-size: 0.55rem; color: #475569; margin-top: 0.12rem; line-height: 1.25; }
 
   /* Sector quick-access divider in center column */
+  /* AI Displacement Sales Floor — hide button rows; cards are clickable via JS */
+  div[data-testid="stElementContainer"]:has(.sal-floor-card)
+    + div[data-testid="stElementContainer"] {
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   .sal-sector-divider {
     display: flex; align-items: center; gap: 0.5rem;
     margin: 0.5rem 0 0.3rem;
@@ -4957,12 +4968,13 @@ def _render_ai_sales_floor() -> None:
             seal_sm  = seal_svg.replace('width="190" height="190"', 'width="72" height="72"')
             with col:
                 st.markdown(
-                    f'<div style="background:{bg};border:1px solid {bar}44;border-radius:6px;'
+                    f'<div class="sal-floor-card" style="background:{bg};border:1px solid {bar}44;'
+                    f'border-bottom:none;border-radius:6px 6px 0 0;'
                     f'padding:0.55rem 0.65rem 0.55rem;cursor:pointer;position:relative;overflow:hidden;'
                     f'text-align:center;transition:opacity 0.25s,filter 0.25s;{_dim_style}{_ring_style}">'
                     # progress bar strip at bottom
                     f'<div style="position:absolute;bottom:0;left:0;height:3px;'
-                    f'width:{pct}%;background:{bar};border-radius:0 0 0 6px;"></div>'
+                    f'width:{pct}%;background:{bar};border-radius:0 0 0 0;"></div>'
                     # seal centered at top
                     f'<div style="display:flex;justify-content:center;margin-bottom:0.3rem">'
                     f'{seal_sm}</div>'
@@ -4985,13 +4997,33 @@ def _render_ai_sales_floor() -> None:
                 if st.button(f"Browse {label}", key=f"ai_floor_{prefix}",
                              use_container_width=True, type="secondary"):
                     st.session_state["active_prefix"] = prefix
-                    _first = next(
-                        (r["soc_code"] for r in _MOCK_REGISTRY
-                         if str(r.get("soc_code", "")).startswith(f"{prefix}-")),
-                        None,
-                    )
-                    if _first:
-                        st.session_state["active_soc"] = _first
+                    st.session_state["active_soc"] = ""
+
+    # Wire card clicks → hidden buttons so the whole card is clickable
+    st.markdown("""<script>
+    (function() {
+      function wire() {
+        var cards = document.querySelectorAll('.sal-floor-card:not([data-wired])');
+        cards.forEach(function(card) {
+          card.dataset.wired = '1';
+          var el = card;
+          while (el && !(el.dataset && el.dataset.testid === 'stElementContainer')) {
+            el = el.parentElement;
+          }
+          if (!el) return;
+          var sib = el.nextElementSibling;
+          if (!sib) return;
+          var btn = sib.querySelector('button');
+          if (!btn) return;
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', (function(b){ return function(){ b.click(); }; })(btn));
+        });
+      }
+      wire();
+      setTimeout(wire, 300);
+      setTimeout(wire, 900);
+    })();
+    </script>""", unsafe_allow_html=True)
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
