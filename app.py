@@ -2829,6 +2829,10 @@ def _inject_studio_styles() -> None:
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    max-width: none !important;
   }
   .sal-serial {
     position: absolute; top: 0.35rem; right: 0.9rem;
