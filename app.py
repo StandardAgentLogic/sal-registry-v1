@@ -1828,8 +1828,16 @@ def _render_sidebar_registry_directory(rows: list[dict[str, Any]], *, button_key
 
 
 def _render_file_tree_panel(*, supabase_url: str, supabase_key: str, query: str, vault_only: bool, demo_mode: bool, button_key_prefix: str = "") -> None:
-    st.markdown("##### O\u2217NET major groups")
-    st.caption("Collapsible tree · SOC prefix folders · select a role to load the logic specification")
+    st.markdown(
+        '<div class="sal-tree-section-hdr">'
+        '<span class="sal-tree-section-title">O\u2217NET\u00a0MAJOR\u00a0GROUPS</span>'
+        '<span class="sal-tree-section-hint">'
+        'Collapsible tree\u00a0\u00b7\u00a0SOC prefix folders\u00a0\u00b7\u00a0'
+        'select a role to load the logic specification'
+        '</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     for prefix2, label in SOC_MAJOR_GROUPS.items():
         expanded = st.session_state.get("active_prefix") == prefix2
@@ -2575,7 +2583,7 @@ def _inject_studio_styles() -> None:
     background: rgba(240,246,255,0.65);
   }
   .sal-ribbon-title {
-    font-size: clamp(0.62rem, 1.15vw, 0.82rem);
+    font-size: clamp(0.78rem, 1.3vw, 0.92rem);
     font-weight: 900; letter-spacing: 0.18em;
     color: #0b2a6f; text-transform: uppercase; line-height: 1.25;
     white-space: nowrap;
@@ -2587,7 +2595,7 @@ def _inject_studio_styles() -> None:
     text-transform: uppercase; margin: 0.12rem 0 0.06rem;
   }
   .sal-ribbon-sub {
-    font-size: 0.57rem; font-weight: 700;
+    font-size: clamp(0.65rem, 0.9vw, 0.76rem); font-weight: 700;
     color: #1d4ed8; letter-spacing: 0.14em;
     text-transform: uppercase; margin-top: 0.08rem;
   }
@@ -2706,6 +2714,28 @@ def _inject_studio_styles() -> None:
   }
   .sal-search-anchor p { font-size: 0.72rem; font-weight: 900; color: #1d4ed8; letter-spacing: 0.14em; margin: 0 0 0.35rem; line-height: 1.3; font-family: 'Courier New', monospace; }
 
+  /* O*NET tree section heading */
+  .sal-tree-section-hdr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+    padding: 0.55rem 0.1rem 0.45rem;
+    border-bottom: 1px solid #1d4ed822;
+    margin-bottom: 0.45rem;
+  }
+  .sal-tree-section-title {
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    color: #60a5fa;
+  }
+  .sal-tree-section-hint {
+    font-family: 'Courier New', monospace;
+    font-size: 0.70rem;
+    color: #334155;
+    letter-spacing: 0.04em;
+  }
   /* Directory rule — replaces heavy navy filing cabinet header */
   .sal-dir-rule {
     display: flex;
@@ -2716,7 +2746,7 @@ def _inject_studio_styles() -> None:
     padding: 0.3rem 0.1rem;
     margin: 0.5rem 0 0.3rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     font-weight: 800;
     color: #1d4ed8;
     letter-spacing: 0.1em;
@@ -2725,7 +2755,7 @@ def _inject_studio_styles() -> None:
   .sal-dir-count {
     color: #64748b;
     font-weight: 600;
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     letter-spacing: 0.06em;
   }
 
@@ -2825,14 +2855,14 @@ def _inject_studio_styles() -> None:
   }
   .sal-ribbon-title {
     font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: clamp(0.62rem, 1.15vw, 0.82rem);
+    font-size: clamp(0.78rem, 1.3vw, 0.92rem);
     font-weight: 900; letter-spacing: 0.18em;
     color: #0b2a6f; text-transform: uppercase; line-height: 1.25;
     white-space: nowrap;
   }
   .sal-ribbon-sub {
     font-family: 'Arial','Helvetica Neue',sans-serif;
-    font-size: clamp(0.48rem, 0.85vw, 0.62rem); font-weight: 700;
+    font-size: clamp(0.65rem, 0.9vw, 0.76rem); font-weight: 700;
     color: #1d4ed8; letter-spacing: 0.12em;
     text-transform: uppercase; margin-top: 0.07rem;
     white-space: nowrap;
@@ -3112,16 +3142,16 @@ def _inject_studio_styles() -> None:
 
   /* ── SAL Command Interface ── */
   .sal-cmd-hdr {
-    background: linear-gradient(90deg, #031124 0%, #0b2a6f 34%, #0a1f55 58%, #031124 100%);
-    border: 1px solid #2563eb;
-    border-bottom: 1px solid #60a5fa33;
+    background: linear-gradient(90deg, #020d1e 0%, #071e45 30%, #0a1f55 58%, #020d1e 100%);
+    border: 1px solid #1d4ed8;
+    border-bottom: 1px solid #c9a22720;
     border-radius: 12px 12px 0 0;
-    padding: 0.6rem 1rem;
+    padding: 0.55rem 1rem;
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.5rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     color: #60a5fa;
     letter-spacing: 0.09em;
     position: relative;
@@ -3132,8 +3162,8 @@ def _inject_studio_styles() -> None:
     content: '';
     position: absolute; top: 0; left: -80%;
     width: 50%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(56,189,248,0.07), transparent);
-    animation: sal-scan-line 5s linear infinite;
+    background: linear-gradient(90deg, transparent, rgba(201,162,39,0.06), transparent);
+    animation: sal-scan-line 6s linear infinite;
     pointer-events: none;
   }
   @keyframes sal-scan-line {
@@ -3154,157 +3184,172 @@ def _inject_studio_styles() -> None:
     50%       { opacity: 0.25; box-shadow: none; }
   }
   .sal-cmd-live-txt  { color: #22c55e; font-weight: 900; letter-spacing: 0.12em; }
-  .sal-cmd-sep       { color: #1d4ed8; opacity: 0.5; }
-  .sal-cmd-title     { color: #e2e8f0; font-weight: 800; letter-spacing: 0.15em; }
-  .sal-cmd-stat      { color: #93c5fd; }
-  .sal-cmd-prompt {
-    background: linear-gradient(180deg, #081224 0%, #040b18 100%);
-    border-left: 1px solid #2563eb;
-    border-right: 1px solid #2563eb;
-    padding: 0.52rem 1rem 0.48rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.82rem;
-    color: #94a3b8;
-    letter-spacing: 0.05em;
+  .sal-cmd-sep       { color: #1d4ed8; opacity: 0.4; }
+  .sal-cmd-title     { color: #e2e8f0; font-weight: 800; letter-spacing: 0.18em; }
+  .sal-cmd-stat      { color: #64748b; }
+  /* Hero tagline — the single entry-point invitation */
+  .sal-cmd-hero {
+    background: linear-gradient(180deg, #040f20 0%, #020b18 100%);
+    border-left: 1px solid #1d4ed8;
+    border-right: 1px solid #1d4ed8;
+    padding: 0.85rem 1.2rem 0.7rem;
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    flex-direction: column;
+    gap: 0.22rem;
   }
-  .sal-cmd-subnote {
-    background: linear-gradient(180deg, #081224 0%, #050d1c 100%);
-    border-left: 1px solid #2563eb;
-    border-right: 1px solid #2563eb;
-    color: #bfdbfe;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.8rem;
-    justify-content: space-between;
-    padding: 0.4rem 1rem 0.55rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.76rem;
-    letter-spacing: 0.05em;
-  }
-  .sal-cmd-subnote strong {
+  .sal-cmd-hero-q {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 1.08rem;
+    font-weight: 400;
     color: #e2e8f0;
-    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
   }
-  .sal-cmd-caret {
-    color: #38bdf8;
-    animation: sal-caret-blink 1.1s step-end infinite;
-    font-size: 0.8rem;
+  .sal-cmd-hero-hint {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: #475569;
+    letter-spacing: 0.08em;
   }
-  @keyframes sal-caret-blink {
-    0%, 100% { opacity: 1; } 50% { opacity: 0; }
+  /* Input idle gold pulse */
+  @keyframes sal-input-idle-glow {
+    0%, 100% {
+      box-shadow: inset 0 1px 0 rgba(201,162,39,0.07),
+                  0 0 0 1px rgba(201,162,39,0.10),
+                  0 8px 24px rgba(2,12,27,0.14);
+    }
+    50% {
+      box-shadow: inset 0 1px 0 rgba(201,162,39,0.13),
+                  0 0 0 2px rgba(201,162,39,0.18),
+                  0 0 22px rgba(201,162,39,0.07),
+                  0 8px 24px rgba(2,12,27,0.18);
+    }
   }
   /* Style the Streamlit text input inside the command interface zone */
   .sal-search-anchor ~ div div[data-testid="stTextInput"] > div {
-    border: 1px solid #2563eb66 !important;
-    border-top: 1px solid #60a5fa30 !important;
+    border: 1px solid #c9a22730 !important;
+    border-top: none !important;
     border-radius: 0 !important;
-    background: linear-gradient(180deg, rgba(14, 24, 45, 0.98) 0%, rgba(3, 11, 25, 0.98) 100%) !important;
+    background: linear-gradient(180deg, rgba(8, 16, 32, 0.99) 0%, rgba(3, 9, 20, 0.99) 100%) !important;
     padding: 0 !important;
-    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.08), 0 12px 28px rgba(2, 12, 27, 0.14) !important;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s !important;
+    animation: sal-input-idle-glow 3.2s ease-in-out infinite !important;
+    transition: border-color 0.25s !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input {
     background: transparent !important;
-    color: #f8fafc !important;
+    color: #f1f5f9 !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 1.02rem !important;
-    caret-color: #38bdf8 !important;
+    font-size: 1.05rem !important;
+    caret-color: #c9a227 !important;
     border: none !important;
     border-radius: 0 !important;
-    padding: 1.2rem 1.4rem !important;
+    padding: 1.25rem 1.4rem !important;
     letter-spacing: 0.03em !important;
-    transition: border-color 0.2s !important;
-    height: 4.2rem !important;
+    height: 4.4rem !important;
     line-height: 1.3 !important;
-  }
-  .sal-search-anchor ~ div div[data-testid="stTextInput"] > div:hover {
-    border-color: #3b82f688 !important;
-    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.11), 0 16px 34px rgba(2, 12, 27, 0.18) !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input:focus {
     outline: none !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"]:focus-within > div {
-    border-color: #38bdf8 !important;
-    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.14), 0 0 0 3px #38bdf822, 0 0 24px #1d4ed833 !important;
+    animation: none !important;
+    border-color: #c9a227aa !important;
+    box-shadow:
+      inset 0 1px 0 rgba(201,162,39,0.14),
+      0 0 0 3px rgba(201,162,39,0.14),
+      0 0 32px rgba(201,162,39,0.10) !important;
   }
   .sal-search-anchor ~ div div[data-testid="stTextInput"] input::placeholder {
-    color: #93c5fd !important;
-    font-style: normal;
-    opacity: 0.88;
+    color: #4a5568 !important;
+    font-style: italic;
+    opacity: 1;
+    transition: opacity 0.4s;
   }
-  /* Dispatch button */
-  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"] {
-    background: linear-gradient(135deg,#2563eb 0%,#1d4ed8 52%,#3730a3 100%) !important;
-    border: 1px solid #60a5fa55 !important;
-    border-top: 1px solid #bfdbfe44 !important;
-    color: #fff !important;
+  /* Search button — gold primary action (both selector forms for Streamlit compat) */
+  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"],
+  .sal-search-anchor ~ div [data-testid="stBaseButton-primary"],
+  .sal-search-btn-zone [data-testid="stBaseButton-primary"],
+  .sal-search-btn-zone button[kind="primary"] {
+    background: linear-gradient(135deg, #c9a227 0%, #a37a10 55%, #7a5a08 100%) !important;
+    border: none !important;
+    border-top: 1px solid #f5e07040 !important;
+    color: #0a0700 !important;
     font-family: 'Courier New', monospace !important;
-    font-size: 0.86rem !important;
+    font-size: 0.88rem !important;
     font-weight: 900 !important;
-    letter-spacing: 0.16em !important;
+    letter-spacing: 0.20em !important;
     border-radius: 0 0 12px 12px !important;
-    padding: 0.78rem 1rem !important;
-    transition: all 0.25s !important;
-    position: relative !important;
-    overflow: hidden !important;
-    text-shadow: 0 0 12px rgba(96,165,250,0.6) !important;
-    box-shadow: 0 14px 24px rgba(37, 99, 235, 0.18) !important;
+    padding: 0.82rem 1rem !important;
+    transition: all 0.22s !important;
+    text-shadow: 0 1px 0 rgba(255,240,100,0.18) !important;
+    box-shadow: 0 4px 22px rgba(201,162,39,0.22), 0 12px 28px rgba(2,8,16,0.35) !important;
   }
-  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"]:hover {
-    background: linear-gradient(135deg,#3b82f6 0%,#2563eb 52%,#4338ca 100%) !important;
-    box-shadow: 0 0 22px rgba(59,130,246,0.34), 0 14px 30px rgba(37,99,235,0.22) !important;
-    transform: translateY(-1px) !important;
+  .sal-search-anchor ~ div div[data-testid="stButton"] > button[kind="primary"]:hover,
+  .sal-search-anchor ~ div [data-testid="stBaseButton-primary"]:hover,
+  .sal-search-btn-zone [data-testid="stBaseButton-primary"]:hover,
+  .sal-search-btn-zone button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #f5e070 0%, #c9a227 55%, #a37a10 100%) !important;
+    box-shadow: 0 0 36px rgba(201,162,39,0.35), 0 14px 32px rgba(2,8,16,0.4) !important;
+    transform: translateY(-2px) !important;
   }
-  .sal-cmd-chips {
-    background: linear-gradient(180deg, #02101f 0%, #020c1b 100%);
-    border: 1px solid #1d4ed8;
-    border-top: 1px solid #1d4ed822;
-    border-radius: 12px;
-    padding: 0.6rem 0.8rem;
+  /* Trust signal strip */
+  .sal-cmd-trust-strip {
+    background: linear-gradient(90deg, #020a14 0%, #041222 50%, #020a14 100%);
+    border-left: 1px solid #1d4ed8;
+    border-right: 1px solid #1d4ed8;
+    border-bottom: 1px solid #c9a22718;
+    padding: 0.45rem 1.2rem;
     display: flex;
+    align-items: center;
+    gap: 0;
     flex-wrap: wrap;
-    gap: 0.38rem;
-    margin: 0.42rem 0 0.65rem;
-    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.05);
+    overflow: hidden;
   }
-  .sal-chip {
-    background: linear-gradient(180deg, #0a173e 0%, #071540 100%);
-    border: 1px solid #2563eb33;
-    color: #bfdbfe;
+  .sal-trust-item {
     font-family: 'Courier New', monospace;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.07em;
-    padding: 0.32rem 0.65rem;
-    border-radius: 999px;
-    cursor: default;
+    letter-spacing: 0.10em;
+    color: #334155;
     white-space: nowrap;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    padding: 0 0.7rem;
+    border-right: 1px solid #1e3a5f;
   }
-  .sal-chip-bright  { border-color: #92400e44; color: #fbbf24; background: #120800; }
-  .sal-chip-vault   { border-color: #5b21b644; color: #c4b5fd; background: #0d0720; }
-  .sal-cmd-transmission {
-    background: #020c1b;
-    border: 1px solid #1d4ed844;
-    border-left: 3px solid #38bdf8;
-    border-radius: 0 4px 4px 0;
-    padding: 0.5rem 0.85rem;
-    margin: 0.3rem 0;
+  .sal-trust-item:first-child { padding-left: 0; }
+  .sal-trust-item:last-child  { border-right: none; }
+  .sal-trust-item strong      { color: #c9a227; font-weight: 900; }
+  /* Friction-reducer micro-copy below CTA */
+  .sal-cta-note {
     font-family: 'Courier New', monospace;
-    font-size: 0.7rem;
-    color: #93c5fd;
-    line-height: 1.55;
+    font-size: 0.70rem;
+    color: #334155;
+    text-align: center;
+    letter-spacing: 0.10em;
+    padding: 0.35rem 0 0.1rem;
+  }
+  .sal-cmd-transmission {
+    background: linear-gradient(180deg, #06100a 0%, #020c05 100%);
+    border: 1px solid #c9a22730;
+    border-left: 3px solid #c9a227;
+    border-radius: 0 6px 6px 0;
+    padding: 0.55rem 0.95rem;
+    margin: 0.35rem 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    animation: sal-transmission-in 0.3s ease-out;
+  }
+  @keyframes sal-transmission-in {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
   }
   .sal-cmd-transmission-hdr {
-    font-size: 0.7rem;
+    font-size: 0.64rem;
     font-weight: 900;
-    letter-spacing: 0.14em;
-    color: #38bdf8;
-    margin-bottom: 0.25rem;
+    letter-spacing: 0.16em;
+    color: #c9a227;
+    margin-bottom: 0.28rem;
     display: block;
   }
   .sal-capabilities-block {
@@ -3333,7 +3378,7 @@ def _inject_studio_styles() -> None:
     border-bottom: 1px solid #bbf7d044;
     padding: 0.28rem 0.6rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.58rem;
+    font-size: 0.70rem;
     letter-spacing: 0.06em;
     margin-bottom: 0.2rem;
     border-radius: 0 2px 2px 0;
@@ -3366,7 +3411,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-tree-loaded-soc {
     font-family: 'Courier New', monospace;
-    font-size: 0.55rem;
+    font-size: 0.66rem;
     background: #dbeafe;
     color: #1d4ed8;
     padding: 0.1rem 0.35rem;
@@ -3384,7 +3429,7 @@ def _inject_studio_styles() -> None:
     border-left: 3px solid #f59e0b;
     padding: 0.25rem 0.6rem;
     font-family: 'Courier New', monospace;
-    font-size: 0.58rem;
+    font-size: 0.70rem;
     letter-spacing: 0.05em;
     color: #78350f;
     border-radius: 0 2px 2px 0;
@@ -3453,7 +3498,7 @@ def _inject_studio_styles() -> None:
   }
   .sal-intent-pill-desc {
     font-family: 'Courier New', monospace;
-    font-size: 0.62rem;
+    font-size: 0.70rem;
     letter-spacing: 0.03em;
     line-height: 1.4;
     opacity: 0.8;
@@ -3508,7 +3553,7 @@ def _inject_studio_styles() -> None:
     font-size: clamp(1.8rem, 5vw, 3.2rem);
     font-weight: 900;
     letter-spacing: 0.12em;
-    color: rgba(29, 78, 216, 0.045);
+    color: rgba(29, 78, 216, 0.08);
     text-transform: uppercase;
     white-space: nowrap;
     writing-mode: vertical-rl;
@@ -3545,10 +3590,10 @@ def _inject_studio_styles() -> None:
   .sal-header-flank-right .sal-flank-text { align-items: flex-start; text-align: left; }
   .sal-flank-text span {
     font-family: 'Courier New', 'Lucida Console', monospace;
-    font-size: clamp(0.42rem, 0.8vw, 0.56rem);
+    font-size: clamp(0.62rem, 0.9vw, 0.72rem);
     font-weight: 700;
     letter-spacing: 0.1em;
-    color: #64748b;
+    color: #475569;
     text-transform: uppercase;
     white-space: normal;
     word-break: break-word;
@@ -4599,7 +4644,7 @@ def _render_bundle_staging_area() -> None:
     # ── Section header (always visible) ──────────────────────────────────
     count_label = f"{len(bundle)} ROLE{'S' if len(bundle) != 1 else ''} QUEUED" if bundle else "EMPTY"
     st.markdown(
-        f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;font-weight:800;'
+        f'<div style="font-family:\'Courier New\',monospace;font-size:0.72rem;font-weight:800;'
         f'color:#93c5fd;letter-spacing:0.14em;padding:0.6rem 0 0.4rem;'
         f'border-top:1px solid #1d4ed844;border-bottom:1px solid #1d4ed844;margin-bottom:0.75rem">'
         f'&#9632; DEPLOYMENT ROSTER &nbsp;&#9670;&nbsp; MANIFEST REVIEW &nbsp;&#9670;&nbsp; {count_label}'
@@ -4609,13 +4654,6 @@ def _render_bundle_staging_area() -> None:
 
     # ── Empty state ───────────────────────────────────────────────────────
     if not bundle:
-        st.markdown(
-            '<div style="background:#04112e;border:1.5px solid #1d4ed822;border-radius:6px;'
-            'padding:2rem;text-align:center;color:#334155;font-size:0.85rem">'
-            'No roles queued &mdash; browse the registry above and add roles to your bundle.'
-            '</div>',
-            unsafe_allow_html=True,
-        )
         return
 
     # ── Role cards — 3-column grid ────────────────────────────────────────
@@ -5026,7 +5064,7 @@ def _render_intent_router() -> None:
             f'<span class="sal-intent-banner-sep">◆</span>'
             f'<span style="color:{_focus_c}">Focused on: {_match_str}</span>'
             f'<span class="sal-intent-banner-sep">◆</span>'
-            f'<span style="color:{_hint_c};font-size:0.6rem">Click active path to reset</span>'
+            f'<span style="color:{_hint_c};font-size:0.70rem">Click active path to reset</span>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -5186,57 +5224,124 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
 
     # ── SAL Command Interface — greeting at the top ───────────────────────────
     _vault_active = bool(st.session_state.get("vault_only", False))
-    _scope_label  = "PRIVATE VAULT \u25c6 RESTRICTED" if _vault_active else "GLOBAL REGISTRY \u25c6 1,095 ROLES"
-    _scope_color  = "#c4b5fd" if _vault_active else "#93c5fd"
+    _scope_label  = "PRIVATE\u00a0VAULT\u00a0\u25c6\u00a0RESTRICTED" if _vault_active else "GLOBAL\u00a0REGISTRY\u00a0\u25c6\u00a01,095\u00a0ROLES"
+    _scope_color  = "#c4b5fd" if _vault_active else "#22c55e"
     st.markdown(
         f'<div class="sal-search-anchor"></div>'
         f'<div class="sal-cmd-hdr">'
         f'  <span class="sal-cmd-live-dot"></span>'
         f'  <span class="sal-cmd-live-txt">LIVE</span>'
         f'  <span class="sal-cmd-sep">·</span>'
-        f'  <span class="sal-cmd-title">SAL COMMAND INTERFACE</span>'
+        f'  <span class="sal-cmd-title">COMMAND</span>'
         f'  <span class="sal-cmd-sep">·</span>'
-        f'  <span class="sal-cmd-stat">22 DIVISIONS</span>'
-        f'  <span class="sal-cmd-sep">◆</span>'
-        f'  <span style="color:{_scope_color};font-weight:700">{_scope_label}</span>'
-        f'  <span class="sal-cmd-sep">◆</span>'
-        f'  <span class="sal-cmd-stat">O∗NET FEDERAL REGISTRY</span>'
+        f'  <span style="color:{_scope_color};font-weight:800;font-size:0.68rem">{_scope_label}</span>'
+        f'  <span style="margin-left:auto;color:#1e3a5f;font-size:0.65rem">O∗NET FEDERAL REGISTRY</span>'
         f'</div>'
-        '<div class="sal-cmd-prompt">'
-        '  <span class="sal-cmd-caret">▸</span>'
-        '  <span>ENTER QUERY — job title · SOC code · skill · natural language · capability</span>'
-        '</div>'
-        '<div class="sal-cmd-subnote">'
-        '  <span><strong>SEARCH READY</strong> · Ask in plain English or use an SOC code for exact routing</span>'
-        '  <span><strong>CURRENT SCOPE</strong> · Results honor your active registry access mode</span>'
-        '</div>',
+        f'<div class="sal-cmd-hero">'
+        f'  <span class="sal-cmd-hero-q">What are you building today?</span>'
+        f'  <span class="sal-cmd-hero-hint">SOC-mapped occupational registry · agent logic blueprints · MCP execution standards</span>'
+        f'</div>'
+        f'<div class="sal-cmd-trust-strip">'
+        f'  <span class="sal-trust-item"><strong>1,095</strong> VERIFIED ROLES</span>'
+        f'  <span class="sal-trust-item"><strong>22</strong> DIVISIONS</span>'
+        f'  <span class="sal-trust-item">O∗NET FEDERAL DATA</span>'
+        f'  <span class="sal-trust-item">MCP‑READY</span>'
+        f'  <span class="sal-trust-item">FREE ACCESS</span>'
+        f'</div>',
         unsafe_allow_html=True,
     )
     query = st.text_input(
         "SAL Command Interface",
         key="sal_unified_query",
-        placeholder="e.g. \u201cFind me a data scientist with ML skills\u201d or \u201c15-1252\u201d or \u201cBright Outlook roles in healthcare\u201d\u2026",
+        placeholder="What agent are you building today?",
         label_visibility="collapsed",
     )
     search_btn = st.button(
-        "\u26a1\u00a0\u00a0DISPATCH\u00a0TO\u00a0REGISTRY",
+        "SEARCH THE REGISTRY →",
         type="primary",
         use_container_width=True,
         key="sal_search_btn",
     )
-    # Quick-action chip bar
     st.markdown(
-        '<div class="sal-cmd-chips">'
-        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0TITLE</span>'
-        '  <span class="sal-chip">\u25c8\u00a0SOC\u00a0CODE</span>'
-        '  <span class="sal-chip sal-chip-bright">\u2605\u00a0BRIGHT\u00a0OUTLOOK</span>'
-        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0SKILL</span>'
-        '  <span class="sal-chip">\u25c8\u00a0BY\u00a0SECTOR</span>'
-        '  <span class="sal-chip">\u25c8\u00a0BUNDLE\u00a0EXPORT</span>'
-        '  <span class="sal-chip sal-chip-vault">\u25c8\u00a0VAULT\u00a0ACCESS</span>'
+        '<div class="sal-cta-note">'
+        'No signup required · Federal occupational data · Agentic deployment-ready'
         '</div>',
         unsafe_allow_html=True,
     )
+    # Rotating placeholder + gold button injection JS
+    _stc.html(
+        """<script>
+        (function() {
+          var doc = window.parent.document;
+
+          // Rotating placeholder
+          var phrases = [
+            "What agent are you building today?",
+            "Download an agent to replace a work function...",
+            "Who are you hiring? Enter an occupation or SOC code...",
+            "Agentic systems — what role do you need filled?",
+            "The future of work is here · what digital employee do you need?",
+            "Occupation to agent — search by title, skill, or sector...",
+            "Digital employees · the future of work · 1,095 roles ready to deploy..."
+          ];
+          var idx = 0;
+          function rotate() {
+            var inputs = doc.querySelectorAll('[data-testid="stTextInput"] input');
+            if (inputs.length > 0 && doc.activeElement !== inputs[0]) {
+              inputs[0].setAttribute("placeholder", phrases[idx % phrases.length]);
+              idx++;
+            }
+          }
+          rotate();
+          setInterval(rotate, 4000);
+
+          // Gold search button: inject <style> + tag button by text
+          var STYLE_ID = 'sal-search-gold-style';
+          if (!doc.getElementById(STYLE_ID)) {
+            var s = doc.createElement('style');
+            s.id = STYLE_ID;
+            s.textContent = [
+              '.sal-gold-btn {',
+              '  background: linear-gradient(135deg,#c9a227 0%,#a37a10 55%,#7a5a08 100%) !important;',
+              '  color: #0a0700 !important;',
+              '  border: none !important;',
+              '  border-top: 1px solid rgba(245,224,112,0.25) !important;',
+              '  font-family: "Courier New",monospace !important;',
+              '  font-size: 0.88rem !important;',
+              '  font-weight: 900 !important;',
+              '  letter-spacing: 0.20em !important;',
+              '  border-radius: 0 0 12px 12px !important;',
+              '  text-shadow: 0 1px 0 rgba(255,240,100,0.18) !important;',
+              '  box-shadow: 0 4px 22px rgba(201,162,39,0.22),0 12px 28px rgba(2,8,16,0.35) !important;',
+              '  transition: all 0.22s !important;',
+              '}',
+              '.sal-gold-btn:hover {',
+              '  background: linear-gradient(135deg,#f5e070 0%,#c9a227 55%,#a37a10 100%) !important;',
+              '  box-shadow: 0 0 36px rgba(201,162,39,0.35),0 14px 32px rgba(2,8,16,0.4) !important;',
+              '  transform: translateY(-2px) !important;',
+              '}'
+            ].join('');
+            doc.head.appendChild(s);
+          }
+          function tagSearchBtn() {
+            doc.querySelectorAll('button').forEach(function(b) {
+              if (b.textContent && b.textContent.indexOf('REGISTRY') !== -1
+                  && b.textContent.indexOf('SEARCH') !== -1) {
+                b.classList.add('sal-gold-btn');
+              }
+            });
+          }
+          tagSearchBtn();
+          setTimeout(tagSearchBtn, 300);
+          setTimeout(tagSearchBtn, 1200);
+          setInterval(tagSearchBtn, 3000);
+        })();
+        </script>""",
+        height=1,
+        scrolling=False,
+    )
+
+
     if search_btn and query.strip():
         vault_only = bool(st.session_state.get("vault_only", False))
         reply = sal_intent_hub_reply(
@@ -5248,8 +5353,10 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             st.session_state["active_soc"] = str(reply["selected_soc"])
     last = st.session_state.get("sal_hub_last_reply")
     if last:
-        # Bug 2 fix: escape raw text first, then promote **bold** and `code` to HTML
-        _raw_last = str(last)[:400]
+        # Unescape any HTML entities the LLM returned (e.g. &#x27; → '),
+        # then re-escape for safe HTML embedding, then promote **bold** and `code`.
+        import html as _html_mod
+        _raw_last = _html_mod.unescape(str(last)[:400])
         _esc_last  = escape(_raw_last)
         _esc_last  = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', _esc_last)
         _esc_last  = re.sub(
@@ -5457,7 +5564,7 @@ def _render_col_engine(*, client, browse_mode: bool) -> None:
         st.markdown(
             f'<div style="background:#071540;border:1.5px solid #1d4ed8;border-radius:6px;'
             f'padding:0.75rem 0.85rem 0.5rem;margin-top:0.6rem">'
-            f'<div style="font-family:\'Courier New\',monospace;font-size:0.62rem;'
+            f'<div style="font-family:\'Courier New\',monospace;font-size:0.72rem;'
             f'font-weight:800;color:#93c5fd;letter-spacing:0.14em;border-bottom:1px solid #1d4ed855;'
             f'padding-bottom:0.35rem;margin-bottom:0.5rem">'
             f'&#9632; DEPLOYMENT ROSTER &nbsp;&#9670;&nbsp; {len(bundle)} ROLE{"S" if len(bundle)!=1 else ""} COMMISSIONED</div>',
