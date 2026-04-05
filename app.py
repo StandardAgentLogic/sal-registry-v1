@@ -4965,32 +4965,39 @@ def _render_ai_sales_floor() -> None:
             # Embed the sector seal
             s_bg, s_ring, s_acc, s_icon = _seal_lookup.get(prefix, ("#071540", "#1d4ed8", "#93c5fd", ""))
             seal_svg = _notary_seal_svg(prefix, label, s_bg, s_ring, s_acc, s_icon)
-            seal_sm  = seal_svg.replace('width="190" height="190"', 'width="72" height="72"')
+            seal_md  = seal_svg.replace('width="190" height="190"', 'width="88" height="88"')
             with col:
                 st.markdown(
                     f'<div class="sal-floor-card" style="background:{bg};border:1px solid {bar}44;'
                     f'border-bottom:none;border-radius:6px 6px 0 0;'
-                    f'padding:0.55rem 0.65rem 0.55rem;cursor:pointer;position:relative;overflow:hidden;'
-                    f'text-align:center;transition:opacity 0.25s,filter 0.25s;{_dim_style}{_ring_style}">'
+                    f'padding:0.55rem 0.65rem 0.65rem;cursor:pointer;position:relative;overflow:hidden;'
+                    f'transition:opacity 0.25s,filter 0.25s;{_dim_style}{_ring_style}">'
                     # progress bar strip at bottom
                     f'<div style="position:absolute;bottom:0;left:0;height:3px;'
                     f'width:{pct}%;background:{bar};border-radius:0 0 0 0;"></div>'
-                    # seal centered at top
-                    f'<div style="display:flex;justify-content:center;margin-bottom:0.3rem">'
-                    f'{seal_sm}</div>'
+                    # horizontal layout: seal left, text right
+                    f'<div style="display:flex;align-items:center;gap:0.65rem;">'
+                    # left: seal
+                    f'<div style="flex-shrink:0;">{seal_md}</div>'
+                    # right: text block
+                    f'<div style="flex:1;min-width:0;">'
                     # risk badge
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.65rem;'
-                    f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.18rem">'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:0.68rem;'
+                    f'font-weight:800;color:{bar};letter-spacing:0.12em;margin-bottom:0.2rem">'
                     f'{risk}</div>'
                     # sector label
-                    f'<div style="font-weight:800;font-size:0.88rem;color:{txt};'
-                    f'line-height:1.2;margin-bottom:0.12rem">{escape(label)}</div>'
+                    f'<div style="font-weight:800;font-size:1.05rem;color:{txt};'
+                    f'line-height:1.2;margin-bottom:0.18rem;white-space:nowrap;overflow:hidden;'
+                    f'text-overflow:ellipsis">{escape(label)}</div>'
                     # big pct
-                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.55rem;'
-                    f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.12rem">'
-                    f'{pct}<span style="font-size:0.75rem;font-weight:600">%</span></div>'
-                    f'<div style="font-size:0.68rem;color:{txt}cc;line-height:1.4">'
+                    f'<div style="font-family:\'Courier New\',monospace;font-size:1.8rem;'
+                    f'font-weight:900;color:{bar};line-height:1;margin-bottom:0.15rem">'
+                    f'{pct}<span style="font-size:0.8rem;font-weight:600">%</span></div>'
+                    # tech tags
+                    f'<div style="font-size:0.72rem;color:{txt}cc;line-height:1.4">'
                     f'{escape(tech)}</div>'
+                    f'</div>'  # end text block
+                    f'</div>'  # end flex row
                     f'</div>',
                     unsafe_allow_html=True,
                 )
