@@ -5000,10 +5000,13 @@ def _render_ai_sales_floor() -> None:
                     st.session_state["active_soc"] = ""
 
     # Wire card clicks → hidden buttons so the whole card is clickable
-    st.markdown("""<script>
+    # Uses _stc.html (st.components.v1.html) which actually executes JS,
+    # unlike st.markdown which strips <script> tags.
+    _stc.html("""<script>
     (function() {
       function wire() {
-        var cards = document.querySelectorAll('.sal-floor-card:not([data-wired])');
+        var doc = window.parent.document;
+        var cards = doc.querySelectorAll('.sal-floor-card:not([data-wired])');
         cards.forEach(function(card) {
           card.dataset.wired = '1';
           var el = card;
@@ -5023,7 +5026,7 @@ def _render_ai_sales_floor() -> None:
       setTimeout(wire, 300);
       setTimeout(wire, 900);
     })();
-    </script>""", unsafe_allow_html=True)
+    </script>""", height=0, scrolling=False)
 
 
 def _render_col_authority(*, client, browse_mode: bool) -> None:
