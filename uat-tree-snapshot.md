@@ -1,0 +1,198 @@
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - alert [ref=e10]:
+      - generic:
+        - generic
+    - heading "Registry metrics" [level=5] [ref=e16]
+    - generic [ref=e18]:
+      - generic [ref=e22]:
+        - paragraph [ref=e25]: Verified Agent Roles
+        - paragraph [ref=e28]: "1095"
+      - generic [ref=e32]:
+        - paragraph [ref=e35]: Standardized Logic Library
+        - paragraph [ref=e38]: "922"
+    - generic [ref=e41]:
+      - paragraph [ref=e44]: Safety Guardrails
+      - paragraph [ref=e47]: "88"
+    - generic [ref=e49]:
+      - paragraph [ref=e53]: Library scope
+      - radiogroup "Library scope" [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]
+    - paragraph [ref=e65]: 🔒 PRIVATE VAULT ACCESS
+    - generic [ref=e68]:
+      - generic:
+        - textbox "Vault key" [ref=e69]:
+          - /placeholder: Download an agent to replace a work function...
+        - button "Show password text" [ref=e70] [cursor=pointer]
+    - button "Unlock" [ref=e75] [cursor=pointer]:
+      - paragraph [ref=e79]: Unlock
+    - separator [ref=e84]
+    - button "◼ Dark Mode" [ref=e87] [cursor=pointer]:
+      - paragraph [ref=e91]: ◼ Dark Mode
+    - group [ref=e94]:
+      - generic "keyboard_arrow_right Environment" [ref=e95] [cursor=pointer]:
+        - generic
+  - generic [ref=e3]:
+    - banner [ref=e100]:
+      - generic [ref=e102]:
+        - button "keyboard_double_arrow_right" [ref=e105] [cursor=pointer]
+        - generic [ref=e108]
+    - generic [ref=e126]:
+      - generic:
+        - iframe
+      - generic [ref=e131]:
+        - generic [ref=e132]
+        - generic [ref=e158]
+      - generic [ref=e194]:
+        - generic [ref=e196]
+        - generic [ref=e204]
+        - generic [ref=e207]
+      - textbox "SAL Command Interface" [ref=e219]:
+        - /placeholder: What agent are you building today?
+        - text: data scientist
+      - button "SEARCH THE REGISTRY →" [ref=e222] [cursor=pointer]:
+        - paragraph [ref=e226]: SEARCH THE REGISTRY →
+      - generic [ref=e231]: No signup required · Federal occupational data · Agentic deployment-ready
+      - iframe [ref=e233]:
+        
+      - generic [ref=e238]:
+        - generic [ref=e2937]: ◆ TRANSMISSION RECEIVED · SAL REGISTRY RESPONSE
+        - strong [ref=e2938]: "Global Registry match:"
+        - code [ref=e2939]: 15-2051.00
+        - text: — The SOC code 15-2051.00 specifically identifies Data Scientists, which directly aligns with the request for a data scientist role. This category is projected to experience significant growth, indicating a strong demand for professionals in this field. While the other candidates are related roles within the data science domain, they do not match the specifi
+      - generic [ref=e2944]:
+        - generic [ref=e2945]: ◈ WHAT ARE YOU BUILDING?
+        - generic [ref=e2946]: Select a path to focus the registry on your mission
+      - generic [ref=e2948]:
+        - generic [ref=e2950]
+        - generic [ref=e2967]
+        - generic [ref=e2984]
+        - generic [ref=e3001]
+        - generic [ref=e3018]
+      - generic [ref=e3038]:
+        - generic [ref=e3039]: ⚡ AI DISPLACEMENT SALES FLOOR ⚡
+        - generic [ref=e3040]: SECTORS RANKED BY AUTOMATION EXPOSURE ◆ CLICK TO BROWSE
+      - generic [ref=e651]:
+        - generic [ref=e653]
+        - generic [ref=e754]
+        - generic [ref=e854]
+      - generic [ref=e954]:
+        - generic [ref=e956]
+        - generic [ref=e1063]
+        - generic [ref=e1164]
+      - generic [ref=e1266]:
+        - generic [ref=e1268]
+        - generic [ref=e1371]
+        - generic [ref=e1470]
+      - generic [ref=e1573]:
+        - generic [ref=e1575]
+        - generic [ref=e1677]
+        - generic [ref=e1777]
+      - generic [ref=e1883]:
+        - generic [ref=e1885]
+        - generic [ref=e1985]
+        - generic [ref=e2090]
+      - generic [ref=e2192]:
+        - generic [ref=e2194]
+        - generic [ref=e2296]
+        - generic [ref=e2404]
+      - generic [ref=e2506]:
+        - generic [ref=e2508]
+        - generic [ref=e3234]
+        - generic [ref=e3342]
+      - generic [ref=e3446]:
+        - generic [ref=e3453] [cursor=pointer]
+        - button "Browse Management" [ref=e3543] [cursor=pointer]
+      - generic:
+        - iframe
+      - generic [ref=e2621]:
+        - generic [ref=e2622]: O∗NET SOC DIRECTORY
+        - generic [ref=e2623]: 22 DIVISIONS · 1,095 ROLES
+      - generic [ref=e3552]:
+        - generic [ref=e3554]: SPEC LOADED
+        - generic [ref=e3555]: Data Scientists and Mathematical Science Occupations, All Other
+        - code [ref=e3556]: 15-2051.00
+      - generic [ref=e3561]:
+        - generic [ref=e3562]: "◈ FILTERING:"
+        - generic [ref=e3563]: "\"data scientist\""
+        - generic [ref=e3564]: — clear search to show all 1,095 roles
+      - generic [ref=e3569]:
+        - generic [ref=e3570]: O∗NET MAJOR GROUPS
+        - generic [ref=e3571]: Collapsible tree · SOC prefix folders · select a role to load the logic specification
+      - group [ref=e2659]:
+        - generic "keyboard_arrow_right [11] Management" [ref=e3572] [cursor=pointer]
+      - group [ref=e2669]:
+        - generic "keyboard_arrow_right [13] Finance" [ref=e3573] [cursor=pointer]
+      - group [ref=e2679]:
+        - generic "keyboard_arrow_right [15] Tech" [ref=e3574] [cursor=pointer]
+      - group [ref=e2689]:
+        - generic "keyboard_arrow_right [17] Engineering" [ref=e3575] [cursor=pointer]
+      - group [ref=e2699]:
+        - generic "keyboard_arrow_right [19] Science" [ref=e3576] [cursor=pointer]
+      - group [ref=e2709]:
+        - generic "keyboard_arrow_right [23] Legal" [ref=e3577] [cursor=pointer]
+      - group [ref=e2722]:
+        - generic "keyboard_arrow_right [25] Education" [ref=e3578] [cursor=pointer]
+      - group [ref=e2732]:
+        - generic "keyboard_arrow_right [27] Arts & Media" [ref=e3579] [cursor=pointer]
+      - group [ref=e2742]:
+        - generic "keyboard_arrow_right [29] Healthcare" [ref=e3580] [cursor=pointer]
+      - group [ref=e2752]:
+        - generic "keyboard_arrow_right [31] Healthcare Support" [ref=e3581] [cursor=pointer]
+      - group [ref=e2762]:
+        - generic "keyboard_arrow_right [33] Protective Service" [ref=e3582] [cursor=pointer]
+      - group [ref=e2772]:
+        - generic "keyboard_arrow_right [35] Food Service" [ref=e3583] [cursor=pointer]
+      - group [ref=e2782]:
+        - generic "keyboard_arrow_right [37] Building & Grounds" [ref=e3584] [cursor=pointer]
+      - group [ref=e2792]:
+        - generic "keyboard_arrow_right [39] Personal Care" [ref=e3585] [cursor=pointer]
+      - group [ref=e2802]:
+        - generic "keyboard_arrow_right [41] Sales" [ref=e3586] [cursor=pointer]
+      - group [ref=e2812]:
+        - generic "keyboard_arrow_right [43] Office & Admin" [ref=e3587] [cursor=pointer]
+      - group [ref=e2822]:
+        - generic "keyboard_arrow_right [45] Farming/Fishing" [ref=e3588] [cursor=pointer]
+      - group [ref=e2833]:
+        - generic "keyboard_arrow_right [47] Construction" [ref=e3589] [cursor=pointer]
+      - group [ref=e2843]:
+        - generic "keyboard_arrow_right [49] Maintenance" [ref=e3590] [cursor=pointer]
+      - group [ref=e3593]:
+        - generic "keyboard_arrow_right [51] Production" [ref=e3594] [cursor=pointer]
+      - group [ref=e3603]:
+        - generic "keyboard_arrow_right [53] Transportation" [ref=e3604] [cursor=pointer]
+      - group [ref=e3613]:
+        - generic "keyboard_arrow_right [55] Military" [ref=e3614] [cursor=pointer]
+      - generic [ref=e3782]:
+        - generic
+        - generic [ref=e3783]
+      - button "✖ Decommission Role" [ref=e3903] [cursor=pointer]:
+        - paragraph [ref=e3907]: ✖ Decommission Role
+      - generic [ref=e3913]: ■ DEPLOYMENT ROSTER ◆ 1 ROLE COMMISSIONED
+      - generic [ref=e3915]:
+        - generic [ref=e3922]
+        - button "✕" [ref=e3930] [cursor=pointer]
+      - generic [ref=e3939]: 🔒 Export Deployment Manifest — unlocked after checkout
+      - paragraph [ref=e3940]:
+        - link "⚡ Proceed to Checkout → 1 Role" [ref=e3941] [cursor=pointer]:
+          - /url: https://buy.stripe.com/9B69ATd6O7jI49Sdp6f3a00?prefilled_quantity=1
+      - generic [ref=e3946]: ■ DEPLOYMENT ROSTER ◆ MANIFEST REVIEW ◆ 1 ROLE QUEUED
+      - generic [ref=e3950]:
+        - generic [ref=e3955]
+        - button "Remove" [ref=e3961] [cursor=pointer]
+      - button "Clear Roster" [ref=e3976] [cursor=pointer]:
+        - paragraph [ref=e3980]: Clear Roster
+      - generic [ref=e3989]: ◆ RECOMMENDED FOR ROSTER · ROLES THAT COMPLETE THIS MANIFEST
+      - generic [ref=e3991]:
+        - generic [ref=e3993]
+        - generic [ref=e4010]
+        - generic [ref=e4027]
+      - generic [ref=e4047]:
+        - generic [ref=e4048]: THE SAL STANDARD ◆ VERIFYING AI AGENTS WORLDWIDE
+        - generic [ref=e4049]
+        - generic [ref=e4051]
+      - button "☆ APPLY FOR SAL CERTIFICATION →" [ref=e3768] [cursor=pointer]:
+        - paragraph [ref=e3772]: ☆ APPLY FOR SAL CERTIFICATION →
+      - generic [ref=e4060]:
+        - generic [ref=e4061]: 1,095 Verified Roles
+        - text: SAL v1.1.0 | Standard Agent Logic Registry | Federal-Grade Precision

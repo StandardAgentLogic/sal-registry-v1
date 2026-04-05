@@ -54,7 +54,10 @@
       "mcp__plugin_playwright_playwright__browser_click",
       "Bash(python3 -:*)",
       "Bash(python3 -c \":*)",
-      "WebFetch(domain:cxl.com)"
+      "WebFetch(domain:cxl.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_type",
+      "mcp__plugin_playwright_playwright__browser_wait_for"
     ]
   }
 }
