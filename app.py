@@ -5268,9 +5268,6 @@ def _render_col_authority(*, client, browse_mode: bool) -> None:
             unsafe_allow_html=True,
         )
 
-    # ── SAL Certification CTA ─────────────────────────────────────────────────
-    _render_sal_seal_cta()
-
     # ── Intent Router ─────────────────────────────────────────────────────────
     _render_intent_router()
 
@@ -5959,6 +5956,9 @@ def main() -> None:
 
     # ── Agent Bundle Staging Area — full-width below both columns ────────────
     _render_bundle_staging_area()
+
+    # ── SAL Certification CTA — secondary offer, bottom of page ──────────────
+    _render_sal_seal_cta()
 
     # ── Footer ──
     verified_count = counts.get("agent_logic", 1095)
